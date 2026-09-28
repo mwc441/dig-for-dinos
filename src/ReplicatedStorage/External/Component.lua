@@ -1,0 +1,1 @@
+return require(game:GetService("ReplicatedStorage"):WaitForChild("External"):WaitForChild("ComponentPackages"):WaitForChild("Component"))
