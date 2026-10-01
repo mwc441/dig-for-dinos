@@ -971,6 +971,7 @@ function UtilFunctions.DoFlyingDebris(
 		-- Visual consistency
 		debrisPart.Color = part.Color
 		debrisPart.Material = part.Material
+		debrisPart.MaterialVariant = part.MaterialVariant
 		debrisPart.Reflectance = part.Reflectance
 		debrisPart.Transparency = part.Transparency
 
