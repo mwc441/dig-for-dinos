@@ -8,7 +8,9 @@ local PurchaseSound = Sounds:WaitForChild("Purchase")
 local ErrorSound = Sounds:WaitForChild("Error")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local PlotLevelDef = require(ReplicatedConfigs:WaitForChild("PlotLevelDef"))
+local PartUtil = require(Utils:WaitForChild("Part"))
 local Signal = require(External:WaitForChild("Signal"))
 local Knit = require(External:WaitForChild("Knit"))
 
@@ -99,6 +101,16 @@ end
 
 function PlotController:GetPlot()
 	return self:GetPlotForPlayer(Player)
+end
+
+function PlotController:IsInsidePlot()
+	local plot = self:GetPlot()
+	local floor = plot and plot.Instance:FindFirstChild("_Floor")
+	if not floor or not floor:IsA("BasePart") then
+		return false
+	end
+
+	return PartUtil.new(floor):PlayerIsInsidePartArea(Player, math.huge)
 end
 
 function PlotController:GetCapacityForPlayer(player)

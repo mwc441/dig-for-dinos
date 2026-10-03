@@ -239,8 +239,11 @@ function Dinosaur:_SetupHitbox()
 
 	local cframe, size = self._Model:GetBoundingBox()
 
+	local minX = math.min(size.X, 10)
+	local minZ = math.min(size.Z, 20)
+
 	local newPart = Instance.new("Part")
-	newPart.Size = size
+	newPart.Size = Vector3.new(minX, 100, minZ)
 	newPart.CFrame = cframe
 	newPart.Transparency = 1
 	newPart.CanCollide = false
@@ -251,10 +254,36 @@ function Dinosaur:_SetupHitbox()
 	newPart.Name = "_Hitbox"
 	newPart.Parent = self._Model
 
+	local connection
 	newPart.Touched:Connect(function(hitPart)
-		local character = hitPart.Parent
-		local player = Players:GetPlayerFromCharacter(character)
-		if player ~= Player then return end
+		local character = Player.Character
+		if not character then return end
+
+		local rootPart = character.PrimaryPart
+		if rootPart ~= hitPart then return end
+
+		if connection then
+			connection:Disconnect()
+		end
+
+		connection = RunService.Heartbeat:Connect(function()
+			local parts = newPart:GetTouchingParts()
+			local isTouchingPrimary = false
+			for _, part in pairs(parts) do
+				if part == rootPart then
+					isTouchingPrimary = true
+					break
+				end
+			end
+
+			if not isTouchingPrimary then
+				connection:Disconnect()
+				connection = nil
+				return
+			end
+
+			self.Touched:Fire()
+		end)
 
 		self.Touched:Fire()
 	end)

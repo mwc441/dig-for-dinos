@@ -134,6 +134,8 @@ function DinosaurController:_CreateDinosaur(replicationData)
 	local dinosaur = Dinosaur.new(replicationData)
 
 	dinosaur.Touched:Connect(function()
+		if not self._PlotController:IsInsidePlot() then return end
+
 		local income = dinosaur:GetIncome()
 		if income <= 0 then return end
 
