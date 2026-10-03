@@ -1,18 +1,16 @@
 local ItemDef = {}
 
 ItemDef.Categories = {
+	Shovel = "Shovel"
 }
 
 ItemDef.Table = {
-	-- ["WoodenSword"] = {
-	-- 	Name = "Wooden Sword",
-	-- 	Icon = "rbxassetid://102841819641010",
-	-- 	Category = ItemDef.Categories.Equips,
-	-- 	EquipType = EquipTypesEnum.Sword,
-	-- 	Damage = 10,
-	-- 	Radius = 5.5,
-	-- 	DisplayChance = 2 -- 1 / 2
-	-- }
+	["WoodenShovel"] = {
+		Name = "Wooden Shovel",
+		Icon = "",
+		Category = ItemDef.Categories.Shovel,
+		DigPower = 10
+	}
 }
 
 function ItemDef.GetAllItems()

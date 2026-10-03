@@ -4,6 +4,7 @@ return {
 	Boosts = "Boosts",
 	Settings = "Settings",
 	Inventory = "Inventory",
+	Dinosaurs = "Dinosaurs",
 	Equips = "Equips",
 	Timers = "Timers",
 	Codes = "Codes"

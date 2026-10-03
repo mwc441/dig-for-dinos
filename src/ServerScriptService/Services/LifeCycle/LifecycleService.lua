@@ -18,6 +18,9 @@ local LifecycleService = {
 	_ServerBoostsService = nil,
 	_CharacterService = nil,
 	_InventoryService = nil,
+	_EquipService = nil,
+	_DigService = nil,
+	_BonePileService = nil,
 	_TimerService = nil,
 	_LeaderboardService = nil,
 	_AdminService = nil,
@@ -26,6 +29,7 @@ local LifecycleService = {
 	_OrbService = nil,
 	_TutorialService = nil,
 	_PlotService = nil,
+	_DinosaurService = nil,
 	_InitializedPlayers = {},
 	PlayerHasFullyInitialized = Signal.new()
 }
@@ -40,6 +44,9 @@ function LifecycleService:KnitStart()
 	self._ServerBoostsService = require(ServerScriptService.Services.Boosts.ServerBoostsService)
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
+	self._EquipService = require(ServerScriptService.Services.Equips.EquipService)
+	self._DigService = require(ServerScriptService.Services.Digging.DigService)
+	self._BonePileService = require(ServerScriptService.Services.Digging.BonePileService)
 	self._TimerService = require(ServerScriptService.Services.Timers.TimerService)
 	self._LeaderboardService = require(ServerScriptService.Services.Leaderboards.LeaderboardService)
 	self._AdminService = require(ServerScriptService.Services.Admin.AdminService)
@@ -48,6 +55,7 @@ function LifecycleService:KnitStart()
 	self._OrbService = require(ServerScriptService.Services.Orbs.OrbService)
 	self._TutorialService = require(ServerScriptService.Services.Tutorial.TutorialService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
+	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
 
 	task.defer(function()
 		Players.PlayerAdded:Connect(function(player)
@@ -88,6 +96,9 @@ function LifecycleService:_PlayerAdded(player)
 	end
 
 	self._InventoryService:OnPlayerAdded(player) -- Keep on top of others
+	self._BonePileService:OnPlayerAdded(player)
+	self._EquipService:OnPlayerAdded(player)
+	self._DigService:OnPlayerAdded(player)
 	self._PlayerStatsService:OnPlayerAdded(player)
 	self._PolicyService:OnPlayerAdded(player)
 	self._IapService:OnPlayerAdded(player)
@@ -103,6 +114,7 @@ function LifecycleService:_PlayerAdded(player)
 	self._TutorialService:OnPlayerAdded(player)
 	self._TimerService:OnPlayerAdded(player)
 	self._PlotService:OnPlayerAdded(player)
+	self._DinosaurService:OnPlayerAdded(player)
 
 	if Players:IsAncestorOf(player) then
 		self._InitializedPlayers[player] = true
@@ -118,12 +130,15 @@ function LifecycleService:_PlayerRemoving(player)
 	self._PolicyService:OnPlayerRemoving(player)
 	self._FriendsService:OnPlayerRemoving(player)
 	self._ServerBoostsService:OnPlayerRemoving(player)
+	self._BonePileService:OnPlayerRemoving(player)
 	self._CharacterService:OnPlayerRemoving(player)
+	self._DigService:OnPlayerRemoving(player)
 	self._TimerService:OnPlayerRemoving(player)
 	self._LeaderboardService:OnPlayerRemoving(player)
 	self._PremiumService:OnPlayerRemoving(player)
 	self._OrbService:OnPlayerRemoving(player)
 	self._TutorialService:OnPlayerRemoving(player)
+	self._DinosaurService:OnPlayerRemoving(player)
 	self._PlotService:OnPlayerRemoving(player)
 	self._InventoryService:OnPlayerRemoving(player) -- Keep below others
 
