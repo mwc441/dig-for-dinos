@@ -12,6 +12,7 @@ local MoneySound = Sounds:WaitForChild("MoneySound")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
 local Dinosaur = require(script.Parent.Dinosaur)
 local Knit = require(External:WaitForChild("Knit"))
@@ -24,7 +25,8 @@ local DinosaurController = {
 	_DinosaurService = nil,
 	_DinosaurData = {},
 	_Dinosaurs = {},
-	_LocalDinosaursHidden = false
+	_LocalDinosaursHidden = false,
+	DinosaurDataUpdatedSignal = Signal.new()
 }
 
 function DinosaurController:KnitInit()
@@ -106,11 +108,12 @@ end
 function DinosaurController:_UpdateDinosaurs(dinosaurData)
 	if not TableUtils.Equals(self._DinosaurData, dinosaurData) then
 		self._DinosaurData = dinosaurData
+		self.DinosaurDataUpdatedSignal:Fire()
 	end
 end
 
 function DinosaurController:GetMaxDinosaurs()
-	return 5 -- TODO: MAX CAPACITY UPGRADES?
+	return self._PlotController:GetCapacity()
 end
 
 function DinosaurController:GetDinosaurCount()

@@ -13,7 +13,8 @@ local STATS_KEY = DataKeys.PlayerStats
 local STATS_DEFAULT_DATA = {
 	Version = 1,
 	Stats = {
-		[PlayerStatsEnum.Cash] = 0
+		[PlayerStatsEnum.Cash] = 0,
+		[PlayerStatsEnum.PlotLevel] = 1
 	}
 }
 

@@ -133,7 +133,7 @@ function DinosaurService:_ClaimIncomeForPlayer(player, guid)
 end
 
 function DinosaurService:GetMaxDinosaursForPlayer(player)
-	return 5
+	return self._PlotService:GetCapacityForPlayer(player)
 end
 
 function DinosaurService:_GenerateGuid()

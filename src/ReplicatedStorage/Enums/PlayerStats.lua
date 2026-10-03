@@ -1,5 +1,6 @@
 return {
 	RobuxSpent = "RobuxSpent",
 	TimePlayed = "TimePlayed",
-	Cash = "Cash"
+	Cash = "Cash",
+	PlotLevel = "PlotLevel"
 }

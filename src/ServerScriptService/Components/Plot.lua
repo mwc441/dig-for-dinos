@@ -76,6 +76,7 @@ function Plot:SetLevel(level : number)
 	if level == self._Level then return end
 
 	self._Level = level
+	self.Instance:SetAttribute("Level", self._Level)
 
 	self:_UpdateFence()
 end
@@ -170,6 +171,7 @@ function Plot:_UpdateFence()
 end
 
 function Plot:_CleanOwner()
+	self:SetLevel(1)
 	self._Trove:Remove(self._OwnerTrove)
 	self._OwnerTrove = nil
 end
