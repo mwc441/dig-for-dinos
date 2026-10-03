@@ -8,6 +8,7 @@ local Assets = ReplicatedStorage:WaitForChild("Assets")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local PlotOwnerGui = ClientAssets:WaitForChild("PlotOwnerGui")
 local Component = require(External:WaitForChild("Component"))
+local Signal = require(External:WaitForChild("Signal"))
 local Trove = require(External:WaitForChild("Trove"))
 
 local Plot = Component.new({
@@ -21,6 +22,8 @@ function Plot:Construct()
 	self._Trove = Trove.new()
 	self._OwnerTrove = nil
 	self._Owner = nil :: Player?
+	self.OwnerChanged = Signal.new()
+	self._Trove:Add(self.OwnerChanged)
 
 	self._Trove:Connect(self.Instance:GetAttributeChangedSignal("Owner"), function()
 		self:_UpdateOwner()
@@ -44,6 +47,8 @@ function Plot:_UpdateOwner()
 	if self._Owner then
 		self:_BuildOwner()
 	end
+
+	self.OwnerChanged:Fire(self._Owner)
 end
 
 function Plot:_BuildOwner()
