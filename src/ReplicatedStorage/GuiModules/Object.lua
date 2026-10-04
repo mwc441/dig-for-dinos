@@ -62,6 +62,7 @@ function GuiObject.new(instance)
 			self:StopTextShine()
 			self:StopRepeatMakeShine()
 			self:StopRepeatGrowAndFade()
+			self:StopRepeatGrowFrameOutlineAndFade()
 			self:StopRotateRainbow()
 			self:StopShake()
 			self:StopWiggle()
@@ -914,8 +915,7 @@ function GuiObject:GrowFrameOutlineAndFade(scaleMultiplier: number?, tweenInfo: 
 	clone.Position = frame.Position
 	clone.Size = self._ObjectOriginalSize
 	clone.Rotation = frame.Rotation
-	clone.BackgroundColor3 = frame.BackgroundColor3
-	clone.BackgroundTransparency = frame.BackgroundTransparency
+	clone.BackgroundTransparency = 1
 	clone.BorderSizePixel = 0
 	clone.ZIndex = zIndex or math.max(frame.ZIndex - 1, 0)
 	clone.Visible = true
@@ -957,8 +957,25 @@ function GuiObject:GrowFrameOutlineAndFade(scaleMultiplier: number?, tweenInfo: 
 	return clone
 end
 
-function GuiObject:GrowOutlineAndFade(scaleMultiplier: number?, tweenInfo: TweenInfo?, zIndex: number?)
-	return GuiObject.GrowFrameOutlineAndFade(self._Object, scaleMultiplier, tweenInfo, zIndex)
+function GuiObject:RepeatGrowFrameOutlineAndFade(scaleMultiplier: number?, tweenInfo: TweenInfo?, zIndex: number?, interval: number)
+	self:StopRepeatGrowFrameOutlineAndFade()
+
+	local accumulator = interval
+	self._RepeatGrowFrameOutlineHeartbeat = RunService.Heartbeat:Connect(function(dt)
+		accumulator += dt
+
+		while accumulator >= interval do
+			accumulator -= interval
+			self:GrowFrameOutlineAndFade(scaleMultiplier, tweenInfo, zIndex)
+		end
+	end)
+end
+
+function GuiObject:StopRepeatGrowFrameOutlineAndFade()
+	if self._RepeatGrowFrameOutlineHeartbeat then
+		self._RepeatGrowFrameOutlineHeartbeat:Disconnect()
+		self._RepeatGrowFrameOutlineHeartbeat = nil
+	end
 end
 
 function GuiObject:RepeatGrowAndFade(scaleMultiplier: number, tweenInfo: TweenInfo, interval: number)
