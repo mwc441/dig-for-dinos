@@ -5,6 +5,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
+local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local DataKeys = require(ServerScriptService.ServerConfigs.DataKeys)
 local DinosaurDef = require(ReplicatedConfigs.DinosaurDef)
@@ -31,6 +32,7 @@ local DinosaurService = {
 	_ReplicationService = nil,
 	_TimeService = nil,
 	_RewardsService = nil,
+	_BoostsService = nil,
 	_Dinosaurs = {}
 }
 
@@ -42,6 +44,7 @@ function DinosaurService:KnitStart()
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._TimeService = require(ServerScriptService.Services.Time.TimeService)
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
+	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 
 	self._TimeService.TimeUpdatedSignal:Connect(function()
 		for _, player in pairs(self._LifecycleService:GetInitializedPlayers()) do
@@ -85,6 +88,8 @@ end
 function DinosaurService:_AddToDinoIncomes(player)
 	local dinosaurData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
 
+	local cashBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.CashBoost)
+
 	local totalCash = 0
 	local incomesPerDino = {}
 	for _, placedDino in pairs(dinosaurData.Placed) do
@@ -98,7 +103,7 @@ function DinosaurService:_AddToDinoIncomes(player)
 
 		local scale : number = placedDino.Scale or 1
 
-		local income = math.round(info.Income * scale)
+		local income = math.round(info.Income * scale * cashBoost)
 
 		totalCash += income
 		dinosaur:AddToIncome(income)
