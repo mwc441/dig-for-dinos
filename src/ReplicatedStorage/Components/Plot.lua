@@ -15,6 +15,7 @@ local BigNumbers = require(External:WaitForChild("BigNumbers"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local PlotLevelDef = require(ReplicatedConfigs:WaitForChild("PlotLevelDef"))
 local Transparency = require(Utils:WaitForChild("Transparency"))
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Component = require(External:WaitForChild("Component"))
 local Signal = require(External:WaitForChild("Signal"))
 local Trove = require(External:WaitForChild("Trove"))
@@ -148,6 +149,15 @@ function Plot:_UpdateLevelGui()
 	else
 		self._LevelGui.LevelButton.AmountFrame.AmountText.Text = "MAX"
 	end
+end
+
+function Plot:ThrobLevelSign()
+	if self._SignThrob then
+		self._SignThrob()
+		self._SignThrob = nil
+	end
+
+	self._SignThrob = UtilFunctions.ThrobModel(self.Instance.LevelSign, 1.15, 0.25)
 end
 
 function Plot:_CleanOwner()

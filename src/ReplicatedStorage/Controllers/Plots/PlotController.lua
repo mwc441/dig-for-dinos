@@ -63,6 +63,7 @@ function PlotController:_WatchPlot(plotComponent)
 		self._PlotService:LevelUp():andThen(function(success)
 			if success then
 				PurchaseSound:Play()
+				plotComponent:ThrobLevelSign()
 			else
 				ErrorSound:Play()
 				self._RewardsController:AnnounceMessage("❌ Can't afford!", Color3.fromRGB(255, 0, 0))

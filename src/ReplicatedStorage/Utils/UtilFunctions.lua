@@ -1033,6 +1033,7 @@ function UtilFunctions.ThrobModel(model : Model, scaleMultiplier, totalTime)
 	end)
 
 	return function()
+		model:ScaleTo(currentScale)
 		currentConnect:Disconnect()
 		task.cancel(currTask)
 	end
