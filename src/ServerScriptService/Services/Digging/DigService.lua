@@ -7,7 +7,9 @@ local Assets = ReplicatedStorage:WaitForChild("Assets")
 local ShovelModels : Folder = Assets:WaitForChild("Shovels")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
@@ -28,6 +30,7 @@ local DigService = {
 	},
 	_EquipService = nil,
 	_InventoryService = nil,
+	_CommerceService = nil,
 	_CharacterService = nil,
 	_ReplicationService = nil,
 	_LifecycleService = nil,
@@ -40,6 +43,7 @@ local DigService = {
 function DigService:KnitStart()
 	self._EquipService = require(ServerScriptService.Services.Equips.EquipService)
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
+	self._CommerceService = require(ServerScriptService.Services.Commerce.CommerceService)
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
@@ -126,28 +130,66 @@ function DigService:_GetDigCooldown(player)
 end
 
 function DigService:_IsShovel(itemId)
+	if type(itemId) ~= "string" then
+		return false
+	end
+
 	local itemInfo = ItemDef.GetItemInfo(itemId)
 	return itemInfo ~= nil and itemInfo.Category == ItemDef.Categories.Shovel
 end
 
+function DigService:EquipShovelForPlayer(player, shovelId)
+	if not self:_IsShovel(shovelId)
+		or self._InventoryService:GetQuantityOfItemForPlayer(player, shovelId) <= 0 then
+		return false
+	end
+
+	return self._EquipService:EquipItemForPlayer(player, SHOVEL_SLOT, shovelId)
+end
+
+function DigService:BuyShovelForPlayer(player, shovelId)
+	if not self:_IsShovel(shovelId) then
+		return false
+	end
+
+	local hasShovel = self._InventoryService:CheckPlayerInventoryForItems(player, shovelId, 1)
+	if hasShovel then return end
+
+	local shovelInfo = ItemDef.GetItemInfo(shovelId)
+	if not self._CommerceService:Spend(player, PlayerStatsEnum.Cash, shovelInfo.Cost, {
+		Sku = shovelId
+	}) then
+		return false
+	end
+
+	self._InventoryService:AddItemsToPlayersInventory(player, {
+		[shovelId] = 1
+	})
+	if self:EquipShovelForPlayer(player, shovelId) then
+		self:_EquipShovelToolForPlayer(player)
+	end
+
+	return true
+end
+
 function DigService:_EnsureShovelForPlayer(player)
-	local inventoryItems = self._InventoryService:GetInventoryItemsForPlayer(player) or {}
 	local equippedShovelId = self._EquipService:GetEquippedItemForPlayer(player, SHOVEL_SLOT)
 	local hasEquippedOwnedShovel = self:_IsShovel(equippedShovelId)
-		and (inventoryItems[equippedShovelId] or 0) > 0
+		and self._InventoryService:GetQuantityOfItemForPlayer(player, equippedShovelId) > 0
 
 	if hasEquippedOwnedShovel then
 		return equippedShovelId
 	end
 
-	if (inventoryItems[DEFAULT_SHOVEL_ID] or 0) <= 0 then
+	if self._InventoryService:GetQuantityOfItemForPlayer(player, DEFAULT_SHOVEL_ID) <= 0 then
 		self._InventoryService:AddItemsToPlayersInventory(player, {
 			[DEFAULT_SHOVEL_ID] = 1
 		})
 	end
 
-	self._EquipService:EquipItemForPlayer(player, SHOVEL_SLOT, DEFAULT_SHOVEL_ID)
-	return DEFAULT_SHOVEL_ID
+	if self:EquipShovelForPlayer(player, DEFAULT_SHOVEL_ID) then
+		return DEFAULT_SHOVEL_ID
+	end
 end
 
 function DigService:_GetShovelHandle(shovelModel)
@@ -313,6 +355,24 @@ function DigService:_UpdateShovelToolForPlayer(player, character)
 	end
 end
 
+function DigService:_EquipShovelToolForPlayer(player)
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then
+		return false
+	end
+
+	self:_UpdateShovelToolForPlayer(player, character)
+
+	local shovelTool = self._ShovelTools[player]
+	if not shovelTool or shovelTool.Parent ~= player:FindFirstChild("Backpack") then
+		return false
+	end
+
+	humanoid:EquipTool(shovelTool)
+	return true
+end
+
 function DigService:_DigForPlayer(player, dirtGuid, predictionId)
 	if typeof(dirtGuid) ~= "number" then
 		return false
@@ -381,6 +441,14 @@ end
 
 function DigService.Client:Dig(player, dirtGuid, predictionId)
 	return self.Server:_DigForPlayer(player, dirtGuid, predictionId)
+end
+
+function DigService.Client:EquipShovel(player, shovelId)
+	return self.Server:EquipShovelForPlayer(player, shovelId)
+end
+
+function DigService.Client:BuyShovel(player, shovelId)
+	return self.Server:BuyShovelForPlayer(player, shovelId)
 end
 
 return DigService

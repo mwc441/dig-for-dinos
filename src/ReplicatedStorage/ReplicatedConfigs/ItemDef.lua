@@ -7,9 +7,20 @@ ItemDef.Categories = {
 ItemDef.Table = {
 	["WoodenShovel"] = {
 		Name = "Wooden Shovel",
-		Icon = "",
+		Icon = "rbxassetid://100328595204040",
+		GradientColor = ColorSequence.new(Color3.fromRGB(181, 119, 71), Color3.fromRGB(97, 55, 31)),
 		Category = ItemDef.Categories.Shovel,
-		DigPower = 10
+		DigPower = 10,
+		Cost = 50
+	},
+
+	["StoneShovel"] = {
+		Name = "Stone Shovel",
+		Icon = "rbxassetid://116114753745600",
+		GradientColor = ColorSequence.new(Color3.fromRGB(190, 193, 196), Color3.fromRGB(92, 96, 101)),
+		Category = ItemDef.Categories.Shovel,
+		DigPower = 25,
+		Cost = 100
 	}
 }
 
