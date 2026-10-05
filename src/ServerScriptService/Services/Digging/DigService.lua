@@ -263,8 +263,9 @@ function DigService:_CreateShovelTool(player, itemId)
 
 	local shovelTool = Instance.new("Tool")
 	shovelTool.Name = itemInfo.Name
-	shovelTool.ToolTip = "Dig dig dig!"
+	shovelTool.ToolTip = itemInfo.Name or ""
 	shovelTool.RequiresHandle = false
+	shovelTool.TextureId = itemInfo.Icon
 	shovelTool.CanBeDropped = false
 	shovelTool:SetAttribute("ItemId", itemId)
 
