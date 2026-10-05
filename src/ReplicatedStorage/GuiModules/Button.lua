@@ -406,7 +406,7 @@ function Button:_InitializeHover()
 		end
 
 		if self._MakeIconScaleWhenHovered and self._Icon and trueVisibility and (not self._HeldDown) then
-			self._Icon:TweenScale(self._IconHoverScale, 0.3)
+			self._Icon:TweenScale(self._IconHoverScale, TweenInfo.new(0.3))
 		end
 
 		if self._MakeWiggleWhenHovered and trueVisibility and (not self._HeldDown) then
@@ -458,7 +458,7 @@ function Button:_InitializeHover()
 		end
 
 		if self._MakeIconScaleWhenHovered and self._Icon then
-			self._Icon:TweenScale(1, biggerTime)
+			self._Icon:TweenScale(1, TweenInfo.new(biggerTime))
 		end
 	end))
 
@@ -661,7 +661,7 @@ function Button:SetIcon(guiObject)
 
 	if self._Icon then
 		self._Icon:StopRotateLeftRight()
-		self._Icon:TweenScale(1, 0.1)
+		self._Icon:TweenScale(1, TweenInfo.new(0.1))
 	end
 
 	if not guiObject then

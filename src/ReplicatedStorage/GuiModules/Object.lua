@@ -675,9 +675,7 @@ function GuiObject:StopRepeatMakeShine()
 	end
 end
 
-function GuiObject:TweenScale(scale, time)
-	local tweenInfo = TweenInfo.new(time)
-
+function GuiObject:TweenScale(scale, tweenInfo)
 	local tween = TweenService:Create(self._Object, tweenInfo, {
 		Size = UDim2.new(
 			self._ObjectOriginalSize.X.Scale * scale,
