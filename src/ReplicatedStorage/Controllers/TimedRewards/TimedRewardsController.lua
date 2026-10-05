@@ -6,6 +6,7 @@ local Player = Players.LocalPlayer
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Sounds = Assets:WaitForChild("Sounds")
 local GroupRewardSound = Sounds:WaitForChild("GroupReward")
+local ErrorSound = Sounds:WaitForChild("Error")
 local External = ReplicatedStorage:WaitForChild("External")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
@@ -60,6 +61,8 @@ function TimedRewardsController:_ClaimGroupReward()
 	self._TimedRewardsService:ClaimGroupReward():andThen(function(success)
 		if success then
 			GroupRewardSound:Play()
+		else
+			ErrorSound:Play()
 		end
 	end)
 end
