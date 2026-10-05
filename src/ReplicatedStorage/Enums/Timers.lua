@@ -1,4 +1,5 @@
 return {
 	FirstLogin = "FirstLogin",
-	LastLogout = "LastLogout"
+	LastLogout = "LastLogout",
+	GroupReward = "GroupReward"
 }

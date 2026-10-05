@@ -38,6 +38,9 @@ return {
 			IsAdmin = true
 		}
 	},
+	GroupReward = {
+		[PlayerStatsEnum.Cash] = 5000 -- TODO: BALANCE
+	},
 
 	MaxFriends = 5,
 	CashPerFriend = 0.05,
