@@ -30,6 +30,7 @@ local LifecycleService = {
 	_TutorialService = nil,
 	_PlotService = nil,
 	_DinosaurService = nil,
+	_RebirthService = nil,
 	_InitializedPlayers = {},
 	PlayerHasFullyInitialized = Signal.new()
 }
@@ -56,6 +57,7 @@ function LifecycleService:KnitStart()
 	self._TutorialService = require(ServerScriptService.Services.Tutorial.TutorialService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
+	self._RebirthService = require(ServerScriptService.Services.Rebirths.RebirthService)
 
 	task.defer(function()
 		Players.PlayerAdded:Connect(function(player)
@@ -96,6 +98,7 @@ function LifecycleService:_PlayerAdded(player)
 	end
 
 	self._InventoryService:OnPlayerAdded(player) -- Keep on top of others
+	self._RebirthService:OnPlayerAdded(player)
 	self._BonePileService:OnPlayerAdded(player)
 	self._EquipService:OnPlayerAdded(player)
 	self._DigService:OnPlayerAdded(player)

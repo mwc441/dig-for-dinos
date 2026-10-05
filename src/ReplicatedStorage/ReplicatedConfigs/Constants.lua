@@ -39,6 +39,9 @@ return {
 		}
 	},
 
+	MaxFriends = 5,
+	CashPerFriend = 0.05,
+
 	RarityColors = {
 		[RaritiesEnum.Common] = Color3.fromRGB(190, 190, 190),
 		[RaritiesEnum.Uncommon] = Color3.fromRGB(84, 255, 118),

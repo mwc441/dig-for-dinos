@@ -28,6 +28,7 @@ local RewardsService = {
 	_PlayerStatsService = nil,
 	_IapService = nil,
 	_AnalyticsService = nil,
+	_RebirthService = nil,
 	CrossServerMessageReceived = Signal.new()
 }
 
@@ -44,6 +45,7 @@ function RewardsService:KnitStart()
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
 	self._AnalyticsService = require(ServerScriptService.Services.Analytics.AnalyticsService)
+	self._RebirthService = require(ServerScriptService.Services.Rebirths.RebirthService)
 
 	MessagingService:SubscribeAsync("CrossServerMessage", function(message)
 		local text = message.Data.Message
@@ -133,6 +135,8 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 		)
 	elseif IapDef.GetIapInfo(rewardType) then
 		self._IapService:RewardPlayer(player, rewardType)
+	elseif rewardType == "SkipRebirth" then
+		self._RebirthService:GiveRebirthToPlayer(player)
 	end
 
 	if showReward then

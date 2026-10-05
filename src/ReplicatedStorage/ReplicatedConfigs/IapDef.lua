@@ -17,6 +17,17 @@ local IapDef = {}
 
 IapDef.Table = {
 	-- DEV PRODUCTS
+	[IapsEnum.SkipRebirth] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3716349307
+		},
+		Name = "Skip Rebirth",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = true
+		},
+		Giftable = true
+	}
 
 	-- GAMEPASSES
 	-- [IapsEnum.Bricks2xGamepass] = {

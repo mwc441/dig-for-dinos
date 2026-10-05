@@ -20,7 +20,7 @@ local BoostsDef = {}
 
 BoostsDef.Table = {
 	[BoostsEnum.FriendBoost] = {
-		Type = BoostTypesEnum.BricksEarnedBoost,
+		Type = BoostTypesEnum.CashBoost,
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Friends Boost",
 		Icon = "rbxassetid://117403910373763",
@@ -28,13 +28,13 @@ BoostsDef.Table = {
 		AmountFunction = function(level: number)
 			if level <= 0 then return 1 end
 
-			return 1 + (level * Constants.FriendBricksBonus)
+			return 1 + (level * Constants.CashPerFriend)
 		end,
 		MaxLevel = Constants.MaxFriends
 	},
 
 	[BoostsEnum.RobloxPlusBoost] = {
-		Type = BoostTypesEnum.BricksEarnedBoost,
+		Type = BoostTypesEnum.CashBoost,
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Roblox Plus",
 		Icon = "rbxassetid://75220652271430",
@@ -46,6 +46,15 @@ BoostsDef.Table = {
 		end,
 		MaxLevel = 4
 	},
+
+	[BoostsEnum.RebirthCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Rebirth Cash",
+		AmountFunction = function(level: number)
+			return 1 + (level * 0.5)
+		end
+	}
 
 	-- GAMEPASSES
 }
