@@ -57,6 +57,10 @@ function ShovelUiController:KnitStart()
 		self:_UpdateUi()
 	end)
 
+	self._InventoryController.InventoryUpdatedSignal:Connect(function()
+		self:_UpdateUi()
+	end)
+
 	self:_SetupUi()
 
 	self:_SetupShovelStores()
