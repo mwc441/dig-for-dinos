@@ -411,8 +411,21 @@ function LeaderboardService:_UpdateLeaderstatsForPlayer(player)
 		cashValue = newStringValue
 	end
 
+	local rebirthString = "🔁 Rebirths"
+	local rebirthValue = leaderstatsFolder:FindFirstChild(rebirthString)
+	if not rebirthValue then
+		local newNumberValue = Instance.new("NumberValue")
+		newNumberValue.Name = rebirthString
+		newNumberValue.Parent = leaderstatsFolder
+
+		rebirthValue = newNumberValue
+	end
+
 	local cash = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.Cash) or 0
 	cashValue.Value = BigNumbers.GetNumberDisplay(cash)
+
+	local rebirths = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.Rebirths) or 0
+	rebirthValue.Value = rebirths
 end
 
 return LeaderboardService
