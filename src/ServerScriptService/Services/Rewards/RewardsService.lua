@@ -8,6 +8,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
+local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Signal = require(External:WaitForChild("Signal"))
 local Knit = require(External:WaitForChild("Knit"))
@@ -29,6 +30,7 @@ local RewardsService = {
 	_IapService = nil,
 	_AnalyticsService = nil,
 	_RebirthService = nil,
+	_InventoryService = nil,
 	CrossServerMessageReceived = Signal.new()
 }
 
@@ -46,6 +48,7 @@ function RewardsService:KnitStart()
 	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
 	self._AnalyticsService = require(ServerScriptService.Services.Analytics.AnalyticsService)
 	self._RebirthService = require(ServerScriptService.Services.Rebirths.RebirthService)
+	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
 
 	MessagingService:SubscribeAsync("CrossServerMessage", function(message)
 		local text = message.Data.Message
@@ -133,6 +136,10 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 			analyticsTable.Sku,
 			analyticsTable.CustomFields
 		)
+	elseif ItemDef.GetItemInfo(rewardType) then
+		self._InventoryService:AddItemsToPlayersInventory(player, {
+			[rewardType] = reward
+		})
 	elseif IapDef.GetIapInfo(rewardType) then
 		self._IapService:RewardPlayer(player, rewardType)
 	elseif rewardType == "SkipRebirth" then
