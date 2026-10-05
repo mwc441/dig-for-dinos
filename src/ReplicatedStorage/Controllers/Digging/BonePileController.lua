@@ -36,6 +36,7 @@ local Device = require(External:WaitForChild("Device"))
 
 local START_BONE_SCALE = 0.1
 local ASSEMBLY_EXPLOSION_TIME = 0.5
+local MAX_PLACEMENT_DISTANCE = 50
 
 local BonePileController = {
 	Name = "BonePileController",
@@ -150,6 +151,12 @@ function BonePileController:_GetPlacementRay(camera: Camera)
 end
 
 function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale)
+	local function isWithinPlacementDistance(position)
+		local character = Player.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		return rootPart and (position - rootPart.Position).Magnitude <= MAX_PLACEMENT_DISTANCE
+	end
+
 	self._BuildTrove:Add(RunService.Heartbeat:Connect(function()
 		local plot = self._PlotController:GetPlot()
 		if not plot then return end
@@ -166,7 +173,7 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale)
 		raycastParams.FilterDescendantsInstances = { floor }
 
 		local raycastResult : RaycastResult = Workspace:Raycast(ray.Origin, ray.Direction.Unit * 500, raycastParams)
-		if raycastResult then
+		if raycastResult and isWithinPlacementDistance(raycastResult.Position) then
 			self._PlacementCFrame = CFrame.new(raycastResult.Position)
 
 			if not self._PlacementModel then
@@ -209,8 +216,20 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale)
 		end
 	end))
 
-	self._BuildTrove:Add(UserInputService.InputEnded:Connect(function(input)
+	self._BuildTrove:Add(UserInputService.InputEnded:Connect(function(input, gpe)
+		if gpe then return end
+
 		if (input.UserInputType == Enum.UserInputType.MouseButton1) or (input.KeyCode == Enum.KeyCode.ButtonR2) then
+			if self._PlacementCFrame and isWithinPlacementDistance(self._PlacementCFrame.Position) then
+				self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, self._PlacementCFrame)
+			end
+		end
+	end))
+
+	self._BuildTrove:Add(UserInputService.TouchTap:Connect(function(_, gpe)
+		if gpe then return end
+
+		if self._PlacementCFrame and isWithinPlacementDistance(self._PlacementCFrame.Position) then
 			self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, self._PlacementCFrame)
 		end
 	end))
