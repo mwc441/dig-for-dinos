@@ -85,6 +85,26 @@ function DinosaurService:OnPlayerRemoving(player)
 	self._Dinosaurs[player] = nil
 end
 
+function DinosaurService:_GetIncomeForPlacedDino(placedDino, cashBoost)
+	local info = DinosaurDef.GetDinosaurInfo(placedDino.Id)
+	if not info then return end
+
+	local scale : number = placedDino.Scale or 1
+	return math.round(info.Income * scale * cashBoost)
+end
+
+function DinosaurService:GetIncomePerSecondForPlayer(player)
+	local dinosaurData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
+	local cashBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.CashBoost)
+	local totalIncome = 0
+
+	for _, placedDino in pairs(dinosaurData.Placed) do
+		totalIncome += self:_GetIncomeForPlacedDino(placedDino, cashBoost) or 0
+	end
+
+	return totalIncome
+end
+
 function DinosaurService:_AddToDinoIncomes(player)
 	local dinosaurData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
 
@@ -93,17 +113,12 @@ function DinosaurService:_AddToDinoIncomes(player)
 	local totalCash = 0
 	local incomesPerDino = {}
 	for _, placedDino in pairs(dinosaurData.Placed) do
-		local dinosaurId = placedDino.Id
-		local info = DinosaurDef.GetDinosaurInfo(dinosaurId)
-		if not info then continue end
+		local income = self:_GetIncomeForPlacedDino(placedDino, cashBoost)
+		if not income then continue end
 
 		local guid = placedDino.Guid
 		local dinosaur = self:_GetDinosaurByGuid(player, guid)
 		if not dinosaur then continue end
-
-		local scale : number = placedDino.Scale or 1
-
-		local income = math.round(info.Income * scale * cashBoost)
 
 		totalCash += income
 		dinosaur:AddToIncome(income)

@@ -30,6 +30,7 @@ local LifecycleService = {
 	_TutorialService = nil,
 	_PlotService = nil,
 	_DinosaurService = nil,
+	_OfflineRewardsService = nil,
 	_RebirthService = nil,
 	_InitializedPlayers = {},
 	PlayerHasFullyInitialized = Signal.new()
@@ -57,6 +58,7 @@ function LifecycleService:KnitStart()
 	self._TutorialService = require(ServerScriptService.Services.Tutorial.TutorialService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
+	self._OfflineRewardsService = require(ServerScriptService.Services.OfflineRewards.OfflineRewardsService)
 	self._RebirthService = require(ServerScriptService.Services.Rebirths.RebirthService)
 
 	task.defer(function()
@@ -115,9 +117,10 @@ function LifecycleService:_PlayerAdded(player)
 	self._RewardsService:OnPlayerAdded(player)
 	self._OrbService:OnPlayerAdded(player)
 	self._TutorialService:OnPlayerAdded(player)
-	self._TimerService:OnPlayerAdded(player)
+	self._OfflineRewardsService:OnPlayerAdded(player)
 	self._PlotService:OnPlayerAdded(player)
 	self._DinosaurService:OnPlayerAdded(player)
+	self._TimerService:OnPlayerAdded(player)
 
 	if Players:IsAncestorOf(player) then
 		self._InitializedPlayers[player] = true
@@ -136,6 +139,7 @@ function LifecycleService:_PlayerRemoving(player)
 	self._BonePileService:OnPlayerRemoving(player)
 	self._CharacterService:OnPlayerRemoving(player)
 	self._DigService:OnPlayerRemoving(player)
+	self._OfflineRewardsService:OnPlayerRemoving(player)
 	self._TimerService:OnPlayerRemoving(player)
 	self._LeaderboardService:OnPlayerRemoving(player)
 	self._PremiumService:OnPlayerRemoving(player)

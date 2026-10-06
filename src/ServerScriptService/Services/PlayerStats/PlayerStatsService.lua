@@ -14,6 +14,7 @@ local STATS_DEFAULT_DATA = {
 	Version = 1,
 	Stats = {
 		[PlayerStatsEnum.Cash] = 0,
+		[PlayerStatsEnum.OfflineEarnings] = 0,
 		[PlayerStatsEnum.Rebirths] = 0,
 		[PlayerStatsEnum.PlotLevel] = 1
 	}
