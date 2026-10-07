@@ -25,11 +25,13 @@ function HudUiController:KnitInit()
 	local mainGui = Player:WaitForChild("PlayerGui"):WaitForChild("Main")
 	local hud = mainGui:WaitForChild("Hud")
 	local cashFrame = hud:WaitForChild("CashFrame")
+	local rightSideButtons = hud:WaitForChild("RightSideButtons")
 
 	self._Gui = {
 		CashFrame = cashFrame,
 		CashPlusButton = cashFrame:WaitForChild("PlusButton"),
-		CashTemplate = cashFrame:WaitForChild("Templates"):WaitForChild("CashTemplate")
+		CashTemplate = cashFrame:WaitForChild("Templates"):WaitForChild("CashTemplate"),
+		RightSideButtons = rightSideButtons
 	}
 	self._Gui.CashTemplate.Visible = false
 
@@ -153,6 +155,22 @@ function HudUiController:_ShowCashEarned(amount)
 			cashTemplate:Destroy()
 		end)
 	end)
+end
+
+function HudUiController:HideRightSideButtons()
+	local showTrack = require(self._Gui.RightSideButtons.Animator).Open
+	local hideTrack = require(self._Gui.RightSideButtons.Animator).Hide
+
+	showTrack:Stop()
+	hideTrack:Play()
+end
+
+function HudUiController:ShowRightSideButtons()
+	local showTrack = require(self._Gui.RightSideButtons.Animator).Open
+	local hideTrack = require(self._Gui.RightSideButtons.Animator).Hide
+
+	hideTrack:Stop()
+	showTrack:Play()
 end
 
 return HudUiController

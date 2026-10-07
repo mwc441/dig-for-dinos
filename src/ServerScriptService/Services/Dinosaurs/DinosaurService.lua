@@ -242,8 +242,155 @@ function DinosaurService:PlaceDinosaur(player, bonePileGuid, groundCFrame)
 	return true
 end
 
+function DinosaurService:UnequipDinosaur(player, guid)
+	if type(guid) ~= "string" then return false end
+
+	local dinosaurs = self._Dinosaurs[player]
+	if not dinosaurs then return false end
+
+	local savedData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
+	if not savedData then return false end
+
+	local placedIndex
+	local placedEntry
+	for index, entry in ipairs(savedData.Placed) do
+		if entry.Guid == guid then
+			placedIndex = index
+			placedEntry = entry
+			break
+		end
+	end
+	if not placedEntry then return false end
+
+	local inventoryGuid = self._InventoryService:AddNonFungibleItemForPlayer(player, placedEntry.Id, {
+		Scale = BonePileUtils.GetScale(placedEntry.Scale)
+	})
+	if not inventoryGuid then return false end
+
+	self:_ClaimIncomeForPlayer(player, guid)
+	table.remove(savedData.Placed, placedIndex)
+	self._DataService:SetPlayerData(player, DINOSAURS_KEY, savedData)
+
+	for index = #dinosaurs, 1, -1 do
+		local dinosaur = dinosaurs[index]
+		if dinosaur:GetGuid() == guid then
+			dinosaur:Destroy()
+			table.remove(dinosaurs, index)
+			break
+		end
+	end
+
+	return true
+end
+
+function DinosaurService:EquipBestDinosaurs(player)
+	local dinosaurs = self._Dinosaurs[player]
+	if not dinosaurs then return false end
+
+	local savedData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
+	local inventoryItems = self._InventoryService:GetNonFungiblesForPlayer(player)
+	if not savedData or not inventoryItems then return false end
+
+	local plot = self._PlotService:GetPlotForPlayer(player)
+	local floor = plot and plot.Instance:FindFirstChild("_Floor")
+	if not floor or not floor:IsA("BasePart") then return false end
+
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid.Health <= 0 then return false end
+
+	local candidates = {}
+	for _, entry in ipairs(savedData.Placed) do
+		local info = DinosaurDef.GetDinosaurInfo(entry.Id)
+		if not info then return false end
+
+		local scale = BonePileUtils.GetScale(entry.Scale)
+		table.insert(candidates, {
+			Guid = entry.Guid,
+			Scale = scale,
+			Income = (info.Income or 0) * scale,
+			Placed = true
+		})
+	end
+
+	for _, item in ipairs(inventoryItems) do
+		local info = DinosaurDef.GetDinosaurInfo(item.ItemId)
+		if info then
+			local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+			table.insert(candidates, {
+				Guid = item.Guid,
+				Scale = scale,
+				Income = (info.Income or 0) * scale,
+				Placed = false
+			})
+		end
+	end
+
+	table.sort(candidates, function(a, b)
+		if a.Income ~= b.Income then
+			return a.Income > b.Income
+		end
+		if a.Placed ~= b.Placed then
+			return a.Placed
+		end
+		return a.Guid < b.Guid
+	end)
+
+	local bestGuids = {}
+	local toPlace = {}
+	for index = 1, math.min(#candidates, self:GetMaxDinosaursForPlayer(player)) do
+		local candidate = candidates[index]
+		bestGuids[candidate.Guid] = true
+		if not candidate.Placed then
+			table.insert(toPlace, candidate)
+		end
+	end
+
+	local toUnequip = {}
+	for _, entry in ipairs(savedData.Placed) do
+		if not bestGuids[entry.Guid] then
+			table.insert(toUnequip, entry)
+		end
+	end
+
+	if #toUnequip == 0 and #toPlace == 0 then return true end
+
+	for _, entry in ipairs(toUnequip) do
+		if not self:UnequipDinosaur(player, entry.Guid) then
+			return false
+		end
+	end
+
+	local random = Random.new()
+
+	local function getRandomPlacementCFrame(scale)
+		local size = floor.Size
+		local margin = math.min(4 * scale, size.X / 2, size.Z / 2)
+		local halfX = size.X / 2 - margin
+		local halfZ = size.Z / 2 - margin
+		local x = halfX > 0 and random:NextNumber(-halfX, halfX) or 0
+		local z = halfZ > 0 and random:NextNumber(-halfZ, halfZ) or 0
+		local yaw = random:NextNumber(-math.pi, math.pi)
+		return floor.CFrame * CFrame.new(x, size.Y / 2, z) * CFrame.Angles(0, yaw, 0)
+	end
+
+	local allPlaced = true
+	for _, candidate in ipairs(toPlace) do
+		local cframe = getRandomPlacementCFrame(candidate.Scale)
+		if not self:PlaceDinosaur(player, candidate.Guid, cframe) then
+			allPlaced = false
+		end
+	end
+
+	return allPlaced
+end
+
 function DinosaurService.Client:PlaceDinosaur(player, bonePileGuid, groundCFrame)
 	return self.Server:PlaceDinosaur(player, bonePileGuid, groundCFrame)
+end
+
+function DinosaurService.Client:EquipBestDinosaurs(player)
+	return self.Server:EquipBestDinosaurs(player)
 end
 
 function DinosaurService.Client:ClaimIncome(player, dinoGuid)

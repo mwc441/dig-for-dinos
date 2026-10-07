@@ -12,6 +12,8 @@ local MoneySound = Sounds:WaitForChild("MoneySound")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
+local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
 local Dinosaur = require(script.Parent.Dinosaur)
@@ -21,6 +23,7 @@ local DinosaurController = {
 	Name = "DinosaurController",
 	_PlotController = nil,
 	_DataController = nil,
+	_InventoryController = nil,
 	_ReplicationController = nil,
 	_DinosaurService = nil,
 	_DinosaurData = {},
@@ -41,6 +44,7 @@ end
 
 function DinosaurController:KnitStart()
 	self._DataController = require(ReplicatedStorage.Controllers.Data.DataController)
+	self._InventoryController = require(ReplicatedStorage.Controllers.Inventory.InventoryController)
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
 	self._DinosaurService = Knit.GetService("DinosaurService")
@@ -118,6 +122,49 @@ end
 
 function DinosaurController:GetDinosaurCount()
 	return #(self._DinosaurData.Placed or {})
+end
+
+function DinosaurController:GetOwnedDinosaurs()
+	local dinosaurs = {}
+
+	for _, placedDinosaur in ipairs(self._DinosaurData.Placed or {}) do
+		table.insert(dinosaurs, {
+			Id = placedDinosaur.Id,
+			Guid = placedDinosaur.Guid,
+			Scale = BonePileUtils.GetScale(placedDinosaur.Scale)
+		})
+	end
+
+	for _, item in ipairs(self._InventoryController:GetNonFungibleItems()) do
+		if DinosaurDef.GetDinosaurInfo(item.ItemId) then
+			table.insert(dinosaurs, {
+				Id = item.ItemId,
+				Guid = item.Guid,
+				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+			})
+		end
+	end
+
+	return dinosaurs
+end
+
+function DinosaurController:IsDinosaurPlaced(guid)
+	for _, placedDinosaur in ipairs(self._DinosaurData.Placed or {}) do
+		if placedDinosaur.Guid == guid then
+			return true
+		end
+	end
+
+	return false
+end
+
+function DinosaurController:IsDinosaurOwned(guid)
+	if self:IsDinosaurPlaced(guid) then
+		return true
+	end
+
+	local item = self._InventoryController:GetNonFungibleItem(guid)
+	return item ~= nil and DinosaurDef.GetDinosaurInfo(item.ItemId) ~= nil
 end
 
 function DinosaurController:IsAtMaxCapacity()

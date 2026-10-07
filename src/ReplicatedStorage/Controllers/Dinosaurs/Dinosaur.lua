@@ -69,30 +69,14 @@ function Dinosaur:FireEvent(eventName, ...)
 end
 
 function Dinosaur:_LoadAnimations()
-	local model = self._Model
-	local animator = model:FindFirstChildWhichIsA("Animator", true)
-	if not animator then
-		local animationController = model:FindFirstChildWhichIsA("AnimationController", true)
-			or model:FindFirstChildWhichIsA("Humanoid", true)
-		if not animationController then
-			animationController = Instance.new("AnimationController")
-			animationController.Parent = model
-		end
-
-		animator = Instance.new("Animator")
-		animator.Parent = animationController
-	end
-
-	local idleAnimation = model:FindFirstChild("Idle")
-	if idleAnimation and idleAnimation:IsA("Animation") then
-		self._IdleTrack = animator:LoadAnimation(idleAnimation)
+	self._IdleTrack = DinosaurUtils.LoadAnimation(self._Model, "Idle")
+	if self._IdleTrack then
 		self._IdleTrack.Looped = true
 		self._IdleTrack.Priority = Enum.AnimationPriority.Idle
 	end
 
-	local walkAnimation = model:FindFirstChild("Walk")
-	if walkAnimation and walkAnimation:IsA("Animation") then
-		self._WalkTrack = animator:LoadAnimation(walkAnimation)
+	self._WalkTrack = DinosaurUtils.LoadAnimation(self._Model, "Walk")
+	if self._WalkTrack then
 		self._WalkTrack.Looped = true
 		self._WalkTrack.Priority = Enum.AnimationPriority.Movement
 	end

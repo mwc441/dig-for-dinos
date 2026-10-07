@@ -23,7 +23,8 @@ function DinosaurUtils.CreateModel(dinosaurId, scale): Model?
 	local model = template:Clone()
 	scale = BonePileUtils.GetScale(scale)
 	model:ScaleTo(scale)
-	UtilFunctions.AnchorAllDescendants(model, true)
+	UtilFunctions.AnchorAllDescendants(model, false)
+	model.PrimaryPart.Anchored = true
 	UtilFunctions.CanCollideAllDescendants(model, false)
 	UtilFunctions.CanQueryAllDescendants(model, false)
 	UtilFunctions.CanTouchAllDescendants(model, false)
@@ -38,6 +39,62 @@ function DinosaurUtils.PositionAtGround(model: Model, groundCFrame: CFrame)
 	local _, boundsSize = model:GetBoundingBox()
 	local targetBounds = groundCFrame * CFrame.new(0, boundsSize.Y / 2, 0)
 	UtilFunctions.MoveModelByBoundingBox(model, targetBounds)
+end
+
+function DinosaurUtils.LoadAnimation(model: Model, animationName: string): AnimationTrack?
+	local animation = model:FindFirstChild(animationName, true)
+	if not animation or not animation:IsA("Animation") then return end
+
+	local animator = model:FindFirstChildWhichIsA("Animator", true)
+	if not animator then
+		local animationController = model:FindFirstChildWhichIsA("AnimationController", true)
+			or model:FindFirstChildWhichIsA("Humanoid", true)
+		if not animationController then
+			animationController = Instance.new("AnimationController")
+			animationController.Parent = model
+		end
+
+		animator = Instance.new("Animator")
+		animator.Parent = animationController
+	end
+
+	return animator:LoadAnimation(animation)
+end
+
+function DinosaurUtils.CreateViewportModel(viewportFrame: ViewportFrame, dinosaurId, scale)
+	local model = DinosaurUtils.CreateModel(dinosaurId, scale)
+	if not model then return end
+
+	local worldModel = Instance.new("WorldModel")
+	worldModel.Name = "DinosaurPreview"
+	worldModel.Parent = viewportFrame
+	model:PivotTo(model:GetPivot().Rotation)
+	model.Parent = worldModel
+	local idleTrack = DinosaurUtils.LoadAnimation(model, "Idle")
+	if idleTrack then
+		idleTrack.Looped = true
+		idleTrack.Priority = Enum.AnimationPriority.Idle
+		idleTrack:Play()
+	end
+
+	local camera = Instance.new("Camera")
+	camera.CameraType = Enum.CameraType.Scriptable
+	camera.FieldOfView = 35
+	camera.Parent = viewportFrame
+	viewportFrame.CurrentCamera = camera
+
+	local function updateCamera()
+		local boundsCFrame, boundsSize = model:GetBoundingBox()
+
+		local distance = math.max(boundsSize.X, boundsSize.Y, boundsSize.Z) * 0.8
+		local cameraCFrame = boundsCFrame * CFrame.Angles(0, math.rad(30), 0) * CFrame.new(0, 0, -distance) * CFrame.Angles(0, math.rad(180), 0)
+		cameraCFrame = cameraCFrame + (boundsCFrame.LookVector * distance * 0.3)
+		camera.CFrame = cameraCFrame
+	end
+
+	updateCamera()
+
+	return worldModel, camera
 end
 
 return DinosaurUtils
