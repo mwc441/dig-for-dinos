@@ -54,6 +54,10 @@ function UpgradeService:SetUpgradeLevelForPlayer(player, upgradeId, level)
 
 	upgradeData.Upgrades[upgradeId] = level
 
+	if level <= 0 then
+		upgradeData.Upgrades[upgradeId] = nil
+	end
+
 	self._DataService:SetPlayerData(player, UPGRADES_KEY, upgradeData, true)
 
 	self:_UpdateBoostsForPlayer(player)

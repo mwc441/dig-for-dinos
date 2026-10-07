@@ -12,12 +12,14 @@ local RebirthService = {
 	Name = "RebirthService",
 	Client = {},
 	_PlayerStatsService = nil,
+	_UpgradeService = nil,
 	_BoostsService = nil,
 }
 
 function RebirthService:KnitStart()
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
+	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
 end
 
 function RebirthService:OnPlayerAdded(player)
@@ -46,6 +48,7 @@ function RebirthService:_RebirthForPlayer(player)
 	if playerCash < cost then return end
 
 	self._PlayerStatsService:SetStatValueForPlayer(player, PlayerStatsEnum.Cash, 0)
+	self._UpgradeService:SetUpgradeLevelForPlayer(player, "SpeedUpgrade", 0)
 
 	self:GiveRebirthToPlayer(player)
 
