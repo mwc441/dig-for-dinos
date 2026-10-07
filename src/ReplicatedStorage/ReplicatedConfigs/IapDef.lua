@@ -27,6 +27,18 @@ IapDef.Table = {
 			["SkipRebirth"] = true
 		},
 		Giftable = true
+	},
+
+	[IapsEnum.SpeedUpgrade] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3716788501
+		},
+		Name = "+1 Speed Level",
+		Description = "",
+		Rewards = {
+			["SpeedUpgrade"] = 1
+		},
+		Giftable = true
 	}
 
 	-- GAMEPASSES

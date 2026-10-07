@@ -1,7 +1,10 @@
 return {
 	FriendBoost = "FriendBoost",
 	RobloxPlusBoost = "RobloxPlusBoost",
-	RebirthCashBoost = "RebirthCashBoost"
+	RebirthCashBoost = "RebirthCashBoost",
 
 	-- GAMEPASSES
+
+	-- UPGRADES
+	SpeedUpgradeBoost = "SpeedUpgradeBoost"
 }

@@ -54,9 +54,19 @@ BoostsDef.Table = {
 		AmountFunction = function(level: number)
 			return 1 + (level * 0.5)
 		end
-	}
+	},
 
 	-- GAMEPASSES
+
+	-- UGPRADES
+	[BoostsEnum.SpeedUpgradeBoost] = {
+		Type = BoostTypesEnum.WalkSpeedBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Name = "Speed",
+		AmountFunction = function(level: number)
+			return level
+		end
+	}
 }
 
 function BoostsDef.GetMaxLevelForBoost(boostId)

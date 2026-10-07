@@ -7,5 +7,6 @@ return {
 	Dinosaurs = "Dinosaurs",
 	Equips = "Equips",
 	Timers = "Timers",
-	Codes = "Codes"
+	Codes = "Codes",
+	Upgrades = "Upgrades"
 }

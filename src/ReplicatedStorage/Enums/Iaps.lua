@@ -1,6 +1,7 @@
 return {
 	-- Dev products
-	SkipRebirth = "SkipRebirthIap"
+	SkipRebirth = "SkipRebirthIap",
+	SpeedUpgrade = "SpeedUpgradeIap"
 
 	-- Gamepasses
 }
