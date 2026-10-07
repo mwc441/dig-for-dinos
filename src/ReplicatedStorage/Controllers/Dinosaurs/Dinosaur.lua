@@ -53,6 +53,24 @@ function Dinosaur:GetGuid()
 	return self._Guid
 end
 
+function Dinosaur:GetId()
+	return self._DinosaurId
+end
+
+function Dinosaur:GetScale()
+	return self._Scale
+end
+
+function Dinosaur:IsAncestorOf(instance)
+	if not self._Model then return false end
+
+	return (self._Model == instance) or (self._Model:IsAncestorOf(instance))
+end
+
+function Dinosaur:GetModel()
+	return self._Model
+end
+
 function Dinosaur:Update(replicationData)
 	self._StartCFrame = replicationData.StartCFrame
 	self._TargetCFrame = replicationData.TargetCFrame

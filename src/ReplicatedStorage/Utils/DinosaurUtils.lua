@@ -26,8 +26,8 @@ function DinosaurUtils.CreateModel(dinosaurId, scale): Model?
 	UtilFunctions.AnchorAllDescendants(model, false)
 	model.PrimaryPart.Anchored = true
 	UtilFunctions.CanCollideAllDescendants(model, false)
-	UtilFunctions.CanQueryAllDescendants(model, false)
-	UtilFunctions.CanTouchAllDescendants(model, false)
+	UtilFunctions.CanQueryAllDescendants(model, true)
+	UtilFunctions.CanTouchAllDescendants(model, true)
 	model:SetAttribute("DinosaurId", dinosaurId)
 	model:SetAttribute("Scale", scale)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic

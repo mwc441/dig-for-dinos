@@ -1,6 +1,8 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Player = Players.LocalPlayer
 
@@ -9,11 +11,17 @@ local random = Random.new()
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Sounds = Assets:WaitForChild("Sounds")
 local MoneySound = Sounds:WaitForChild("MoneySound")
+local ClientAssets = Assets:WaitForChild("ClientAssets")
+local DinosaurHoverTooltip = ClientAssets:WaitForChild("DinosaurHoverTooltip")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
+local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
-local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
+local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
 local Dinosaur = require(script.Parent.Dinosaur)
@@ -95,6 +103,8 @@ function DinosaurController:KnitStart()
 	self._PlotController.PlotsChanged:Connect(function()
 		self:_ReconcileDinosaurs()
 	end)
+
+	self:_SetupDinosaurHover()
 
 	local dinosaursData = self._DataController:GetProfileData("Dinosaurs")
 	if dinosaursData then
@@ -309,6 +319,92 @@ function DinosaurController:_DoIncomeGuiParticles()
 
 		growTween:Play()
 	end
+end
+
+-- HOVER
+function DinosaurController:_SetupDinosaurHover()
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterDescendantsInstances = { self._Folder }
+	raycastParams.FilterType = Enum.RaycastFilterType.Include
+
+	local dinosaurHovered
+	local tooltip
+	local highlight
+
+	local function clearDinosaur()
+		if dinosaurHovered then
+			tooltip:Destroy()
+			highlight:Destroy()
+		end
+
+		dinosaurHovered = nil
+	end
+
+	local function getDinosaur(part)
+		for _, dinosaur in pairs(self._Dinosaurs) do
+			if dinosaur:IsAncestorOf(part) then
+				return dinosaur
+			end
+		end
+	end
+
+	RunService.Heartbeat:Connect(function()
+		local camera = Workspace.CurrentCamera
+		local mousePos = UserInputService:GetMouseLocation()
+
+		local ray = camera:ViewportPointToRay(mousePos.X, mousePos.Y)
+
+		local raycastResult : RaycastResult = Workspace:Raycast(ray.Origin, ray.Direction * 250, raycastParams)
+		if raycastResult then
+			local dinosaur = getDinosaur(raycastResult.Instance)
+			if not dinosaur then
+				clearDinosaur()
+				return
+			end
+
+			if dinosaur == dinosaurHovered then
+				return
+			end
+
+			clearDinosaur()
+
+			dinosaurHovered = dinosaur
+
+			local id = dinosaurHovered:GetId()
+			local info = DinosaurDef.GetDinosaurInfo(id)
+			if not info then clearDinosaur() return end
+
+			local newDinosaurTooltip = DinosaurHoverTooltip:Clone()
+			newDinosaurTooltip.NameText.Text = info.Name or ""
+			newDinosaurTooltip.RarityText.Text = info.Rarity or ""
+			newDinosaurTooltip.RarityText.TextColor3 = Constants.RarityColors[info.Rarity] or newDinosaurTooltip.RarityText.TextColor3
+			newDinosaurTooltip.SizeText.Text = string.format("Size: %0.1fx", dinosaurHovered:GetScale())
+
+			local oldSize = newDinosaurTooltip.Size
+			newDinosaurTooltip.Size = UDim2.fromScale(0, 0)
+
+			tooltip = Tooltip.new(newDinosaurTooltip, Player:WaitForChild("PlayerGui"):WaitForChild("Main"))
+
+			highlight = Instance.new("Highlight")
+			highlight.FillTransparency = 1
+			highlight.OutlineColor = Color3.new(0, 0, 0)
+			highlight.OutlineTransparency = 1
+			highlight.Parent = dinosaurHovered:GetModel()
+
+			local tweenInfo = TweenInfo.new(0.25)
+			local toolTipTween = TweenService:Create(newDinosaurTooltip, tweenInfo, {
+				Size = oldSize
+			})
+			toolTipTween:Play()
+
+			local highlightTween = TweenService:Create(highlight, tweenInfo, {
+				OutlineTransparency = 0
+			})
+			highlightTween:Play()
+		else
+			clearDinosaur()
+		end
+	end)
 end
 
 return DinosaurController
