@@ -17,6 +17,7 @@ local LifecycleService = {
 	_BoostsService = nil,
 	_ServerBoostsService = nil,
 	_CharacterService = nil,
+	_ToolService = nil,
 	_InventoryService = nil,
 	_EquipService = nil,
 	_DigService = nil,
@@ -46,6 +47,7 @@ function LifecycleService:KnitStart()
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 	self._ServerBoostsService = require(ServerScriptService.Services.Boosts.ServerBoostsService)
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
+	self._ToolService = require(ServerScriptService.Services.Tools.ToolService)
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
 	self._EquipService = require(ServerScriptService.Services.Equips.EquipService)
 	self._DigService = require(ServerScriptService.Services.Digging.DigService)
@@ -114,6 +116,7 @@ function LifecycleService:_PlayerAdded(player)
 	self._BoostsService:OnPlayerAdded(player)
 	self._ServerBoostsService:OnPlayerAdded(player)
 	self._CharacterService:OnPlayerAdded(player)
+	self._ToolService:OnPlayerAdded(player)
 	self._LeaderboardService:OnPlayerAdded(player)
 	self._AdminService:OnPlayerAdded(player)
 	self._PremiumService:OnPlayerAdded(player)
@@ -140,6 +143,7 @@ function LifecycleService:_PlayerRemoving(player)
 	self._FriendsService:OnPlayerRemoving(player)
 	self._ServerBoostsService:OnPlayerRemoving(player)
 	self._BonePileService:OnPlayerRemoving(player)
+	self._ToolService:OnPlayerRemoving(player)
 	self._CharacterService:OnPlayerRemoving(player)
 	self._DigService:OnPlayerRemoving(player)
 	self._OfflineRewardsService:OnPlayerRemoving(player)
