@@ -33,9 +33,7 @@ function Dirt.new(replicationService, cframe, dirtId, scale)
 	self._Trove:Add(self.DestroyedSignal)
 
 	-- Self destruct so spawns disappear and spawn new ones naturally
-	self._Trove:Add(task.delay(3 * 60, function()
-		self:Destroy()
-	end))
+	self:_SetupSelfDestruction()
 
 	return self
 end
@@ -73,6 +71,14 @@ function Dirt:GetReplicationData()
 	return replicationData
 end
 
+function Dirt:_SetupSelfDestruction()
+	self._Trove:Remove(self._SelfDestructTask)
+	self._SelfDestructTask = task.delay(3 * 60, function()
+		self:Destroy()
+	end)
+	self._Trove:Add(self._SelfDestructTask)
+end
+
 function Dirt:Damage(amount, userId, predictionId)
 	if self._Destroyed or typeof(amount) ~= "number" or amount <= 0 or amount ~= amount then
 		return
@@ -86,6 +92,8 @@ function Dirt:Damage(amount, userId, predictionId)
 
 	self._LastHitUserId = userId
 	self._LastHitPredictionId = predictionId
+
+	self:_SetupSelfDestruction()
 
 	self:Update()
 
