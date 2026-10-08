@@ -45,6 +45,8 @@ function DinosaurUiController:KnitInit()
 	}
 
 	local dinosaursButton = GuiButton.new(self._Gui.DinosaursButton)
+	dinosaursButton:SetMakeIconScaleWhenHovered(true)
+	dinosaursButton:SetMakeIconRotateLeftRightWhenHovered(true)
 	dinosaursButton:SetCallback(function()
 		self:SetVisibility(not self._Gui.Frame.Visible, true)
 	end)

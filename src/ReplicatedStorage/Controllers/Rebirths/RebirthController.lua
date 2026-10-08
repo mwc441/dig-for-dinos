@@ -48,8 +48,12 @@ function RebirthController:KnitInit()
 	}
 
 	local openRebirthButton = GuiButton.new(self._Gui.OpenRebirthButton)
+	openRebirthButton:SetMakeIconRotateLeftRightWhenHovered(true)
+	openRebirthButton:SetMakeIconScaleWhenHovered(true)
+	local iconObject = openRebirthButton:GetIconObject()
 	openRebirthButton:SetCallback(function()
 		self:SetVisibility(not self._Gui.Frame.Visible, true)
+		iconObject:GrowAndFade(1.75, TweenInfo.new(0.35), 10000)
 	end)
 
 	local exitButton = GuiButton.new(self._Gui.ExitButton)
