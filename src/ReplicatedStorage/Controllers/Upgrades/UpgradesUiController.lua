@@ -119,6 +119,8 @@ function UpgradesUiController:_SetupUi()
 		newUpgradeTemplate.NameText.Text = info.Name or ""
 		newUpgradeTemplate.Icon.Image = info.Icon or ""
 
+		local amountsFrameObject = GuiObject.new(newUpgradeTemplate.AmountsFrame)
+
 		local buyButton = GuiButton.new(newUpgradeTemplate.BuyButtons.BuyButton)
 		buyButton:SetCallback(function()
 			local currentLevel = self._UpgradeController:GetUpgradeLevel(upgradeId)
@@ -129,6 +131,7 @@ function UpgradesUiController:_SetupUi()
 			self._UpgradeService:BuyUpgrade(upgradeId, currentLevel + 1):andThen(function(success)
 				if success then
 					UtilFunctions.PlayCopyOfSound(UpgradeSound)
+					amountsFrameObject:MakeThrob(1.25, 0.25)
 				else
 					UtilFunctions.PlayCopyOfSound(ErrorSound)
 					self._RewardsController:AnnounceMessage("❌ Can't Afford", Color3.fromRGB(255, 0, 0))
