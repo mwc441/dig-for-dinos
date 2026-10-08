@@ -174,7 +174,7 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale)
 
 		local raycastResult : RaycastResult = Workspace:Raycast(ray.Origin, ray.Direction.Unit * 500, raycastParams)
 		if raycastResult and isWithinPlacementDistance(raycastResult.Position) then
-			self._PlacementCFrame = CFrame.new(raycastResult.Position)
+			self._PlacementCFrame = CFrame.new(raycastResult.Position) * floor.CFrame.Rotation
 
 			if not self._PlacementModel then
 				local newBonePileModel = BonePileUtils.CreateModel(dinosaurId, scale)
