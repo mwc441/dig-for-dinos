@@ -1,5 +1,6 @@
 local ContextActionService = game:GetService("ContextActionService")
 local CollectionService = game:GetService("CollectionService")
+local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -20,10 +21,14 @@ local BoneGlowSound = Sounds:WaitForChild("BoneGlow")
 local DinoPlacedSound = Sounds:WaitForChild("DinoPlaced")
 local BrickSound = Sounds:WaitForChild("Brick")
 local BoneFlySound = Sounds:WaitForChild("BoneFly")
+local Particles = Assets:WaitForChild("Particles")
+local RarityExplosions = Particles:WaitForChild("RarityExplosions")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local RadiusPart = ClientAssets:WaitForChild("RadiusPart")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
+local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
@@ -259,6 +264,10 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 
 	local model = DinosaurUtils.CreateModel(dinosaurId, scale)
 	if not model then return end
+
+	local info = DinosaurDef.GetDinosaurInfo(dinosaurId)
+	if not info then return end
+
 	DinosaurUtils.PositionAtGround(model, cframe)
 	model.Name = dinosaurId .. "Skeleton"
 
@@ -418,6 +427,18 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 		showDinosaurs()
 		self._DinosaurService:PlaceDinosaur(bonePileGuid, cframe)
 		UtilFunctions.PlaySoundAtLocation(DinoPlacedSound, cframe)
+
+		local rarityExplosion = RarityExplosions:FindFirstChild(info.Rarity) :: BasePart
+		if rarityExplosion then
+			local newRarityExplosion = rarityExplosion:Clone()
+			newRarityExplosion.Transparency = 1
+			newRarityExplosion.CanCollide = false
+			newRarityExplosion.CFrame = model:GetPivot()
+			newRarityExplosion.Parent = Workspace
+			local _, longestEmitTime = UtilFunctions.GetLongestEmitter(newRarityExplosion)
+			UtilFunctions.EmitParticles(newRarityExplosion)
+			Debris:AddItem(newRarityExplosion, longestEmitTime)
+		end
 
 		for _, flight in ipairs(flights) do
 			flight.Part:Destroy()
