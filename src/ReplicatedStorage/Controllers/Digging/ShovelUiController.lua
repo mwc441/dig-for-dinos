@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
@@ -33,6 +34,7 @@ function ShovelUiController:KnitInit()
 	local shovelsFrame = mainGui:WaitForChild("ShovelsFrame")
 
 	self._Gui = {
+		MainGui = mainGui,
 		Frame = shovelsFrame,
 		ShovelTemplate = shovelsFrame:WaitForChild("Templates"):WaitForChild("ShovelTemplate"),
 		ShovelList = shovelsFrame:WaitForChild("ShovelList"):WaitForChild("ShovelList"),
@@ -134,6 +136,7 @@ function ShovelUiController:_SetupUi()
 					UtilFunctions.PlayCopyOfSound(ErrorSound)
 				else
 					UtilFunctions.PlayCopyOfSound(PurchaseSound)
+					self:_PlayPurchaseAnimation(newShovelTemplate.Icon)
 				end
 			end)
 		end)
@@ -171,6 +174,45 @@ function ShovelUiController:_SetupUi()
 	end
 
 	self:_UpdateUi()
+end
+
+function ShovelUiController:_PlayPurchaseAnimation(icon)
+	local mainGui = self._Gui.MainGui
+	local iconPosition = icon.AbsolutePosition - mainGui.AbsolutePosition
+	local iconSize = icon.AbsoluteSize
+	local centerX = iconPosition.X + iconSize.X / 2
+	local centerY = iconPosition.Y + iconSize.Y / 2
+
+	local flyingIcon = icon:Clone() :: ImageLabel
+	flyingIcon.Name = "FlyingShovelIcon"
+	flyingIcon.AnchorPoint = Vector2.new(0.5, 0.5)
+	flyingIcon.Position = UDim2.fromOffset(centerX, centerY)
+	flyingIcon.Size = UDim2.fromOffset(iconSize.X, iconSize.Y)
+	flyingIcon.Rotation = 0
+	flyingIcon.ZIndex = 100000
+	flyingIcon.Visible = true
+	flyingIcon.Parent = mainGui
+
+	local riseTween = TweenService:Create(flyingIcon, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Position = UDim2.fromOffset(centerX, centerY - iconSize.Y * 0.4),
+		Size = UDim2.fromOffset(iconSize.X * 1.35, iconSize.Y * 1.35)
+	})
+	local fallTween = TweenService:Create(flyingIcon, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		Position = UDim2.new(0, centerX, 1, 0),
+		Size = UDim2.fromOffset(0, 0)
+	})
+
+	riseTween.Completed:Once(function(playbackState)
+		if playbackState == Enum.PlaybackState.Completed then
+			fallTween:Play()
+		else
+			flyingIcon:Destroy()
+		end
+	end)
+	fallTween.Completed:Once(function()
+		flyingIcon:Destroy()
+	end)
+	riseTween:Play()
 end
 
 function ShovelUiController:_UpdateUi()
