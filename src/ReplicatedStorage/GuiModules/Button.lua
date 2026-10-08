@@ -43,8 +43,6 @@ function Button.new(button : GuiButton)
 
 	self._MakeNoiseWhenHover = true
 
-	self._SpawnClickCircle = true
-
 	local icon = button:FindFirstChild("Icon")
 	self:SetIcon(icon)
 	self._MakeIconRotateLeftRightWhenHovered = false
@@ -125,15 +123,6 @@ end
 function Button:ButtonClicked(clicked)
 	if not self:GetButtonTrueVisibility() then
 		return
-	end
-
-	if self._SpawnClickCircle and clicked then
-		local mousePosition = UserInputService:GetMouseLocation()
-		if self._LastDevice == "Controller" then
-			mousePosition = self._Object.AbsolutePosition + GuiService:GetGuiInset() + self._Object.AbsoluteSize / 2
-		end
-
-		self:_CreateClickCircle(UDim2.new(0, mousePosition.X, 0, mousePosition.Y))
 	end
 
 	if self._PlaybackSound then
@@ -467,45 +456,6 @@ function Button:_InitializeHover()
 	end)
 end
 
-function Button:_CreateClickCircle(pos)
-	local layerCollector = self._Object:FindFirstAncestorWhichIsA("LayerCollector")
-	if not layerCollector then
-		return
-	end
-
-	if not layerCollector:IsA("ScreenGui") then
-		return
-	end
-
-	local newFrame = Instance.new("Frame")
-	newFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-	newFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	newFrame.Size = UDim2.new(0, 0, 0, 0)
-	newFrame.Position = pos
-	newFrame.BackgroundTransparency = 0.3
-	newFrame.ZIndex = math.pow(2, 31) - 1
-	newFrame.Parent = layerCollector
-
-	local newUiCorner = Instance.new("UICorner")
-	newUiCorner.CornerRadius = UDim.new(0.5, 0)
-	newUiCorner.Parent = newFrame
-
-	local newUiAspect = Instance.new("UIAspectRatioConstraint")
-	newUiAspect.Parent = newFrame
-
-	local tweenInfo = TweenInfo.new(0.18, Enum.EasingStyle.Linear, Enum.EasingDirection.In)
-	local tween = TweenService:Create(newFrame, tweenInfo, {
-		Size = UDim2.new(0.125, 0, 0.125, 0),
-		BackgroundTransparency = 1
-	})
-
-	tween:Play()
-
-	tween.Completed:Connect(function()
-		newFrame:Destroy()
-	end)
-end
-
 function Button:GetButtonTrueVisibility()
 	if not self._Object.Visible then
 		return false
@@ -536,10 +486,6 @@ function Button:_RotateButton(angle)
 	})
 
 	tween:Play()
-end
-
-function Button:SetSpawnClickCircle(spawn)
-	self._SpawnClickCircle = spawn
 end
 
 function Button:SetTooltipGui(guiObject, parent, positionFunc)
