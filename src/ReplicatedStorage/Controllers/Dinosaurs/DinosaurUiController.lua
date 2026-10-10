@@ -71,9 +71,7 @@ function DinosaurUiController:KnitStart()
 	self._DinosaurService = Knit.GetService("DinosaurService")
 
 	local function updateUi()
-		task.defer(function()
-			self:_UpdateUi()
-		end)
+		self:_UpdateUi()
 	end
 
 	self._DinosaurController.DinosaurDataUpdatedSignal:Connect(function()
@@ -102,11 +100,13 @@ function DinosaurUiController:SetVisibility(visible, toTween)
 		self._HudController:SetCurrentlyActiveFrame(self)
 		hideTrack:Stop()
 		self._Hiding = false
+		self:_UpdateUi()
 		openTrack:Play()
 		self._HudUiController:HideRightSideButtons()
 	else
 		local function clear()
 			self._Gui.Frame.Visible = visible
+			self:_ClearUi()
 			self._HudController:ClearCurrentlyActiveFrame(self)
 		end
 
@@ -128,6 +128,8 @@ function DinosaurUiController:SetVisibility(visible, toTween)
 end
 
 function DinosaurUiController:_UpdateUi()
+	if not self._Gui.Frame.Visible then return end
+
 	local dinosaurs = {}
 	local owned = {}
 
@@ -191,6 +193,15 @@ function DinosaurUiController:_UpdateUi()
 	end
 
 	self:_QueueViewportUpdate()
+end
+
+function DinosaurUiController:_ClearUi()
+	for _, template in pairs(self._Templates) do
+		template:Destroy()
+	end
+	self._Templates = {}
+
+	self._OwnedDinosaursByGuid = {}
 end
 
 function DinosaurUiController:_QueueViewportUpdate()
