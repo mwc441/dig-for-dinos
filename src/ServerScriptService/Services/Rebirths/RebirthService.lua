@@ -50,6 +50,12 @@ function RebirthService:_RebirthForPlayer(player)
 	self._PlayerStatsService:SetStatValueForPlayer(player, PlayerStatsEnum.Cash, 0)
 	self._UpgradeService:SetUpgradeLevelForPlayer(player, "SpeedUpgrade", 0)
 
+	task.spawn(function()
+		pcall(function()
+			player:LoadCharacter()
+		end)
+	end)
+
 	self:GiveRebirthToPlayer(player)
 
 	return true

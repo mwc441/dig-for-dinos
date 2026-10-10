@@ -65,6 +65,7 @@ function RebirthController:KnitInit()
 	rebirthButton:SetCallback(function()
 		self._RebirthService:Rebirth():andThen(function(success)
 			if success then
+				self:SetVisibility(false, false)
 				UtilFunctions.PlayCopyOfSound(RebirthSuccessSound)
 				self._RewardsController:AnnounceMessage("⭐ Rebirthed Successfully ⭐", Color3.fromRGB(255, 219, 60))
 			end
