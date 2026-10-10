@@ -9,7 +9,9 @@ DirtDef.Ids = {
 	Uncommon = "UncommonDirt",
 	Rare = "RareDirt",
 	Epic = "EpicDirt",
-	Legendary = "LegendaryDirt"
+	Legendary = "LegendaryDirt",
+	Mythical = "MythicalDirt",
+	SecretDirt = "SecretDirt"
 }
 
 DirtDef.Table = {
@@ -37,6 +39,16 @@ DirtDef.Table = {
 		Name = "Legendary Dirt",
 		Rarity = Rarities.Legendary,
 		TotalHealth = 600
+	},
+	[DirtDef.Ids.Mythical] = {
+		Name = "Mythical Dirt",
+		Rarity = Rarities.Mythical,
+		TotalHealth = 1000
+	},
+	[DirtDef.Ids.SecretDirt] = {
+		Name = "Secret Dirt",
+		Rarity = Rarities.Secret,
+		TotalHealth = 2000
 	}
 }
 

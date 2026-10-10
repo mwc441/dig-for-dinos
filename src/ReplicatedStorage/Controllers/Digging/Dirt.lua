@@ -16,12 +16,13 @@ local DirtSpawnSound = Sounds:WaitForChild("DirtSpawn")
 local DigSound = Sounds:WaitForChild("Dig")
 local Particles = Assets:WaitForChild("Particles")
 local DirtDigParticles = Particles:WaitForChild("DirtDigParticles")
+local DirtRarityParticles = Particles:WaitForChild("DirtRarities")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
-local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local RarityTextUtils = require(Utils:WaitForChild("RarityTextUtils"))
 local Trove = require(External:WaitForChild("Trove"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 
@@ -124,6 +125,9 @@ function Dirt:CancelPredictedHit(predictionId)
 end
 
 function Dirt:_Setup()
+	local dirtInfo = DirtDef.GetDirtInfo(self._DirtId)
+	if not dirtInfo then return end
+
 	local rootPart = Instance.new("Part")
 	rootPart.CFrame = self._DisplayCFrame
 	rootPart.Anchored = true
@@ -137,6 +141,35 @@ function Dirt:_Setup()
 	self._Trove:Add(self._RootPart)
 
 	self:_SetupDirtGui()
+
+	local dirtRarityParticles = DirtRarityParticles:FindFirstChild(dirtInfo.Rarity)
+	if dirtRarityParticles then
+		local newModel = Instance.new("Model")
+		newModel.Name = "_RARITYPARTICLES"
+
+		local newRarityParticles = dirtRarityParticles:Clone() :: BasePart
+		newRarityParticles.Anchored = false
+		newRarityParticles.CanCollide = false
+		newRarityParticles.CanQuery = false
+		newRarityParticles.CanTouch = false
+		newRarityParticles.Transparency = 1
+		newRarityParticles.CFrame = self._DisplayCFrame
+		newRarityParticles.Name = "_RARITYPARTICLES"
+		newRarityParticles.Parent = newModel
+
+		local newWeld = Instance.new("WeldConstraint")
+		newWeld.Part0 = newRarityParticles
+		newWeld.Part1 = rootPart
+		newWeld.Parent = newRarityParticles
+
+		newModel.PrimaryPart = newRarityParticles
+		newModel.Parent = Workspace
+
+		newModel:ScaleTo(self._Scale)
+
+		self._RarityParticles = newModel
+		self._Trove:Add(self._RarityParticles)
+	end
 end
 
 function Dirt:_ApplyDisplayCFrame()
@@ -329,7 +362,7 @@ function Dirt:_SetupDirtGui()
 	self._Trove:Add(newDirtGui)
 
 	newDirtGui.RarityText.Text = dirtInfo.Rarity
-	newDirtGui.RarityText.TextColor3 = Constants.RarityColors[dirtInfo.Rarity]
+	RarityTextUtils.SetColor(newDirtGui.RarityText, dirtInfo.Rarity)
 	newDirtGui.SizeText.Text = string.format("Size: %0.1fx", self._Scale)
 
 	self._DirtGui = newDirtGui
@@ -357,7 +390,6 @@ function Dirt:_UpdateDirtGui()
 end
 
 function Dirt:Update(replicationData)
-	self._DirtId = replicationData.DirtId
 	local totalHealth = math.max(1, replicationData.TotalHealth)
 	local health = math.clamp(replicationData.Health, 0, totalHealth)
 	local damage = self._Health - health

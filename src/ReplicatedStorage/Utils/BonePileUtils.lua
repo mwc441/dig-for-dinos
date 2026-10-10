@@ -2,6 +2,8 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Particles = Assets:WaitForChild("Particles")
+local BonePileRarityParticles = Particles:WaitForChild("BonePileRarities")
 local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
 local UtilFunctions = require(script.Parent:WaitForChild("UtilFunctions"))
 
@@ -40,6 +42,24 @@ function BonePileUtils.CreateModel(dinosaurId, scale) : Model?
 		warn("Bone pile model has no BasePart: " .. dinosaurId)
 		model:Destroy()
 		return
+	end
+
+	local rarityParticles = BonePileRarityParticles:FindFirstChild(dinosaurInfo.Rarity)
+	if rarityParticles then
+		local newRarityParticles = rarityParticles:Clone() :: BasePart
+		newRarityParticles.Anchored = false
+		newRarityParticles.CanCollide = false
+		newRarityParticles.CanQuery = false
+		newRarityParticles.CanTouch = false
+		newRarityParticles.Transparency = 1
+		newRarityParticles.CFrame = root.CFrame
+		newRarityParticles.Name = "_RARITYPARTICLES"
+		newRarityParticles.Parent = model
+
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = newRarityParticles
+		weld.Part1 = root
+		weld.Parent = newRarityParticles
 	end
 
 	scale = BonePileUtils.GetScale(scale)

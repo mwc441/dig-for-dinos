@@ -8,8 +8,9 @@ local ClientAssets = Assets:WaitForChild("ClientAssets")
 local BonePileGui = ClientAssets:WaitForChild("BonePileGui")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
-local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
+local RarityTextUtils = require(Utils:WaitForChild("RarityTextUtils"))
 local Trove = require(External:WaitForChild("Trove"))
 local Component = require(External:WaitForChild("Component"))
 
@@ -41,10 +42,10 @@ function BonePile:_SetupGui()
 	newBonePileGui.Parent = Player:WaitForChild("PlayerGui")
 
 	newBonePileGui.RarityText.Text = dinoInfo.Rarity
-	newBonePileGui.RarityText.TextColor3 = Constants.RarityColors[dinoInfo.Rarity]
+	RarityTextUtils.SetColor(newBonePileGui.RarityText, dinoInfo.Rarity)
 	newBonePileGui.SizeText.Text = string.format("Size: %0.1fx", scale)
 	newBonePileGui.NameText.Text = dinoInfo.Name or ""
-	newBonePileGui.NameText.TextColor3 = Constants.RarityColors[dinoInfo.Rarity]
+	RarityTextUtils.SetColor(newBonePileGui.NameText, dinoInfo.Rarity)
 
 	self._Trove:Add(newBonePileGui)
 end

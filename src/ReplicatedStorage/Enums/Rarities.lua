@@ -3,5 +3,7 @@ return {
 	Uncommon = "Uncommon",
 	Rare = "Rare",
 	Epic = "Epic",
-	Legendary = "Legendary"
+	Legendary = "Legendary",
+	Mythical = "Mythical",
+	Secret = "Secret"
 }

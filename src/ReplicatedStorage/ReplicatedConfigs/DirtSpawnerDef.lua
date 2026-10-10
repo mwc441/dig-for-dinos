@@ -13,7 +13,9 @@ DirtSpawnerDef.Table = {
 			{ Id = DirtDef.Ids.Uncommon, Weight = 25 },
 			{ Id = DirtDef.Ids.Rare, Weight = 10 },
 			{ Id = DirtDef.Ids.Epic, Weight = 4 },
-			{ Id = DirtDef.Ids.Legendary, Weight = 1 }
+			{ Id = DirtDef.Ids.Legendary, Weight = 100 },
+			{ Id = DirtDef.Ids.Mythical, Weight = 100 },
+			{ Id = DirtDef.Ids.SecretDirt, Weight = 100 }
 		},
 		ScaleLootTable = {
 			{ MinScale = 1, MaxScale = 1, Weight = 90 },

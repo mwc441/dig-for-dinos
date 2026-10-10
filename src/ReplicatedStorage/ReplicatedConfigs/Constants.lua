@@ -45,20 +45,14 @@ return {
 	MaxFriends = 5,
 	CashPerFriend = 0.05,
 
-	RarityColors = {
-		[RaritiesEnum.Common] = Color3.fromRGB(190, 190, 190),
-		[RaritiesEnum.Uncommon] = Color3.fromRGB(84, 255, 118),
-		[RaritiesEnum.Rare] = Color3.fromRGB(67, 166, 255),
-		[RaritiesEnum.Epic] = Color3.fromRGB(180, 82, 255),
-		[RaritiesEnum.Legendary] = Color3.fromRGB(255, 198, 66)
-	},
-
 	RarityOrder = {
 		RaritiesEnum.Common,
 		RaritiesEnum.Uncommon,
 		RaritiesEnum.Rare,
 		RaritiesEnum.Epic,
-		RaritiesEnum.Legendary
+		RaritiesEnum.Legendary,
+		RaritiesEnum.Mythical,
+		RaritiesEnum.Secret
 	},
 
 	Icons = {

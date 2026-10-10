@@ -10,8 +10,8 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
-local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
+local RarityTextUtils = require(Utils:WaitForChild("RarityTextUtils"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 local Knit = require(External:WaitForChild("Knit"))
 
@@ -181,7 +181,8 @@ function DinosaurUiController:_UpdateUi()
 
 		template.NameText.Text = entry.Info and entry.Info.Name or dinosaur.Id
 		template.RarityText.Text = entry.Info and entry.Info.Rarity or ""
-		template.RarityText.TextColor3 = Constants.RarityColors[entry.Info and entry.Info.Rarity] or self._Gui.DinosaurTemplate.RarityText.TextColor3
+		template.RarityText.TextColor3 = self._Gui.DinosaurTemplate.RarityText.TextColor3
+		RarityTextUtils.SetColor(template.RarityText, entry.Info and entry.Info.Rarity)
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
 		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("$%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
 		template.EquipButton.Visible = not entry.Placed
