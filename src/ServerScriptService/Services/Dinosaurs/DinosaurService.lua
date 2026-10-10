@@ -283,6 +283,59 @@ function DinosaurService:UnequipDinosaur(player, guid)
 	return true
 end
 
+function DinosaurService:_SellDinosaurForPlayer(player, guid)
+	if type(guid) ~= "string" then return false end
+
+	local item = self._InventoryService:GetNonFungibleItemForPlayer(player, guid)
+	if not item then return false end
+
+	local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+	local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale)
+	if not sellPrice then return false end
+
+	if not self._InventoryService:RemoveNonFungibleItemForPlayer(player, guid) then
+		return false
+	end
+
+	self._RewardsService:RewardPlayer(player, PlayerStatsEnum.Cash, sellPrice, false, {
+		TransactionType = Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
+		Sku = "DinosaurSale"
+	})
+
+	return true
+end
+
+function DinosaurService:_SellAllDinosaursForPlayer(player)
+	local inventoryItems = self._InventoryService:GetNonFungiblesForPlayer(player)
+	if not inventoryItems then return false end
+
+	local guids = {}
+	local totalSellPrice = 0
+	for _, item in ipairs(inventoryItems) do
+		local dinosaurInfo = DinosaurDef.GetDinosaurInfo(item.ItemId)
+		if not dinosaurInfo then continue end
+
+		local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+		local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale)
+		if sellPrice then
+			table.insert(guids, item.Guid)
+			totalSellPrice += sellPrice
+		end
+	end
+
+	if #guids == 0 then return false end
+	if not self._InventoryService:RemoveNonFungibleItemsForPlayer(player, guids) then
+		return false
+	end
+
+	self._RewardsService:RewardPlayer(player, PlayerStatsEnum.Cash, totalSellPrice, false, {
+		TransactionType = Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
+		Sku = "DinosaurSale"
+	})
+
+	return true
+end
+
 function DinosaurService:EquipBestDinosaurs(player)
 	local dinosaurs = self._Dinosaurs[player]
 	if not dinosaurs then return false end
@@ -395,6 +448,16 @@ end
 
 function DinosaurService.Client:ClaimIncome(player, dinoGuid)
 	return self.Server:_ClaimIncomeForPlayer(player, dinoGuid)
+end
+
+function DinosaurService.Client:SellDinosaur(player, guid)
+	if type(guid) ~= "string" then return end
+
+	return self.Server:_SellDinosaurForPlayer(player, guid)
+end
+
+function DinosaurService.Client:SellAllDinosaurs(player)
+	return self.Server:_SellAllDinosaursForPlayer(player)
 end
 
 return DinosaurService

@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Rarities = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Rarities"))
 
 local DinosaurDef = {}
+local SELL_INCOME_SECONDS = 60
 
 DinosaurDef.Ids = {
 	Trex = "Trex"
@@ -19,6 +20,13 @@ DinosaurDef.Table = {
 
 function DinosaurDef.GetDinosaurInfo(id)
 	return DinosaurDef.Table[id]
+end
+
+function DinosaurDef.GetSellPrice(id, scale)
+	local info = DinosaurDef.GetDinosaurInfo(id)
+	if not info then return end
+
+	return math.round((info.Income or 0) * scale) * SELL_INCOME_SECONDS
 end
 
 function DinosaurDef.GetLootTableForRarity(rarity)

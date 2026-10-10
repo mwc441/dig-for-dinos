@@ -186,7 +186,7 @@ function DinosaurUiController:_UpdateUi()
 		template.RarityText.TextColor3 = self._Gui.DinosaurTemplate.RarityText.TextColor3
 		RarityTextUtils.SetColor(template.RarityText, entry.Info and entry.Info.Rarity)
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
-		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("$%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
+		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
 		template.EquipButton.Visible = not entry.Placed
 		template.LayoutOrder = order
 		template.Visible = true
