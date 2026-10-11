@@ -5,7 +5,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local EasyVisuals = require(External:WaitForChild("EasyVisuals"))
 local RaritiesEnum = require(Enums:WaitForChild("Rarities"))
 
-local RarityTextUtils = {}
+local RarityColorUtils = {}
 
 local RARITY_COLORS = {
 	[RaritiesEnum.Common] = Color3.fromRGB(190, 190, 190),
@@ -17,7 +17,7 @@ local RARITY_COLORS = {
 	[RaritiesEnum.Secret] = Color3.fromRGB(28, 28, 28)
 }
 
-function RarityTextUtils.SetColor(textLabel: TextLabel, rarity: string?)
+function RarityColorUtils.SetColor(textLabel: TextLabel, rarity: string?)
 	local color = RARITY_COLORS[rarity]
 	if color then
 		textLabel.TextColor3 = color
@@ -33,4 +33,4 @@ function RarityTextUtils.SetColor(textLabel: TextLabel, rarity: string?)
 	end
 end
 
-return RarityTextUtils
+return RarityColorUtils

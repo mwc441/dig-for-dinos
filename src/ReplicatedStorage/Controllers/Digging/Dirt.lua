@@ -22,7 +22,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
-local RarityTextUtils = require(Utils:WaitForChild("RarityTextUtils"))
+local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local Trove = require(External:WaitForChild("Trove"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 
@@ -362,7 +362,7 @@ function Dirt:_SetupDirtGui()
 	self._Trove:Add(newDirtGui)
 
 	newDirtGui.RarityText.Text = dirtInfo.Rarity
-	RarityTextUtils.SetColor(newDirtGui.RarityText, dirtInfo.Rarity)
+	RarityColorUtils.SetColor(newDirtGui.RarityText, dirtInfo.Rarity)
 	newDirtGui.SizeText.Text = string.format("Size: %0.1fx", self._Scale)
 
 	self._DirtGui = newDirtGui

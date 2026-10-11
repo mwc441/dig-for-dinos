@@ -20,7 +20,7 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
-local RarityTextUtils = require(Utils:WaitForChild("RarityTextUtils"))
+local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
@@ -377,7 +377,7 @@ function DinosaurController:_SetupDinosaurHover()
 			local newDinosaurTooltip = DinosaurHoverTooltip:Clone()
 			newDinosaurTooltip.NameText.Text = info.Name or ""
 			newDinosaurTooltip.RarityText.Text = info.Rarity or ""
-			RarityTextUtils.SetColor(newDinosaurTooltip.RarityText, info.Rarity)
+			RarityColorUtils.SetColor(newDinosaurTooltip.RarityText, info.Rarity)
 			newDinosaurTooltip.SizeText.Text = string.format("Size: %0.1fx", dinosaurHovered:GetScale())
 
 			local oldSize = newDinosaurTooltip.Size
