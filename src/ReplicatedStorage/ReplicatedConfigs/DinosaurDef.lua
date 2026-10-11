@@ -18,6 +18,10 @@ DinosaurDef.Table = {
 	}
 }
 
+function DinosaurDef.GetAllDinosaurs()
+	return DinosaurDef.Table
+end
+
 function DinosaurDef.GetDinosaurInfo(id)
 	return DinosaurDef.Table[id]
 end
@@ -27,6 +31,13 @@ function DinosaurDef.GetSellPrice(id, scale)
 	if not info then return end
 
 	return math.round((info.Income or 0) * scale) * SELL_INCOME_SECONDS
+end
+
+function DinosaurDef.GetIncome(id, scale)
+	local info = DinosaurDef.GetDinosaurInfo(id)
+	if not info then return end
+
+	return (info.Income or 0) * scale
 end
 
 function DinosaurDef.GetLootTableForRarity(rarity)

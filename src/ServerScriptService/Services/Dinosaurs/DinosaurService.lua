@@ -90,7 +90,7 @@ function DinosaurService:_GetIncomeForPlacedDino(placedDino, cashBoost)
 	if not info then return end
 
 	local scale : number = placedDino.Scale or 1
-	return math.round(info.Income * scale * cashBoost)
+	return math.round(DinosaurDef.GetIncome(placedDino.Id, scale) * cashBoost)
 end
 
 function DinosaurService:GetIncomePerSecondForPlayer(player)
@@ -361,7 +361,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 		table.insert(candidates, {
 			Guid = entry.Guid,
 			Scale = scale,
-			Income = (info.Income or 0) * scale,
+			Income = DinosaurDef.GetIncome(entry.Id, scale),
 			Placed = true
 		})
 	end
@@ -373,7 +373,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 			table.insert(candidates, {
 				Guid = item.Guid,
 				Scale = scale,
-				Income = (info.Income or 0) * scale,
+				Income = DinosaurDef.GetIncome(item.ItemId, scale),
 				Placed = false
 			})
 		end

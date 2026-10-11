@@ -131,7 +131,7 @@ function DinosaurSellController:_UpdateUi()
 			local entry = {
 				Dinosaur = dinosaur,
 				Info = info,
-				Income = (info.Income or 0) * dinosaur.Scale
+				Income = DinosaurDef.GetIncome(item.ItemId, dinosaur.Scale)
 			}
 			table.insert(dinosaurs, entry)
 			owned[dinosaur.Guid] = entry
