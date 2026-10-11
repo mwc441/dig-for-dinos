@@ -6,6 +6,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local DataKeys = require(ServerScriptService.ServerConfigs.DataKeys)
 local DinosaurDef = require(ReplicatedConfigs.DinosaurDef)
@@ -33,6 +34,7 @@ local DinosaurService = {
 	_TimeService = nil,
 	_RewardsService = nil,
 	_BoostsService = nil,
+	_IndexService = nil,
 	_Dinosaurs = {}
 }
 
@@ -45,6 +47,7 @@ function DinosaurService:KnitStart()
 	self._TimeService = require(ServerScriptService.Services.Time.TimeService)
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
+	self._IndexService = require(ServerScriptService.Services.Index.IndexService)
 
 	self._TimeService.TimeUpdatedSignal:Connect(function()
 		for _, player in pairs(self._LifecycleService:GetInitializedPlayers()) do
@@ -57,6 +60,7 @@ function DinosaurService:OnPlayerAdded(player)
 	local savedData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
 
 	self._Dinosaurs[player] = {}
+	self:GiveDinosaur(player, "Trex", 1.5, MutationsEnum.Void)
 
 	local plot = self._PlotService:GetPlotForPlayer(player)
 	local floor = plot and plot.Instance:FindFirstChild("_Floor")
@@ -65,7 +69,8 @@ function DinosaurService:OnPlayerAdded(player)
 			self:_CreateDinosaur(player, floor, {
 				Guid = entry.Guid,
 				Id = entry.Id,
-				Scale = BonePileUtils.GetScale(entry.Scale)
+				Scale = BonePileUtils.GetScale(entry.Scale),
+				Mutation = entry.Mutation or MutationsEnum.Normal
 			})
 		end
 	end
@@ -85,12 +90,23 @@ function DinosaurService:OnPlayerRemoving(player)
 	self._Dinosaurs[player] = nil
 end
 
+function DinosaurService:GiveDinosaur(player, dinosaurId, scale, mutation)
+	if not DinosaurDef.GetDinosaurInfo(dinosaurId) then return end
+
+	self._IndexService:UnlockForPlayer(player, mutation, dinosaurId)
+
+	return self._InventoryService:AddNonFungibleItemForPlayer(player, dinosaurId, {
+		Scale = BonePileUtils.GetScale(scale),
+		Mutation = mutation or MutationsEnum.Normal
+	})
+end
+
 function DinosaurService:_GetIncomeForPlacedDino(placedDino, cashBoost)
 	local info = DinosaurDef.GetDinosaurInfo(placedDino.Id)
 	if not info then return end
 
 	local scale : number = placedDino.Scale or 1
-	return math.round(DinosaurDef.GetIncome(placedDino.Id, scale) * cashBoost)
+	return math.round(DinosaurDef.GetIncome(placedDino.Id, scale, placedDino.Mutation) * cashBoost)
 end
 
 function DinosaurService:GetIncomePerSecondForPlayer(player)
@@ -223,7 +239,8 @@ function DinosaurService:PlaceDinosaur(player, bonePileGuid, groundCFrame)
 	local savedEntry = {
 		Guid = self:_GenerateGuid(),
 		Id = item.ItemId,
-		Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+		Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
+		Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
 	}
 	local spawnCFrame = floor.CFrame
 		* CFrame.new(localPosition.X, floorSize.Y / 2, localPosition.Z)
@@ -262,9 +279,7 @@ function DinosaurService:UnequipDinosaur(player, guid)
 	end
 	if not placedEntry then return false end
 
-	local inventoryGuid = self._InventoryService:AddNonFungibleItemForPlayer(player, placedEntry.Id, {
-		Scale = BonePileUtils.GetScale(placedEntry.Scale)
-	})
+	local inventoryGuid = self:GiveDinosaur(player, placedEntry.Id, placedEntry.Scale, placedEntry.Mutation)
 	if not inventoryGuid then return false end
 
 	self:_ClaimIncomeForPlayer(player, guid)
@@ -290,7 +305,7 @@ function DinosaurService:_SellDinosaurForPlayer(player, guid)
 	if not item then return false end
 
 	local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-	local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale)
+	local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation)
 	if not sellPrice then return false end
 
 	if not self._InventoryService:RemoveNonFungibleItemForPlayer(player, guid) then
@@ -316,7 +331,7 @@ function DinosaurService:_SellAllDinosaursForPlayer(player)
 		if not dinosaurInfo then continue end
 
 		local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-		local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale)
+		local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation)
 		if sellPrice then
 			table.insert(guids, item.Guid)
 			totalSellPrice += sellPrice
@@ -361,7 +376,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 		table.insert(candidates, {
 			Guid = entry.Guid,
 			Scale = scale,
-			Income = DinosaurDef.GetIncome(entry.Id, scale),
+			Income = DinosaurDef.GetIncome(entry.Id, scale, entry.Mutation),
 			Placed = true
 		})
 	end
@@ -373,7 +388,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 			table.insert(candidates, {
 				Guid = item.Guid,
 				Scale = scale,
-				Income = DinosaurDef.GetIncome(item.ItemId, scale),
+				Income = DinosaurDef.GetIncome(item.ItemId, scale, item.Metadata and item.Metadata.Mutation),
 				Placed = false
 			})
 		end

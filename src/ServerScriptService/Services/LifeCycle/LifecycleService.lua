@@ -34,6 +34,7 @@ local LifecycleService = {
 	_OfflineRewardsService = nil,
 	_RebirthService = nil,
 	_UpgradeService = nil,
+	_IndexService = nil,
 	_InitializedPlayers = {},
 	PlayerHasFullyInitialized = Signal.new()
 }
@@ -64,6 +65,7 @@ function LifecycleService:KnitStart()
 	self._OfflineRewardsService = require(ServerScriptService.Services.OfflineRewards.OfflineRewardsService)
 	self._RebirthService = require(ServerScriptService.Services.Rebirths.RebirthService)
 	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
+	self._IndexService = require(ServerScriptService.Services.Index.IndexService)
 
 	task.defer(function()
 		Players.PlayerAdded:Connect(function(player)
@@ -105,6 +107,8 @@ function LifecycleService:_PlayerAdded(player)
 
 	self._InventoryService:OnPlayerAdded(player) -- Keep on top of others
 	self._RebirthService:OnPlayerAdded(player)
+	self._IndexService:OnPlayerAdded(player)
+	self._PremiumService:OnPlayerAdded(player)
 	self._BonePileService:OnPlayerAdded(player)
 	self._UpgradeService:OnPlayerAdded(player)
 	self._EquipService:OnPlayerAdded(player)
@@ -119,7 +123,6 @@ function LifecycleService:_PlayerAdded(player)
 	self._ToolService:OnPlayerAdded(player)
 	self._LeaderboardService:OnPlayerAdded(player)
 	self._AdminService:OnPlayerAdded(player)
-	self._PremiumService:OnPlayerAdded(player)
 	self._RewardsService:OnPlayerAdded(player)
 	self._OrbService:OnPlayerAdded(player)
 	self._TutorialService:OnPlayerAdded(player)
@@ -155,6 +158,7 @@ function LifecycleService:_PlayerRemoving(player)
 	self._DinosaurService:OnPlayerRemoving(player)
 	self._PlotService:OnPlayerRemoving(player)
 	self._UpgradeService:OnPlayerRemoving(player)
+	self._IndexService:OnPlayerRemoving(player)
 	self._InventoryService:OnPlayerRemoving(player) -- Keep below others
 
 	self._DataService:OnPlayerRemoving(player) -- Keep at bottom

@@ -4,6 +4,7 @@ local Enums = ReplicatedStorage:WaitForChild("Enums")
 local CostTypesEnum = require(Enums:WaitForChild("CostTypes"))
 local RaritiesEnum = require(Enums:WaitForChild("Rarities"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 
 return {
 	Places = {
@@ -61,6 +62,51 @@ return {
 	},
 
 	LogAnalyticsOutgoingEvents = true,
+
+	MutationGradients = {
+		[MutationsEnum.Flame] = ColorSequence.new(
+			Color3.fromHex("#ffb35d"),
+			Color3.fromHex("#ff0202")
+		),
+
+		[MutationsEnum.Gold] = ColorSequence.new(
+			Color3.fromHex("#fdff81"),
+			Color3.fromHex("#ff7f0f")
+		),
+
+		[MutationsEnum.Void] = ColorSequence.new(
+			Color3.fromHex("#d29eff"),
+			Color3.fromHex("#7e15ff")
+		)
+	},
+
+	MutationFlipbooks = {
+		[MutationsEnum.Flame] = {
+			Id = "rbxassetid://114558212950407",
+			FPS = 15,
+			Row = 4,
+			Size = Vector2.new(256, 256),
+			Tiles = 16
+		},
+
+		[MutationsEnum.Gold] = {
+			Id = "rbxassetid://9358765944",
+			FPS = 5,
+			Row = 4,
+			Size = Vector2.new(1024, 1024),
+			Tiles = 16,
+			Color = ColorSequence.new(Color3.fromRGB(255, 186, 25))
+		},
+
+		[MutationsEnum.Void] = {
+			Id = "rbxassetid://15371082237",
+			FPS = 16,
+			Row = 4,
+			Size = Vector2.new(512, 512),
+			Tiles = 16,
+			Color = ColorSequence.new(Color3.fromRGB(178, 11, 255))
+		}
+	},
 
 	GamepadIcons = {
 		-- PS5

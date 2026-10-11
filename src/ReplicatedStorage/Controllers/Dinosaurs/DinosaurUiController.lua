@@ -138,7 +138,7 @@ function DinosaurUiController:_UpdateUi()
 		local entry = {
 			Dinosaur = dinosaur,
 			Info = info,
-			Income = DinosaurDef.GetIncome(dinosaur.Id, dinosaur.Scale),
+			Income = DinosaurDef.GetIncome(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation),
 			Placed = self._DinosaurController:IsDinosaurPlaced(dinosaur.Guid)
 		}
 		table.insert(dinosaurs, entry)
@@ -248,7 +248,7 @@ function DinosaurUiController:_UpdateViewportModels()
 		end
 
 		if inView and dinosaur and entry.Info and (not viewportFrame:FindFirstChildWhichIsA("WorldModel")) then
-			DinosaurUtils.CreateViewportModel(viewportFrame, dinosaur.Id, dinosaur.Scale)
+			DinosaurUtils.CreateViewportModel(viewportFrame, dinosaur.Id, dinosaur.Scale, dinosaur.Mutation)
 		end
 	end
 end

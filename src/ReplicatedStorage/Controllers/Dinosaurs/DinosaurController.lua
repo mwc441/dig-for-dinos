@@ -17,6 +17,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
@@ -141,7 +142,8 @@ function DinosaurController:GetOwnedDinosaurs()
 		table.insert(dinosaurs, {
 			Id = placedDinosaur.Id,
 			Guid = placedDinosaur.Guid,
-			Scale = BonePileUtils.GetScale(placedDinosaur.Scale)
+			Scale = BonePileUtils.GetScale(placedDinosaur.Scale),
+			Mutation = placedDinosaur.Mutation or MutationsEnum.Normal
 		})
 	end
 
@@ -150,7 +152,8 @@ function DinosaurController:GetOwnedDinosaurs()
 			table.insert(dinosaurs, {
 				Id = item.ItemId,
 				Guid = item.Guid,
-				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
+				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
 			})
 		end
 	end

@@ -1,6 +1,8 @@
 local ServerScriptService = game:GetService("ServerScriptService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Replicator = require(ServerScriptService.Services.Replication.Replicator)
 
 local WALK_SPEED = 8
@@ -23,6 +25,7 @@ function Dinosaur.new(replicationService, owner, floor, savedData, spawnCFrame)
 	self._OwnerUserId = owner.UserId
 	self._DinosaurId = savedData.Id
 	self._Scale = savedData.Scale
+	self._Mutation = savedData.Mutation or MutationsEnum.Normal
 	self._Floor = floor
 	self._Random = Random.new()
 	self._WalkSpeed = WALK_SPEED
@@ -48,6 +51,7 @@ function Dinosaur:GetReplicationData()
 	replicationData.OwnerUserId = self._OwnerUserId
 	replicationData.DinosaurId = self._DinosaurId
 	replicationData.Scale = self._Scale
+	replicationData.Mutation = self._Mutation
 	replicationData.StartCFrame = self._StartCFrame
 	replicationData.TargetCFrame = self._TargetCFrame
 	replicationData.MoveStartTime = self._MoveStartTime

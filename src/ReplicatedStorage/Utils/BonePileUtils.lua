@@ -4,6 +4,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Particles = Assets:WaitForChild("Particles")
 local BonePileRarityParticles = Particles:WaitForChild("BonePileRarities")
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
 local UtilFunctions = require(script.Parent:WaitForChild("UtilFunctions"))
 
@@ -22,7 +23,7 @@ function BonePileUtils.GetScale(scale)
 	return scale
 end
 
-function BonePileUtils.CreateModel(dinosaurId, scale) : Model?
+function BonePileUtils.CreateModel(dinosaurId, scale, mutation) : Model?
 	local dinosaurInfo = DinosaurDef.GetDinosaurInfo(dinosaurId)
 	if not dinosaurInfo then
 		warn("Unknown dinosaur for bone pile " .. tostring(dinosaurId))
@@ -71,6 +72,7 @@ function BonePileUtils.CreateModel(dinosaurId, scale) : Model?
 	model:SetAttribute("DinosaurId", dinosaurId)
 	model:SetAttribute("Rarity", dinosaurInfo.Rarity)
 	model:SetAttribute("Scale", scale)
+	model:SetAttribute("Mutation", mutation or MutationsEnum.Normal)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	CollectionService:AddTag(model, "BonePile")
 

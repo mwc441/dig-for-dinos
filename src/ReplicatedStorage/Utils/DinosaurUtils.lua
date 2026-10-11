@@ -2,13 +2,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Dinosaurs = Assets:WaitForChild("Dinosaurs")
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
 local BonePileUtils = require(script.Parent:WaitForChild("BonePileUtils"))
 local UtilFunctions = require(script.Parent:WaitForChild("UtilFunctions"))
 
 local DinosaurUtils = {}
 
-function DinosaurUtils.CreateModel(dinosaurId, scale): Model?
+function DinosaurUtils.CreateModel(dinosaurId, scale, mutation): Model?
 	if not DinosaurDef.GetDinosaurInfo(dinosaurId) then
 		warn("Unknown dinosaur model: " .. tostring(dinosaurId))
 		return
@@ -30,6 +31,7 @@ function DinosaurUtils.CreateModel(dinosaurId, scale): Model?
 	UtilFunctions.CanTouchAllDescendants(model, true)
 	model:SetAttribute("DinosaurId", dinosaurId)
 	model:SetAttribute("Scale", scale)
+	model:SetAttribute("Mutation", mutation or MutationsEnum.Normal)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 
 	return model
@@ -61,8 +63,8 @@ function DinosaurUtils.LoadAnimation(model: Model, animationName: string): Anima
 	return animator:LoadAnimation(animation)
 end
 
-function DinosaurUtils.CreateViewportModel(viewportFrame: ViewportFrame, dinosaurId, scale)
-	local model = DinosaurUtils.CreateModel(dinosaurId, scale)
+function DinosaurUtils.CreateViewportModel(viewportFrame: ViewportFrame, dinosaurId, scale, mutation)
+	local model = DinosaurUtils.CreateModel(dinosaurId, scale, mutation)
 	if not model then return end
 
 	local worldModel = Instance.new("WorldModel")

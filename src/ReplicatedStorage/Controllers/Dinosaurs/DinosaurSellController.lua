@@ -8,6 +8,7 @@ local MoneySound = Sounds:WaitForChild("MoneySound")
 local External = ReplicatedStorage:WaitForChild("External")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
@@ -126,12 +127,14 @@ function DinosaurSellController:_UpdateUi()
 			local dinosaur = {
 				Id = item.ItemId,
 				Guid = item.Guid,
-				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
+				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
 			}
 			local entry = {
 				Dinosaur = dinosaur,
 				Info = info,
-				Income = DinosaurDef.GetIncome(item.ItemId, dinosaur.Scale)
+				Income = DinosaurDef.GetIncome(item.ItemId, dinosaur.Scale, dinosaur.Mutation),
+				Mutation = dinosaur.Mutation
 			}
 			table.insert(dinosaurs, entry)
 			owned[dinosaur.Guid] = entry
@@ -177,7 +180,7 @@ function DinosaurSellController:_UpdateUi()
 		RarityColorUtils.SetColor(template.RarityText, entry.Info.Rarity)
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
 		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
-		local sellPrice = DinosaurDef.GetSellPrice(dinosaur.Id, dinosaur.Scale)
+		local sellPrice = DinosaurDef.GetSellPrice(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation)
 		template.SellAmountFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(sellPrice))
 		template.SellButton.Visible = true
 		template.LayoutOrder = order
@@ -239,7 +242,7 @@ function DinosaurSellController:_UpdateViewportModels()
 		end
 
 		if inView and dinosaur and entry.Info and (not viewportFrame:FindFirstChildWhichIsA("WorldModel")) then
-			DinosaurUtils.CreateViewportModel(viewportFrame, dinosaur.Id, dinosaur.Scale)
+			DinosaurUtils.CreateViewportModel(viewportFrame, dinosaur.Id, dinosaur.Scale, dinosaur.Mutation)
 		end
 	end
 end

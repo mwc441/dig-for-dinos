@@ -1,6 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Rarities = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Rarities"))
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local RaritiesEnum = require(Enums:WaitForChild("Rarities"))
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 
 local DinosaurDef = {}
 local SELL_INCOME_SECONDS = 60
@@ -12,9 +14,38 @@ DinosaurDef.Ids = {
 DinosaurDef.Table = {
 	[DinosaurDef.Ids.Trex] = {
 		Name = "Trex",
-		Rarity = Rarities.Common,
+		Rarity = RaritiesEnum.Common,
 		Income = 50,
 		Weight = 100
+	}
+}
+
+DinosaurDef.MutationIncomeMultipliers = {
+	[MutationsEnum.Normal] = 1,
+	[MutationsEnum.Flame] = 2,
+	[MutationsEnum.Gold] = 5,
+	[MutationsEnum.Void] = 10
+}
+
+DinosaurDef.MutationLootTable = {
+	{
+		Id = MutationsEnum.Normal,
+		Weight = 50
+	},
+
+	{
+		Id = MutationsEnum.Flame,
+		Weight = 30
+	},
+
+	{
+		Id = MutationsEnum.Gold,
+		Weight = 15
+	},
+
+	{
+		Id = MutationsEnum.Void,
+		Weight = 5
 	}
 }
 
@@ -26,18 +57,20 @@ function DinosaurDef.GetDinosaurInfo(id)
 	return DinosaurDef.Table[id]
 end
 
-function DinosaurDef.GetSellPrice(id, scale)
+function DinosaurDef.GetSellPrice(id, scale, mutation)
 	local info = DinosaurDef.GetDinosaurInfo(id)
 	if not info then return end
 
-	return math.round((info.Income or 0) * scale) * SELL_INCOME_SECONDS
+	return DinosaurDef.GetIncome(id, scale, mutation) * SELL_INCOME_SECONDS
 end
 
-function DinosaurDef.GetIncome(id, scale)
+function DinosaurDef.GetIncome(id, scale, mutation)
 	local info = DinosaurDef.GetDinosaurInfo(id)
 	if not info then return end
 
-	return (info.Income or 0) * scale
+	local mutationMultiplier = DinosaurDef.MutationIncomeMultipliers[mutation] or 1
+
+	return math.round((info.Income or 0) * scale * mutationMultiplier)
 end
 
 function DinosaurDef.GetLootTableForRarity(rarity)

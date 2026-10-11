@@ -10,6 +10,7 @@ local ClientAssets = Assets:WaitForChild("ClientAssets")
 local IncomeGui = ClientAssets:WaitForChild("IncomeGui")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Trove = require(External:WaitForChild("Trove"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
@@ -34,6 +35,7 @@ function Dinosaur.new(replicationData)
 	self._Owner = Players:GetPlayerByUserId(self._OwnerUserId)
 	self._DinosaurId = replicationData.DinosaurId
 	self._Scale = replicationData.Scale
+	self._Mutation = replicationData.Mutation or MutationsEnum.Normal
 	self._Income = 0
 
 	self:Update(replicationData)
@@ -59,6 +61,10 @@ end
 
 function Dinosaur:GetScale()
 	return self._Scale
+end
+
+function Dinosaur:GetMutation()
+	return self._Mutation
 end
 
 function Dinosaur:IsAncestorOf(instance)
@@ -106,7 +112,7 @@ function Dinosaur:Show(plot, parent)
 	end
 	self:Hide()
 
-	local model = DinosaurUtils.CreateModel(self._DinosaurId, self._Scale)
+	local model = DinosaurUtils.CreateModel(self._DinosaurId, self._Scale, self._Mutation)
 	if not model then
 		return
 	end

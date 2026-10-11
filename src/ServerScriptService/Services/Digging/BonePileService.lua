@@ -7,7 +7,9 @@ local Workspace = game:GetService("Workspace")
 
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
 local Knit = require(External:WaitForChild("Knit"))
@@ -27,6 +29,7 @@ local BonePileService = {
 		BonesRewarded = Knit.CreateSignal()
 	},
 	_InventoryService = nil,
+	_DinosaurService = nil,
 	_Carried = {},
 	_Dropped = {},
 	_InventoryTools = {},
@@ -50,6 +53,8 @@ function BonePileService:KnitInit()
 end
 
 function BonePileService:KnitStart()
+	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
+
 	self._InventoryService.PlayerInventoryUpdated:Connect(function(player)
 		self:_SyncInventoryTools(player)
 	end)
@@ -67,10 +72,6 @@ function BonePileService:OnPlayerAdded(player)
 	if self._PlayerConnections[player] then
 		return
 	end
-
-	self._InventoryService:AddNonFungibleItemForPlayer(player, "Trex", {
-		Scale = 1.5
-	})
 
 	local connections = {}
 	self._PlayerConnections[player] = connections
@@ -201,7 +202,8 @@ function BonePileService:_EquipInventoryTool(player, tool, guid, dinosaurId)
 
 	self:_RemoveEquippedInventoryDisplay(player)
 	local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-	local model = BonePileUtils.CreateModel(dinosaurId, scale)
+	local mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
+	local model = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
 	if not model then
 		return
 	end
@@ -212,7 +214,7 @@ function BonePileService:_EquipInventoryTool(player, tool, guid, dinosaurId)
 	self._EquippedInventoryDisplays[player] = { Tool = tool, Model = model }
 end
 
-function BonePileService:_CreateInventoryTool(player, guid, dinosaurId, scale, backpack)
+function BonePileService:_CreateInventoryTool(player, guid, dinosaurId, scale, mutation, backpack)
 	local dinosaurInfo = DinosaurDef.GetDinosaurInfo(dinosaurId)
 	local tool = Instance.new("Tool")
 	tool.Name = dinosaurInfo.Name .. " " .. string.format("(%0.1fx)", scale)
@@ -221,6 +223,7 @@ function BonePileService:_CreateInventoryTool(player, guid, dinosaurId, scale, b
 	tool:SetAttribute("BonePileGuid", guid)
 	tool:SetAttribute("DinosaurId", dinosaurId)
 	tool:SetAttribute("Scale", scale)
+	tool:SetAttribute("Mutation", mutation)
 
 	tool.Equipped:Connect(function()
 		if self._InventoryTools[player] and self._InventoryTools[player][guid] == tool then
@@ -269,7 +272,8 @@ function BonePileService:_SyncInventoryTools(player)
 		if DinosaurDef.GetDinosaurInfo(item.ItemId) then
 			owned[item.Guid] = {
 				DinosaurId = item.ItemId,
-				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
+				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
+				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
 			}
 		end
 	end
@@ -279,6 +283,7 @@ function BonePileService:_SyncInventoryTools(player)
 		if not item
 			or tool:GetAttribute("DinosaurId") ~= item.DinosaurId
 			or tool:GetAttribute("Scale") ~= item.Scale
+			or tool:GetAttribute("Mutation") ~= item.Mutation
 			or (tool.Parent ~= backpack and tool.Parent ~= player.Character) then
 			self:_DestroyInventoryTool(player, guid)
 		end
@@ -286,13 +291,13 @@ function BonePileService:_SyncInventoryTools(player)
 
 	for guid, item in pairs(owned) do
 		if not inventoryTools[guid] then
-			self:_CreateInventoryTool(player, guid, item.DinosaurId, item.Scale, backpack)
+			self:_CreateInventoryTool(player, guid, item.DinosaurId, item.Scale, item.Mutation, backpack)
 		end
 	end
 end
 
-function BonePileService:_CreatePile(dinosaurId, scale)
-	local model = BonePileUtils.CreateModel(dinosaurId, scale)
+function BonePileService:_CreatePile(dinosaurId, scale, mutation)
+	local model = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
 	if not model then
 		return
 	end
@@ -308,6 +313,7 @@ function BonePileService:_CreatePile(dinosaurId, scale)
 	local pile = {
 		DinosaurId = dinosaurId,
 		Scale = model:GetAttribute("Scale"),
+		Mutation = model:GetAttribute("Mutation"),
 		Model = model,
 		Prompt = prompt
 	}
@@ -453,7 +459,8 @@ function BonePileService:AwardForDirt(player, dirtRarity, dirtCFrame, dirtScale)
 	end
 
 	local dinosaurId = RarityUtils.GetLootTableResults(lootTable).Id
-	local pile = self:_CreatePile(dinosaurId, dirtScale)
+	local mutation = RarityUtils.GetLootTableResults(table.clone(DinosaurDef.MutationLootTable)).Id
+	local pile = self:_CreatePile(dinosaurId, dirtScale, mutation)
 	if not pile then
 		return false
 	end
@@ -476,9 +483,7 @@ function BonePileService:_BankPile(player, pile)
 	end
 	pile.Banking = true
 
-	local guid = self._InventoryService:AddNonFungibleItemForPlayer(player, pile.DinosaurId, {
-		Scale = pile.Scale
-	})
+	local guid = self._DinosaurService:GiveDinosaur(player, pile.DinosaurId, pile.Scale, pile.Mutation)
 	if not guid then
 		pile.Banking = false
 		return

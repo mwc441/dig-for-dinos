@@ -8,5 +8,6 @@ return {
 	Equips = "Equips",
 	Timers = "Timers",
 	Codes = "Codes",
-	Upgrades = "Upgrades"
+	Upgrades = "Upgrades",
+	Index = "Index"
 }
