@@ -30,22 +30,22 @@ DinosaurDef.MutationIncomeMultipliers = {
 DinosaurDef.MutationLootTable = {
 	{
 		Id = MutationsEnum.Normal,
-		Weight = 50
+		Weight = 90
 	},
 
 	{
 		Id = MutationsEnum.Flame,
-		Weight = 30
+		Weight = 5
 	},
 
 	{
 		Id = MutationsEnum.Gold,
-		Weight = 15
+		Weight = 4
 	},
 
 	{
 		Id = MutationsEnum.Void,
-		Weight = 5
+		Weight = 1
 	}
 }
 

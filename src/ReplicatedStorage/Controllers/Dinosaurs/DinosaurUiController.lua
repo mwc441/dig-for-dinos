@@ -10,6 +10,7 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
@@ -188,6 +189,12 @@ function DinosaurUiController:_UpdateUi()
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
 		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
 		template.EquipButton.Visible = not entry.Placed
+
+		local mutation = dinosaur.Mutation
+		template.MutationText.Text = mutation
+		template.MutationText.Visible = mutation ~= "Normal"
+		template.MutationText.UIGradient.Color = Constants.MutationGradients[mutation] or ColorSequence.new(Color3.fromRGB(255, 255, 255))
+
 		template.LayoutOrder = order
 		template.Visible = true
 	end

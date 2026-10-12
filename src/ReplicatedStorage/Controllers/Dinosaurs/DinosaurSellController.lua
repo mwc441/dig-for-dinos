@@ -13,6 +13,7 @@ local Utils = ReplicatedStorage:WaitForChild("Utils")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
@@ -183,6 +184,11 @@ function DinosaurSellController:_UpdateUi()
 		local sellPrice = DinosaurDef.GetSellPrice(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation)
 		template.SellAmountFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(sellPrice))
 		template.SellButton.Visible = true
+
+		local mutation = dinosaur.Mutation
+		template.MutationText.Visible = mutation ~= "Normal"
+		template.MutationText.Text = mutation
+		template.MutationText.UIGradient.Color = Constants.MutationGradients[mutation] or ColorSequence.new(Color3.fromRGB(255, 255, 255))
 		template.LayoutOrder = order
 		template.Visible = true
 	end
