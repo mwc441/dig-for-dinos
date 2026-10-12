@@ -262,7 +262,7 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 	local rootPart = character:FindFirstChild("HumanoidRootPart")
 	if not rootPart then return end
 
-	local model = DinosaurUtils.CreateModel(dinosaurId, scale)
+	local model = DinosaurUtils.CreateModel(dinosaurId, scale, mutation)
 	if not model then return end
 
 	local info = DinosaurDef.GetDinosaurInfo(dinosaurId)
@@ -398,7 +398,7 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 				if descendant:IsA("Trail") then
 					descendant.Enabled = false
 					glowTrail = descendant
-				elseif descendant:IsA("SurfaceAppearance") or descendant:IsA("Decal") or descendant:IsA("Texture") then
+				elseif descendant:IsA("SurfaceAppearance") or descendant:IsA("Decal") or descendant:IsA("Texture") or descendant:IsA("ParticleEmitter") then
 					descendant:Destroy()
 				end
 			end

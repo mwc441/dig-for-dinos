@@ -5,6 +5,7 @@ local Dinosaurs = Assets:WaitForChild("Dinosaurs")
 local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
 local BonePileUtils = require(script.Parent:WaitForChild("BonePileUtils"))
+local MutationUtils = require(script.Parent:WaitForChild("MutationUtils"))
 local UtilFunctions = require(script.Parent:WaitForChild("UtilFunctions"))
 
 local DinosaurUtils = {}
@@ -23,6 +24,9 @@ function DinosaurUtils.CreateModel(dinosaurId, scale, mutation): Model?
 
 	local model = template:Clone()
 	scale = BonePileUtils.GetScale(scale)
+	if mutation then
+		MutationUtils.Apply(model, mutation)
+	end
 	model:ScaleTo(scale)
 	UtilFunctions.AnchorAllDescendants(model, false)
 	model.PrimaryPart.Anchored = true

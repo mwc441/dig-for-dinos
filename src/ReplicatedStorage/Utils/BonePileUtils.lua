@@ -4,9 +4,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Particles = Assets:WaitForChild("Particles")
 local BonePileRarityParticles = Particles:WaitForChild("BonePileRarities")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local DinosaurDef = require(ReplicatedStorage:WaitForChild("ReplicatedConfigs"):WaitForChild("DinosaurDef"))
-local UtilFunctions = require(script.Parent:WaitForChild("UtilFunctions"))
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local MutationUtils = require(Utils:WaitForChild("MutationUtils"))
 
 local BonePileUtils = {}
 local CARRY_DISTANCE = 1.25
@@ -61,6 +63,10 @@ function BonePileUtils.CreateModel(dinosaurId, scale, mutation) : Model?
 		weld.Part0 = newRarityParticles
 		weld.Part1 = root
 		weld.Parent = newRarityParticles
+	end
+
+	if mutation then
+		MutationUtils.Apply(model, mutation)
 	end
 
 	scale = BonePileUtils.GetScale(scale)
