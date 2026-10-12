@@ -15,8 +15,10 @@ local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
 local Flipbook2d = require(Utils:WaitForChild("2dFlipbook"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
+local NumberTypesEnum = require(Enums:WaitForChild("NumberTypes"))
 local IndexDef = require(ReplicatedConfigs:WaitForChild("IndexDef"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local BoostsDef = require(ReplicatedConfigs:WaitForChild("BoostsDef"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
@@ -423,24 +425,22 @@ function IndexUiController:_UpdateRewardsFrame()
 	local level = self._IndexController:GetLevelClaimed(category)
 	local levelInfo = IndexDef.GetLevelInfoForIndex(category, level + 1)
 	local unlocks = self._IndexController:GetUnlocked(category)
+	local indexInfo = IndexDef.GetIndexInfo(category)
+	local boostId = indexInfo and indexInfo.Boost
+	local boostInfo = boostId and BoostsDef.GetBoostInfo(boostId)
+	local rewards = levelInfo and levelInfo.Rewards or {}
 
-	if not levelInfo then
-		self:_ClearRewardsFrame()
-		self._Gui.ClaimButton.Visible = false
-		return
-	end
-
-	self._Gui.ClaimButton.Visible = #unlocks >= levelInfo.Required
+	self._Gui.ClaimButton.Visible = levelInfo ~= nil and #unlocks >= levelInfo.Required
 
 	for _, template in pairs(self._Gui.RewardsList:GetChildren()) do
 		if not template:IsA(self._Gui.RewardTemplate.ClassName) then continue end
 
-		if not levelInfo.Rewards[template.Name] then
+		if not rewards[template.Name] and (not boostInfo or template.Name ~= boostId) then
 			template:Destroy()
 		end
 	end
 
-	for rewardType, reward in pairs(levelInfo.Rewards) do
+	for rewardType, reward in pairs(rewards) do
 		local rewardTemplate = self._Gui.RewardsList:FindFirstChild(rewardType)
 		if not rewardTemplate then
 			local newRewardTemplate = self._Gui.RewardTemplate:Clone()
@@ -455,6 +455,26 @@ function IndexUiController:_UpdateRewardsFrame()
 		end
 
 		rewardTemplate.Button.QuantityText.Text = string.format("x%s", BigNumbers.GetNumberDisplay(reward))
+	end
+
+	if boostInfo then
+		local boostTemplate = self._Gui.RewardsList:FindFirstChild(boostId)
+		if not boostTemplate then
+			boostTemplate = self._Gui.RewardTemplate:Clone()
+			boostTemplate.Name = boostId
+			boostTemplate.Visible = true
+			boostTemplate.Parent = self._Gui.RewardsList
+		end
+
+		local boostLevel = levelInfo and level + 1 or level
+		local amount = BoostsDef.GetTotalAmountForBoostForLevel(boostId, boostLevel)
+		if boostInfo.NumberType == NumberTypesEnum.Multiplying then
+			boostTemplate.Button.NameText.Text = string.format("x%.2f", amount)
+		else
+			boostTemplate.Button.NameText.Text = string.format("+%g%%", amount * 100)
+		end
+		boostTemplate.Button.Icon.Image = boostInfo.Icon or ""
+		boostTemplate.Button.QuantityText.Text = ""
 	end
 end
 

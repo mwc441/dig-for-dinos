@@ -15,6 +15,7 @@ local TableUtils = require(External:WaitForChild("TableUtils"))
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local NumberTypesEnum = require(Enums:WaitForChild("NumberTypes"))
 local BoostsEnum = require(Enums:WaitForChild("Boosts"))
+local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 
 local BoostsDef = {}
 
@@ -53,6 +54,42 @@ BoostsDef.Table = {
 		Name = "Rebirth Cash",
 		AmountFunction = function(level: number)
 			return 1 + (level * 0.5)
+		end
+	},
+
+	[BoostsEnum.NormalIndexCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Icon = Constants.Icons[PlayerStatsEnum.Cash],
+		AmountFunction = function(level: number)
+			return level * 0.05
+		end
+	},
+
+	[BoostsEnum.GoldIndexCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Icon = Constants.Icons[PlayerStatsEnum.Cash],
+		AmountFunction = function(level: number)
+			return level * 0.05
+		end
+	},
+
+	[BoostsEnum.VoidIndexCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Icon = Constants.Icons[PlayerStatsEnum.Cash],
+		AmountFunction = function(level: number)
+			return level * 0.05
+		end
+	},
+
+	[BoostsEnum.FlameIndexCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Icon = Constants.Icons[PlayerStatsEnum.Cash],
+		AmountFunction = function(level: number)
+			return level * 0.05
 		end
 	},
 
