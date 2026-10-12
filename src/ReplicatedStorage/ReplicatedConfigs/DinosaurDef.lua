@@ -22,9 +22,9 @@ DinosaurDef.Table = {
 
 DinosaurDef.MutationIncomeMultipliers = {
 	[MutationsEnum.Normal] = 1,
-	[MutationsEnum.Flame] = 2,
-	[MutationsEnum.Gold] = 5,
-	[MutationsEnum.Void] = 10
+	[MutationsEnum.Gold] = 2,
+	[MutationsEnum.Void] = 5,
+	[MutationsEnum.Flame] = 10
 }
 
 DinosaurDef.MutationLootTable = {
@@ -34,17 +34,17 @@ DinosaurDef.MutationLootTable = {
 	},
 
 	{
-		Id = MutationsEnum.Flame,
+		Id = MutationsEnum.Gold,
 		Weight = 5
 	},
 
 	{
-		Id = MutationsEnum.Gold,
+		Id = MutationsEnum.Void,
 		Weight = 4
 	},
 
 	{
-		Id = MutationsEnum.Void,
+		Id = MutationsEnum.Flame,
 		Weight = 1
 	}
 }

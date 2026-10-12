@@ -23,10 +23,10 @@ IndexDef.Table = {
 		}
 	},
 
-	[MutationsEnum.Flame] = {
-		Name = "Flame",
+	[MutationsEnum.Gold] = {
+		Name = "Gold",
 		Order = 2,
-		Icon = "rbxassetid://109377335165115",
+		Icon = "rbxassetid://76338452583696",
 		Boost = BoostsEnum.IndexCoinBoost,
 		Levels = {
 			[1] = {
@@ -38,10 +38,10 @@ IndexDef.Table = {
 		}
 	},
 
-	[MutationsEnum.Gold] = {
-		Name = "Gold",
+	[MutationsEnum.Void] = {
+		Name = "Void",
 		Order = 3,
-		Icon = "rbxassetid://76338452583696",
+		Icon = "rbxassetid://134758484439921",
 		Boost = BoostsEnum.IndexCoinBoost,
 		Levels = {
 			[1] = {
@@ -53,10 +53,10 @@ IndexDef.Table = {
 		}
 	},
 
-	[MutationsEnum.Void] = {
-		Name = "Void",
+	[MutationsEnum.Flame] = {
+		Name = "Flame",
 		Order = 4,
-		Icon = "rbxassetid://134758484439921",
+		Icon = "rbxassetid://109377335165115",
 		Boost = BoostsEnum.IndexCoinBoost,
 		Levels = {
 			[1] = {
@@ -66,7 +66,7 @@ IndexDef.Table = {
 				}
 			}
 		}
-	}
+	},
 }
 
 function IndexDef.GetAllIndexes()
