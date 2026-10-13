@@ -581,6 +581,21 @@ function UtilFunctions.TweenCFrame(beginCFrame, endCFrame, tweenInfo)
 	return tween, cframeValue
 end
 
+function UtilFunctions.TweenNumberValue(startNumber, endNumber, tweenInfo)
+	local numberValue = Instance.new("NumberValue")
+	numberValue.Value = startNumber
+
+	local tween = TweenService:Create(numberValue, tweenInfo, {
+		Value = endNumber
+	})
+
+	tween.Completed:Connect(function()
+		numberValue:Destroy()
+	end)
+
+	return tween, numberValue
+end
+
 function UtilFunctions.CreateProximityPrompt(parent, args)
 	args = args or {}
 
@@ -1080,6 +1095,24 @@ function UtilFunctions.QuadraticBezierTangent(p0: Vector3, p1: Vector3, p2: Vect
 		2 * (1 - t) * (p1 - p0) +
 		2 * t * (p2 - p1)
 	).Unit
+end
+
+function UtilFunctions.SetGuiTransparency(guiObject: GuiObject, transparency: number)
+	if guiObject:IsA("TextLabel") then
+		guiObject.TextTransparency = transparency
+	elseif guiObject:IsA("ImageLabel") then
+		guiObject.ImageTransparency = transparency
+	elseif guiObject:IsA("UIStroke") then
+		guiObject.Transparency = transparency
+	end
+end
+
+function UtilFunctions.SetGuiTransparencyDescendants(guiObject: GuiObject, transparency: number)
+	UtilFunctions.SetGuiTransparency(guiObject, transparency)
+
+	for _, descendant in pairs(guiObject:GetDescendants()) do
+		UtilFunctions.SetGuiTransparency(descendant, transparency)
+	end
 end
 
 return UtilFunctions

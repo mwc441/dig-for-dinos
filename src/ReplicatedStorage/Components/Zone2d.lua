@@ -16,6 +16,9 @@ local Zone2d = Component.new({
 	Ancestors = { Workspace }
 })
 
+Zone2d.EnteredZone = Signal.new()
+Zone2d.ExitedZone = Signal.new()
+
 function Zone2d:Construct()
 	self._Trove = Trove.new()
 	self._Part = PartUtil.new(self.Instance)
@@ -29,19 +32,17 @@ function Zone2d:Construct()
 end
 
 function Zone2d:Start()
-	if not Player then
-		return
-	end
-
 	self._Trove:Add(RunService.Heartbeat:Connect(function()
-		local isInside = self._Part:PlayerIsInsidePartArea(Player, 15)
+		local isInside = self._Part:PlayerIsInsidePartArea(Player, math.huge)
 
 		if isInside and not self._IsLocalPlayerInside then
 			self._IsLocalPlayerInside = true
 			self.Entered:Fire()
+			Zone2d.EnteredZone:Fire(self)
 		elseif self._IsLocalPlayerInside and not isInside then
 			self._IsLocalPlayerInside = false
 			self.Exited:Fire()
+			Zone2d.ExitedZone:Fire(self)
 		end
 	end))
 end
@@ -64,6 +65,34 @@ end
 
 function Zone2d.GetByName(name: string)
 	return Zone2d.GetZone2d(name)
+end
+
+function Zone2d.IsPlayerInside(name: string)
+	local zone = Zone2d.GetZone2d(name)
+	if not zone then return false end
+
+	return zone:IsLocalPlayerInside()
+end
+
+function Zone2d.ConnectToZone(name: string, callback)
+	local enterConnect = Zone2d.EnteredZone:Connect(function(zone)
+		if zone.Instance.Name == name then
+			callback(true)
+		end
+	end)
+
+	local exitConnect = Zone2d.ExitedZone:Connect(function(zone)
+		if zone.Instance.Name == name then
+			callback(false)
+		end
+	end)
+
+	return {
+		Disconnect = function()
+			enterConnect:Disconnect()
+			exitConnect:Disconnect()
+		end
+	}
 end
 
 return Zone2d
