@@ -155,6 +155,14 @@ function IndexUiController:_SetupCategoryButtons()
 		newCategoryButton.OuterNameText.Text = info.Name or ""
 		newCategoryButton.Icon.Image = info.Icon or ""
 
+		local flipbookInfo = Constants.MutationFlipbooks[category]
+		if flipbookInfo then
+			newCategoryButton.Flipbook.Image = flipbookInfo.Id
+			newCategoryButton.Flipbook.UIGradient.Color = flipbookInfo.Color or ColorSequence.new(Color3.fromRGB(255, 255, 255))
+			local flipbook = Flipbook2d.new(newCategoryButton.Flipbook, flipbookInfo.Size, flipbookInfo.Row, flipbookInfo.Tiles, flipbookInfo.FPS)
+			flipbook:Play()
+		end
+
 		local categoryButton = GuiButton.new(newCategoryButton)
 		categoryButton:SetCallback(function()
 			self:_SelectCategory(category)
