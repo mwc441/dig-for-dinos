@@ -2,6 +2,8 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local DinosaurModels = Assets:WaitForChild("Dinosaurs")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
@@ -37,6 +39,12 @@ local DinosaurService = {
 	_IndexService = nil,
 	_Dinosaurs = {}
 }
+
+function DinosaurService:KnitInit()
+	for _, animSaves in pairs(DinosaurModels:QueryDescendants("#AnimSaves")) do
+		animSaves:Destroy()
+	end
+end
 
 function DinosaurService:KnitStart()
 	self._DataService = require(ServerScriptService.Services.Data.DataService)
