@@ -1,5 +1,7 @@
 return {
 	FirstLogin = "FirstLogin",
 	LastLogout = "LastLogout",
-	GroupReward = "GroupReward"
+	GroupReward = "GroupReward",
+	DailyRewardNum = "DailyRewardNum",
+	DailyRewardLastClaimed = "DailyRewardLastClaimed"
 }

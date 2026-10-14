@@ -902,7 +902,11 @@ function UtilFunctions.GetTimeStringFromTime(time)
 
 	local secondsLeft = timeLeft
 	if daysLeft > 0 then
-		return string.format("%dd%dh", daysLeft, hoursLeft)
+		if hoursLeft > 0 then
+			return string.format("%dd%dh", daysLeft, hoursLeft)
+		else
+			return string.format("%dd", daysLeft)
+		end
 	else
 		if hoursLeft <= 0 then
 			if minutesLeft <= 0 then
