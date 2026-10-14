@@ -1,4 +1,3 @@
-local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -9,11 +8,14 @@ local Player = Players.LocalPlayer
 local External = ReplicatedStorage:WaitForChild("External")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Animations = Assets:WaitForChild("Animations")
+local ShovelModels : Folder = Assets:WaitForChild("Shovels")
 local ShovelIdleAnimation : Animation = Animations:WaitForChild("ShovelIdle")
 local ShovelDigAnimation : Animation = Animations:WaitForChild("ShovelDig")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local Trove = require(External:WaitForChild("Trove"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
 local Derpbar = require(ReplicatedStorage:WaitForChild("Derpbar"))
 local Dirt = require(script.Parent:WaitForChild("Dirt"))
@@ -21,6 +23,8 @@ local Dirt = require(script.Parent:WaitForChild("Dirt"))
 local DIG_BOX_WIDTH = 6
 local DIG_BOX_VERTICAL_PADDING = 1
 local DIG_RANGE = 8
+local EQUIPPED_SHOVEL_NAME = "EquippedShovel"
+local SHOVEL_MOTOR_NAME = "ShovelMotor6D"
 local DirtFolder = Dirt.GetFolder()
 local DirtOverlapParams = OverlapParams.new()
 DirtOverlapParams.IncludeInstances = { DirtFolder }
@@ -29,9 +33,12 @@ local DigController = {
 	Name = "DigController",
 	_DigService = nil,
 	_ReplicationController = nil,
+	_ToolController = nil,
 	_Dirts = {},
 	_InitialDirtGuids = nil,
 	_ShovelTrove = Trove.new(),
+	_AttachedShovels = {},
+	_ActiveShovelTool = nil,
 	_LastDig = nil,
 	_NextPredictionId = 0
 }
@@ -39,6 +46,7 @@ local DigController = {
 function DigController:KnitStart()
 	self._DigService = Knit.GetService("DigService")
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
+	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
 	self._DigService.InitialDirtGuids:Observe(function(initialGuids)
 		if not initialGuids then return end
 
@@ -72,19 +80,99 @@ function DigController:KnitStart()
 		self:_CreateDirt(replicationData)
 	end
 
-	ContextActionService.LocalToolEquipped:Connect(function(tool)
-		local itemId = tool:GetAttribute("ItemId")
-		if type(itemId) ~= "string" then
-			return
-		end
-
-		local itemInfo = ItemDef.GetItemInfo(itemId)
-		if not itemInfo or itemInfo.Category ~= ItemDef.Categories.Shovel then
-			return
-		end
-
-		self:SetupShovel(tool)
+	self._ToolController.ToolEquipped:Connect(function(player, character, tool)
+		self:_OnToolEquipped(player, character, tool)
 	end)
+	self._ToolController.ToolUnequipped:Connect(function(player, character, tool)
+		self:_OnToolUnequipped(player, character, tool)
+	end)
+
+	for _, player in ipairs(Players:GetPlayers()) do
+		local tool = self._ToolController:GetEquippedToolForPlayer(player)
+		if tool and player.Character then
+			self:_OnToolEquipped(player, player.Character, tool)
+		end
+	end
+end
+
+function DigController:_OnToolEquipped(player, character, tool)
+	local itemId = tool:GetAttribute("ItemId")
+	local itemInfo = type(itemId) == "string" and ItemDef.GetItemInfo(itemId)
+	if not itemInfo or itemInfo.Category ~= ItemDef.Categories.Shovel then return end
+	if self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	if player == Player and self._ActiveShovelTool ~= tool then
+		self:SetupShovel(tool)
+	end
+	self:_AttachShovelToCharacter(player, character, tool, itemId)
+end
+
+function DigController:_OnToolUnequipped(player, character, tool)
+	if player == Player and self._ActiveShovelTool == tool then
+		self._ShovelTrove:Clean()
+		self._ActiveShovelTool = nil
+	end
+	self:_RemoveShovelFromCharacter(character, tool)
+end
+
+function DigController:_GetShovelHandle(shovelModel)
+	local primaryPart = shovelModel.PrimaryPart
+	if primaryPart then return primaryPart end
+
+	local handle = shovelModel:FindFirstChild("Handle", true)
+	if handle and handle:IsA("BasePart") then return handle end
+
+	return shovelModel:FindFirstChildWhichIsA("BasePart", true)
+end
+
+function DigController:_RemoveShovelFromCharacter(character, tool)
+	local attached = self._AttachedShovels[character]
+	if not attached or attached.Tool ~= tool then return end
+
+	self._AttachedShovels[character] = nil
+	attached.Model:Destroy()
+end
+
+function DigController:_AttachShovelToCharacter(player, character, tool, itemId)
+	local rightHand = character:FindFirstChild("RightHand") or character:WaitForChild("RightHand", 5)
+	if not rightHand or not rightHand:IsA("BasePart") then return end
+	if player.Character ~= character or self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	local shovelTemplate = ShovelModels:FindFirstChild(itemId) or ShovelModels:WaitForChild(itemId, 5)
+	if not shovelTemplate or not shovelTemplate:IsA("Model") then return end
+	if player.Character ~= character or self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	local attached = self._AttachedShovels[character]
+	if attached and attached.Tool == tool and attached.Model.Parent == character then return end
+	if attached then
+		attached.Model:Destroy()
+		self._AttachedShovels[character] = nil
+	end
+
+	local shovelModel = shovelTemplate:Clone()
+	local handle = self:_GetShovelHandle(shovelModel)
+	if not handle or not handle:IsA("BasePart") then
+		shovelModel:Destroy()
+		return
+	end
+
+	UtilFunctions.AnchorAllDescendants(shovelModel, false)
+	UtilFunctions.CanCollideAllDescendants(shovelModel, false)
+
+	shovelModel.Name = EQUIPPED_SHOVEL_NAME
+	shovelModel:SetAttribute("ItemId", itemId)
+	shovelModel:PivotTo(rightHand:GetPivot())
+
+	local motor = Instance.new("Motor6D")
+	motor.Name = SHOVEL_MOTOR_NAME
+	motor.C0 = CFrame.identity
+	motor.C1 = CFrame.identity
+	motor.Part0 = rightHand
+	motor.Part1 = handle
+	motor.Parent = handle
+
+	self._AttachedShovels[character] = { Tool = tool, Model = shovelModel }
+	shovelModel.Parent = character
 end
 
 function DigController:_CreateDirt(replicationData)
@@ -178,9 +266,7 @@ end
 
 function DigController:SetupShovel(tool)
 	self._ShovelTrove:Clean()
-	self._ShovelTrove:Connect(tool.Unequipped, function()
-		self._ShovelTrove:Clean()
-	end)
+	self._ActiveShovelTool = tool
 	self._ShovelTrove:Add(function()
 		if self._DigTrack then
 			self._DigTrack:Stop(0.5)

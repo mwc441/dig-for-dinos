@@ -1,4 +1,3 @@
-local ContextActionService = game:GetService("ContextActionService")
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
@@ -50,7 +49,10 @@ local BonePileController = {
 	_DinosaurController = nil,
 	_DinosaurService = nil,
 	_RewardsController = nil,
+	_ToolController = nil,
 	_ToolTrove = Trove.new(),
+	_EquippedInventoryDisplays = {},
+	_ActiveInventoryTool = nil,
 	_BuildTrove = Trove.new()
 }
 
@@ -72,6 +74,7 @@ function BonePileController:KnitStart()
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
 	self._DinosaurController = require(ReplicatedStorage.Controllers.Dinosaurs.DinosaurController)
 	self._RewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
+	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
 	self._BonePileService = Knit.GetService("BonePileService")
 	self._DinosaurService = Knit.GetService("DinosaurService")
 
@@ -95,23 +98,79 @@ function BonePileController:KnitStart()
 		UtilFunctions.PlayCopyOfSound(BoneRewardedSound)
 	end)
 
-	ContextActionService.LocalToolEquipped:Connect(function(tool)
-		if not tool:GetAttribute("BonePileGuid") then return end
+	self._ToolController.ToolEquipped:Connect(function(player, character, tool)
+		self:_OnInventoryToolEquipped(player, character, tool)
+	end)
+	self._ToolController.ToolUnequipped:Connect(function(player, character, tool)
+		self:_OnInventoryToolUnequipped(player, character, tool)
+	end)
 
+	for _, player in ipairs(Players:GetPlayers()) do
+		local tool = self._ToolController:GetEquippedToolForPlayer(player)
+		if tool and player.Character then
+			self:_OnInventoryToolEquipped(player, player.Character, tool)
+		end
+	end
+end
+
+function BonePileController:_OnInventoryToolEquipped(player, character, tool)
+	local guid = tool:GetAttribute("BonePileGuid")
+	local dinosaurId = tool:GetAttribute("DinosaurId")
+	if not guid or type(dinosaurId) ~= "string" then return end
+	if self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	if player == Player and self._ActiveInventoryTool ~= tool then
 		self._ToolTrove:Clean()
-
+		self._ActiveInventoryTool = tool
 		self:_DoBonePileHoldAnim()
-
-		self._ToolTrove:Add(tool.Unequipped:Once(function()
-			self:_StopBonePileHoldAnim()
-			self._ToolTrove:Clean()
-		end))
-
-		self:_StartBuildMode(tool:GetAttribute("BonePileGuid"), tool:GetAttribute("DinosaurId"), tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"))
+		self:_StartBuildMode(guid, dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"))
 		self._ToolTrove:Add(function()
 			self:_StopBuildMode()
 		end)
-	end)
+	end
+
+	self:_AttachInventoryToolDisplay(player, character, tool, dinosaurId)
+end
+
+function BonePileController:_OnInventoryToolUnequipped(player, character, tool)
+	if player == Player and self._ActiveInventoryTool == tool then
+		self:_StopBonePileHoldAnim()
+		self._ToolTrove:Clean()
+		self._ActiveInventoryTool = nil
+	end
+
+	local display = self._EquippedInventoryDisplays[character]
+	if display and display.Tool == tool then
+		self._EquippedInventoryDisplays[character] = nil
+		display.Model:Destroy()
+	end
+end
+
+function BonePileController:_AttachInventoryToolDisplay(player, character, tool, dinosaurId)
+	local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso") or character:FindFirstChild("HumanoidRootPart")
+		or character:WaitForChild("HumanoidRootPart", 5)
+	if not torso then return end
+	if player.Character ~= character or self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	local bonePileModels = Assets:FindFirstChild("BonePiles") or Assets:WaitForChild("BonePiles", 5)
+	if not bonePileModels then return end
+	local template = bonePileModels:FindFirstChild(dinosaurId) or bonePileModels:WaitForChild(dinosaurId, 5)
+	if not template then return end
+	if player.Character ~= character or self._ToolController:GetEquippedToolForPlayer(player) ~= tool or tool.Parent ~= character then return end
+
+	local display = self._EquippedInventoryDisplays[character]
+	if display and display.Tool == tool and display.Model.Parent == character then return end
+
+	local model = BonePileUtils.CreateModel(dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"))
+	if not model then return end
+	if display then
+		display.Model:Destroy()
+	end
+
+	model.Name = "EquippedBonePile"
+	BonePileUtils.CarryPileModel(model, character)
+	self._EquippedInventoryDisplays[character] = { Tool = tool, Model = model }
+	model.Parent = character
 end
 
 function BonePileController:_DoBonePileHoldAnim()

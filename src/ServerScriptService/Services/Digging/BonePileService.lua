@@ -33,7 +33,6 @@ local BonePileService = {
 	_Carried = {},
 	_Dropped = {},
 	_InventoryTools = {},
-	_EquippedInventoryDisplays = {},
 	_PlayerConnections = {},
 	_DeathConnections = {},
 	_HumanoidAddedConnections = {},
@@ -83,7 +82,6 @@ function BonePileService:OnPlayerAdded(player)
 	end))
 
 	table.insert(connections, player.CharacterRemoving:Connect(function()
-		self:_RemoveEquippedInventoryDisplay(player)
 		self:DropForPlayer(player)
 		self:_StopWatchingCharacter(player)
 	end))
@@ -96,7 +94,6 @@ end
 
 function BonePileService:OnPlayerRemoving(player)
 	self:DropForPlayer(player)
-	self:_RemoveEquippedInventoryDisplay(player)
 	self:_StopWatchingCharacter(player)
 
 	local inventoryTools = self._InventoryTools[player]
@@ -174,46 +171,6 @@ function BonePileService:_WatchHumanoid(player, character, humanoid)
 	end
 end
 
-function BonePileService:_RemoveEquippedInventoryDisplay(player, tool)
-	local display = self._EquippedInventoryDisplays[player]
-	if display and (not tool or display.Tool == tool) then
-		self._EquippedInventoryDisplays[player] = nil
-		display.Model:Destroy()
-	end
-end
-
-function BonePileService:_EquipInventoryTool(player, tool, guid, dinosaurId)
-	local character = player.Character
-	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not rootPart or not humanoid or humanoid.Health <= 0 or tool.Parent ~= character then
-		return
-	end
-
-	if self._Carried[player] then
-		humanoid:UnequipTools()
-		return
-	end
-
-	local item = self._InventoryService:GetNonFungibleItemForPlayer(player, guid)
-	if not item or item.ItemId ~= dinosaurId then
-		return
-	end
-
-	self:_RemoveEquippedInventoryDisplay(player)
-	local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-	local mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
-	local model = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
-	if not model then
-		return
-	end
-
-	model.Name = "EquippedBonePile"
-	BonePileUtils.CarryPileModel(model, character)
-	model.Parent = character
-	self._EquippedInventoryDisplays[player] = { Tool = tool, Model = model }
-end
-
 function BonePileService:_CreateInventoryTool(player, guid, dinosaurId, scale, mutation, backpack)
 	local dinosaurInfo = DinosaurDef.GetDinosaurInfo(dinosaurId)
 	local tool = Instance.new("Tool")
@@ -226,16 +183,16 @@ function BonePileService:_CreateInventoryTool(player, guid, dinosaurId, scale, m
 	tool:SetAttribute("Mutation", mutation)
 
 	tool.Equipped:Connect(function()
-		if self._InventoryTools[player] and self._InventoryTools[player][guid] == tool then
-			self:_EquipInventoryTool(player, tool, guid, dinosaurId)
+		if not self._InventoryTools[player] or self._InventoryTools[player][guid] ~= tool or not self._Carried[player] then return end
+
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.Health > 0 and tool.Parent == character then
+			humanoid:UnequipTools()
 		end
 	end)
 
-	tool.Unequipped:Connect(function()
-		self:_RemoveEquippedInventoryDisplay(player, tool)
-	end)
 	tool.Destroying:Connect(function()
-		self:_RemoveEquippedInventoryDisplay(player, tool)
 		if self._InventoryTools[player] and self._InventoryTools[player][guid] == tool then
 			self._InventoryTools[player][guid] = nil
 			task.defer(function()
@@ -255,7 +212,6 @@ function BonePileService:_DestroyInventoryTool(player, guid)
 		return
 	end
 
-	self:_RemoveEquippedInventoryDisplay(player, tool)
 	inventoryTools[guid] = nil
 	tool:Destroy()
 end
@@ -350,7 +306,6 @@ function BonePileService:_Carry(pile, player)
 	CollectionService:RemoveTag(pileModel, "Spin")
 
 	humanoid:UnequipTools()
-	self:_RemoveEquippedInventoryDisplay(player)
 	self:_CancelDropExpiry(pile)
 	pile.Prompt.Enabled = false
 	self._Dropped[pileModel] = nil

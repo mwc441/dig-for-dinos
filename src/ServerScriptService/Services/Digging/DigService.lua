@@ -3,24 +3,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Workspace = game:GetService("Workspace")
 
-local Assets = ReplicatedStorage:WaitForChild("Assets")
-local ShovelModels : Folder = Assets:WaitForChild("Shovels")
 local External = ReplicatedStorage:WaitForChild("External")
-local Utils = ReplicatedStorage:WaitForChild("Utils")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
-local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
 local DirtSpawner = require(script.Parent:WaitForChild("DirtSpawner"))
 
 local SHOVEL_SLOT = ItemDef.Categories.Shovel
 local DEFAULT_SHOVEL_ID = "WoodenShovel"
-local EQUIPPED_SHOVEL_NAME = "EquippedShovel"
-local SHOVEL_MOTOR_NAME = "ShovelMotor6D"
 local DIG_RANGE = 8
 
 local DigService = {
@@ -192,69 +186,6 @@ function DigService:_EnsureShovelForPlayer(player)
 	end
 end
 
-function DigService:_GetShovelHandle(shovelModel)
-	local primaryPart = shovelModel.PrimaryPart
-	if primaryPart then
-		return primaryPart
-	end
-
-	local handle = shovelModel:FindFirstChild("Handle", true)
-	if handle and handle:IsA("BasePart") then
-		return handle
-	end
-
-	return shovelModel:FindFirstChildWhichIsA("BasePart", true)
-end
-
-function DigService:_RemoveShovelFromCharacter(character)
-	local equippedShovel = character:FindFirstChild(EQUIPPED_SHOVEL_NAME)
-	if equippedShovel then
-		equippedShovel:Destroy()
-	end
-end
-
-function DigService:_ApplyShovelToCharacter(character, itemId)
-	self:_RemoveShovelFromCharacter(character)
-
-	if not self:_IsShovel(itemId) then
-		return
-	end
-
-	local shovelTemplate = ShovelModels:FindFirstChild(itemId)
-	if not shovelTemplate or not shovelTemplate:IsA("Model") then
-		return
-	end
-
-	local rightHand = character:FindFirstChild("RightHand")
-	if not rightHand or not rightHand:IsA("BasePart") then
-		return
-	end
-
-	local shovelModel = shovelTemplate:Clone()
-	local handle = self:_GetShovelHandle(shovelModel)
-	if not handle or not handle:IsA("BasePart") then
-		shovelModel:Destroy()
-		return
-	end
-
-	UtilFunctions.AnchorAllDescendants(shovelModel, false)
-	UtilFunctions.CanCollideAllDescendants(shovelModel, false)
-
-	shovelModel.Name = EQUIPPED_SHOVEL_NAME
-	shovelModel.Parent = character
-	shovelModel:PivotTo(rightHand:GetPivot())
-
-	local motor = Instance.new("Motor6D")
-	motor.Name = SHOVEL_MOTOR_NAME
-	motor.C0 = CFrame.identity
-	motor.C1 = CFrame.identity
-	motor.Part0 = rightHand
-	motor.Part1 = handle
-	motor.Parent = handle
-
-	shovelModel:SetAttribute("ItemId", itemId)
-end
-
 function DigService:_CreateShovelTool(player, itemId)
 	local itemInfo = ItemDef.GetItemInfo(itemId)
 	if not itemInfo then
@@ -269,28 +200,6 @@ function DigService:_CreateShovelTool(player, itemId)
 	shovelTool.CanBeDropped = false
 	shovelTool:SetAttribute("ItemId", itemId)
 
-	shovelTool.Equipped:Connect(function()
-		if self._ShovelTools[player] ~= shovelTool then
-			return
-		end
-
-		local character = player.Character
-		if character then
-			self:_ApplyShovelToCharacter(character, itemId)
-		end
-	end)
-
-	shovelTool.Unequipped:Connect(function()
-		if self._ShovelTools[player] ~= shovelTool then
-			return
-		end
-
-		local character = player.Character
-		if character then
-			self:_RemoveShovelFromCharacter(character)
-		end
-	end)
-
 	self._ShovelTools[player] = shovelTool
 	shovelTool.Parent = player:WaitForChild("Backpack")
 
@@ -298,11 +207,6 @@ function DigService:_CreateShovelTool(player, itemId)
 end
 
 function DigService:_DestroyShovelTool(player)
-	local character = player.Character
-	if character then
-		self:_RemoveShovelFromCharacter(character)
-	end
-
 	local shovelTool = self._ShovelTools[player]
 	self._ShovelTools[player] = nil
 
@@ -340,19 +244,6 @@ function DigService:_UpdateShovelToolForPlayer(player, character)
 	local backpack = player:FindFirstChild("Backpack")
 	if shovelTool.Parent ~= character and shovelTool.Parent ~= backpack and backpack then
 		shovelTool.Parent = backpack
-	end
-
-	local currentShovel = character:FindFirstChild(EQUIPPED_SHOVEL_NAME)
-	if shovelTool.Parent == character then
-		if currentShovel and currentShovel:GetAttribute("ItemId") == equippedShovelId then
-			return
-		end
-
-		self:_ApplyShovelToCharacter(character, equippedShovelId)
-	else
-		if currentShovel then
-			self:_RemoveShovelFromCharacter(character)
-		end
 	end
 end
 
