@@ -1,3 +1,4 @@
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
@@ -85,11 +86,38 @@ end
 function DirtSpawner:_GetSpacedSpawnCFrame(scale)
 	local bestCFrame
 	local bestClearanceSquared = -1
+	local _, boundsSize = StageOneModel:GetBoundingBox()
+
+	local overlapParams = OverlapParams.new()
+	overlapParams.FilterType = Enum.RaycastFilterType.Exclude
+
+	local toExclude = {}
+	for _, player in pairs(Players:GetPlayers()) do
+		if player.Character then
+			table.insert(toExclude, player.Character)
+		end
+	end
+
+	overlapParams.FilterDescendantsInstances = toExclude
+
+	local boxSize = boundsSize * scale
 
 	for _ = 1, 100 do
 		local candidate = self:_GetSpawnCFrame(scale)
 		if not candidate then
 			return
+		end
+
+		local boxCFrame = candidate * CFrame.new(0, boxSize.Y / 2, 0) * CFrame.new(0, 0.01, 0)
+		local hasObstacle = false
+		for _, part in ipairs(Workspace:GetPartBoundsInBox(boxCFrame, boundsSize * scale, overlapParams)) do
+			if part ~= self.Instance then
+				hasObstacle = true
+				break
+			end
+		end
+		if hasObstacle then
+			continue
 		end
 
 		local candidatePosition = candidate.Position
