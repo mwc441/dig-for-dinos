@@ -1,6 +1,7 @@
 local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local Player = Players.LocalPlayer
 
@@ -14,13 +15,23 @@ local Particles = Assets:WaitForChild("Particles")
 local CashExplosionParticles = Particles:WaitForChild("CashExplosion")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
+local GuiButton = require(GuiModules:WaitForChild("Button"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 local Knit = require(External:WaitForChild("Knit"))
 
+local OFFLINE_EARNINGS_MULTIPLIER = 0.25
+local SECONDS_PER_HOUR = 60 * 60
+
 local OfflineRewardsController = {
 	Name = "OfflineRewardsController",
 	_PlotController = nil,
+	_DinosaurController = nil,
+	_BoostController = nil,
+	_IapController = nil,
 	_OfflineRewardsService = nil,
 	_Pending = 0,
 	_Revision = -1,
@@ -28,14 +39,40 @@ local OfflineRewardsController = {
 	_PlayerGui = nil,
 	_Floor = nil,
 	_CashPile = nil,
+	_CashPileGui = nil,
 	_Gui = nil,
 	_TouchConnection = nil,
 	_FloorCFrameConnection = nil,
 	_FloorSizeConnection = nil
 }
 
+function OfflineRewardsController:KnitInit()
+	local mainGui = Player:WaitForChild("PlayerGui"):WaitForChild("Main")
+	local offlineRewardsFrame = mainGui:WaitForChild("OfflineRewardsFrame")
+
+	self._Gui = {
+		Frame = offlineRewardsFrame,
+		HourButton = offlineRewardsFrame:WaitForChild("ButtonsFrame"):WaitForChild("HourButton"),
+		DayButton = offlineRewardsFrame:WaitForChild("ButtonsFrame"):WaitForChild("DayButton"),
+		AmountText = offlineRewardsFrame:WaitForChild("EarningsFrame"):WaitForChild("AmountsFrame"):WaitForChild("AmountFrame"):WaitForChild("AmountText")
+	}
+
+	local hourButton = GuiButton.new(self._Gui.HourButton)
+	hourButton:SetCallback(function()
+		self._IapController:PurchaseIap(IapsEnum.OfflineRewards1Hour)
+	end)
+
+	local dayButton = GuiButton.new(self._Gui.DayButton)
+	dayButton:SetCallback(function()
+		self._IapController:PurchaseIap(IapsEnum.OfflineRewards24Hours)
+	end)
+end
+
 function OfflineRewardsController:KnitStart()
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
+	self._DinosaurController = require(ReplicatedStorage.Controllers.Dinosaurs.DinosaurController)
+	self._BoostController = require(ReplicatedStorage.Controllers.Boosts.BoostController)
+	self._IapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
 	self._OfflineRewardsService = Knit.GetService("OfflineRewardsService")
 	self._PlayerGui = Player:WaitForChild("PlayerGui")
 
@@ -44,6 +81,22 @@ function OfflineRewardsController:KnitStart()
 	end)
 	self._PlotController.PlotsChanged:Connect(function()
 		self:_ReconcileCashPile()
+	end)
+	self._DinosaurController.DinosaurDataUpdatedSignal:Connect(function()
+		self:_UpdateUi()
+	end)
+	self._BoostController.BoostsUpdatedSignal:Connect(function()
+		self:_UpdateUi()
+	end)
+	self._IapController.IapCacheChanged:Connect(function()
+		self:_UpdateUi()
+	end)
+
+	self:_UpdateUi()
+
+	RunService.Heartbeat:Connect(function()
+		local isInside = self._PlotController:IsInsidePlot()
+		self._Gui.Frame.Visible = isInside
 	end)
 
 	self._OfflineRewardsService:GetPendingEarnings():andThen(function(state)
@@ -79,7 +132,7 @@ function OfflineRewardsController:_ReconcileCashPile()
 		self:_CreateCashPile(floor)
 	end
 
-	self._Gui.AmountText.Text = string.format("$%s", BigNumbers.GetNumberDisplay(self._Pending))
+	self._CashPileGui.AmountText.Text = string.format("$%s", BigNumbers.GetNumberDisplay(self._Pending))
 end
 
 function OfflineRewardsController:_CreateCashPile(floor)
@@ -100,7 +153,7 @@ function OfflineRewardsController:_CreateCashPile(floor)
 
 	self._Floor = floor
 	self._CashPile = cashPile
-	self._Gui = gui
+	self._CashPileGui = gui
 	self:_PositionCashPile()
 	self._FloorCFrameConnection = floor:GetPropertyChangedSignal("CFrame"):Connect(function()
 		self:_PositionCashPile()
@@ -152,15 +205,24 @@ function OfflineRewardsController:_DestroyCashPile()
 		self._TouchConnection:Disconnect()
 		self._TouchConnection = nil
 	end
-	if self._Gui then
-		self._Gui:Destroy()
-		self._Gui = nil
+	if self._CashPileGui then
+		self._CashPileGui:Destroy()
+		self._CashPileGui = nil
 	end
 	if self._CashPile then
 		self._CashPile:Destroy()
 		self._CashPile = nil
 	end
 	self._Floor = nil
+end
+
+-- UI STUFF
+function OfflineRewardsController:_UpdateUi()
+	local hourAmount = math.round(self._DinosaurController:GetIncomePerSecond() * SECONDS_PER_HOUR * OFFLINE_EARNINGS_MULTIPLIER)
+
+	self._Gui.AmountText.Text = string.format("%s / HR", BigNumbers.GetNumberDisplay(hourAmount))
+	self._Gui.HourButton.PriceText.Text = string.format(" %d", self._IapController:GetPriceOfIap(IapsEnum.OfflineRewards1Hour) or 0)
+	self._Gui.DayButton.PriceText.Text = string.format(" %d", self._IapController:GetPriceOfIap(IapsEnum.OfflineRewards24Hours) or 0)
 end
 
 return OfflineRewardsController

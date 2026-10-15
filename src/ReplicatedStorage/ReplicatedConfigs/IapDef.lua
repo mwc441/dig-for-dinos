@@ -39,6 +39,30 @@ IapDef.Table = {
 			["SpeedUpgrade"] = 1
 		},
 		Giftable = true
+	},
+
+	[IapsEnum.OfflineRewards1Hour] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3718677900
+		},
+		Name = "1 Hour Offline Cash",
+		Description = "",
+		Rewards = {
+			["OfflineRewards"] = 60 * 60
+		},
+		Giftable = true
+	},
+
+	[IapsEnum.OfflineRewards24Hours] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3718677950
+		},
+		Name = "24 Hours Offline Cash",
+		Description = "",
+		Rewards = {
+			["OfflineRewards"] = 24 * 60 * 60
+		},
+		Giftable = true
 	}
 
 	-- GAMEPASSES

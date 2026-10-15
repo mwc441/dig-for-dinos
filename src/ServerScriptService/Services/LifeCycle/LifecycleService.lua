@@ -126,10 +126,10 @@ function LifecycleService:_PlayerAdded(player)
 	self._RewardsService:OnPlayerAdded(player)
 	self._OrbService:OnPlayerAdded(player)
 	self._TutorialService:OnPlayerAdded(player)
-	self._OfflineRewardsService:OnPlayerAdded(player)
 	self._PlotService:OnPlayerAdded(player)
 	self._DinosaurService:OnPlayerAdded(player)
 	self._TimerService:OnPlayerAdded(player)
+	self._OfflineRewardsService:OnPlayerAdded(player)
 
 	if Players:IsAncestorOf(player) then
 		self._InitializedPlayers[player] = true

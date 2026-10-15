@@ -3,13 +3,11 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
-local CashPile = ReplicatedStorage:WaitForChild("Assets"):WaitForChild("ClientAssets"):WaitForChild("CashPile")
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Knit = require(External:WaitForChild("Knit"))
 
 local MAX_OFFLINE_TIME = 8 * 60 * 60
 local OFFLINE_EARNINGS_MULTIPLIER = 0.25
-local CLAIM_REACH = 6
 
 local OfflineRewardsService = {
 	Name = "OfflineRewardsService",
@@ -59,7 +57,12 @@ function OfflineRewardsService:_PublishPendingState(player)
 end
 
 function OfflineRewardsService:_AddOfflineEarnings(player, offlineTime)
-	local seconds = math.clamp(offlineTime, 0, MAX_OFFLINE_TIME)
+	self:GiveOfflineRewards(player, math.clamp(offlineTime, 0, MAX_OFFLINE_TIME))
+end
+
+function OfflineRewardsService:GiveOfflineRewards(player, seconds)
+	if type(seconds) ~= "number" or seconds <= 0 or seconds == math.huge or seconds ~= seconds then return end
+
 	local incomePerSecond = self._DinosaurService:GetIncomePerSecondForPlayer(player)
 	local amount = math.round(incomePerSecond * seconds * OFFLINE_EARNINGS_MULTIPLIER)
 	if amount <= 0 then return end

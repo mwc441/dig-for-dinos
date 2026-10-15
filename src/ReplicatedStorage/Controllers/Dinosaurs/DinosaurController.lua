@@ -19,6 +19,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local BoostTypesEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("BoostTypes"))
 local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
@@ -33,6 +34,7 @@ local Knit = require(External:WaitForChild("Knit"))
 local DinosaurController = {
 	Name = "DinosaurController",
 	_PlotController = nil,
+	_BoostController = nil,
 	_DataController = nil,
 	_InventoryController = nil,
 	_ReplicationController = nil,
@@ -54,6 +56,7 @@ function DinosaurController:KnitInit()
 end
 
 function DinosaurController:KnitStart()
+	self._BoostController = require(ReplicatedStorage.Controllers.Boosts.BoostController)
 	self._DataController = require(ReplicatedStorage.Controllers.Data.DataController)
 	self._InventoryController = require(ReplicatedStorage.Controllers.Inventory.InventoryController)
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
@@ -135,6 +138,20 @@ end
 
 function DinosaurController:GetDinosaurCount()
 	return #(self._DinosaurData.Placed or {})
+end
+
+function DinosaurController:GetIncomePerSecond()
+	local cashBoost = self._BoostController:GetTotalAmountForBoostType(BoostTypesEnum.CashBoost)
+	local totalIncome = 0
+
+	for _, placedDinosaur in ipairs(self._DinosaurData.Placed or {}) do
+		local income = DinosaurDef.GetIncome(placedDinosaur.Id, placedDinosaur.Scale or 1, placedDinosaur.Mutation)
+		if income then
+			totalIncome += math.round(income * cashBoost)
+		end
+	end
+
+	return totalIncome
 end
 
 function DinosaurController:GetOwnedDinosaurs()
