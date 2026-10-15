@@ -13,6 +13,8 @@ local Sounds = Assets:WaitForChild("Sounds")
 local MoneySound = Sounds:WaitForChild("MoneySound")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local DinosaurHoverTooltip = ClientAssets:WaitForChild("DinosaurHoverTooltip")
+local Particles = Assets:WaitForChild("Particles")
+local MoneyParticles = Particles:WaitForChild("MoneyParticles")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
@@ -204,6 +206,19 @@ function DinosaurController:_CreateDinosaur(replicationData)
 		UtilFunctions.PlayCopyOfSound(MoneySound)
 
 		self:_DoIncomeGuiParticles()
+
+		local character = Player.Character
+		local rootPart = character.PrimaryPart
+		local newMoneyParticles = MoneyParticles:Clone()
+		newMoneyParticles.Transparency = 1
+		newMoneyParticles.CanCollide = false
+		newMoneyParticles.CanQuery = false
+		newMoneyParticles.CanTouch = false
+		newMoneyParticles.Anchored = true
+		newMoneyParticles.CFrame = rootPart.CFrame
+		newMoneyParticles.Parent = Workspace
+
+		UtilFunctions.EmitParticles(newMoneyParticles)
 
 		self._DinosaurService:ClaimIncome(guid)
 	end)
