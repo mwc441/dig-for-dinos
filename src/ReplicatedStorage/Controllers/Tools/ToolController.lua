@@ -18,6 +18,14 @@ local ToolController = {
 	ToolUnequipped = Signal.new()
 }
 
+function ToolController:KnitInit()
+	for _, moduleScript in ipairs(ToolModules:GetChildren()) do
+		if moduleScript:IsA("ModuleScript") then
+			require(moduleScript)
+		end
+	end
+end
+
 function ToolController:KnitStart()
 	self._ToolService = Knit.GetService("ToolService")
 

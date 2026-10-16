@@ -1,7 +1,7 @@
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ServerScriptService = game:GetService("ServerScriptService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
@@ -11,26 +11,60 @@ local BearTrapSound = Sounds:WaitForChild("BearTrap")
 local BearTrapPlacedSound = Sounds:WaitForChild("BearTrapPlaced")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local External = ReplicatedStorage:WaitForChild("External")
+local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Device = require(External:WaitForChild("Device"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
+local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 
-local PLACE_COOLDOWN = 60
+local PLACE_COOLDOWN = 0.5
 local MAX_PLACE_DISTANCE = 50
 local TRAP_LIFETIME = 60
 local RAGDOLL_DURATION = 3
 local RAY_DISTANCE = 250
+local TRAP_UPGRADE_ID = "BearTrapUpgrade"
 
 local LastPlaced = setmetatable({}, { __mode = "k" })
 local RagdollTokens = setmetatable({}, { __mode = "k" })
 
 local BearTrap = {}
+local ServerTrapFolder
+if RunService:IsServer() then
+	ServerTrapFolder = Workspace:FindFirstChild("_BearTraps")
+	if not ServerTrapFolder then
+		ServerTrapFolder = Instance.new("Folder")
+		ServerTrapFolder.Name = "_BearTraps"
+		ServerTrapFolder.Parent = Workspace
+	end
+
+	Players.PlayerRemoving:Connect(function(player)
+		LastPlaced[player] = nil
+
+		for _, trap in ipairs(ServerTrapFolder:GetChildren()) do
+			if trap:GetAttribute("OwnerUserId") == player.UserId then
+				trap:Destroy()
+			end
+		end
+	end)
+end
 
 local function isFiniteVector3(value)
 	return typeof(value) == "Vector3"
 		and value.X == value.X and math.abs(value.X) < 1000000
 		and value.Y == value.Y and math.abs(value.Y) < 1000000
 		and value.Z == value.Z and math.abs(value.Z) < 1000000
+end
+
+local function getActiveTrapCount(player, trapFolder)
+	if not trapFolder then return 0 end
+
+	local count = 0
+	for _, trap in ipairs(trapFolder:GetChildren()) do
+		if trap:GetAttribute("OwnerUserId") == player.UserId then
+			count += 1
+		end
+	end
+	return count
 end
 
 local function getClientTargetPosition()
@@ -53,7 +87,7 @@ local function getClientTargetPosition()
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	local exclusions = {}
-	local trapFolder = Workspace:FindFirstChild("BearTraps")
+	local trapFolder = Workspace:FindFirstChild("_BearTraps")
 	if trapFolder then
 		table.insert(exclusions, trapFolder)
 	end
@@ -72,6 +106,14 @@ end
 local nextPlaceAt = 0
 
 function BearTrap:ClientEquipped(tool, toolController)
+	local player = Players.LocalPlayer
+	local upgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
+	local function canPlaceMoreTraps()
+		local level = upgradeController:GetUpgradeLevel(TRAP_UPGRADE_ID)
+		local limit = UpgradesDef.GetAmountForUpgrade(TRAP_UPGRADE_ID, level)
+		return getActiveTrapCount(player, Workspace:FindFirstChild("_BearTraps")) < limit
+	end
+
 	local ghost = Assets:WaitForChild("BearTrap"):Clone()
 	ghost.Name = "BearTrapGhost"
 	local boxCFrame, boxSize = ghost:GetBoundingBox()
@@ -84,7 +126,7 @@ function BearTrap:ClientEquipped(tool, toolController)
 
 	local previewConnection = RunService.RenderStepped:Connect(function()
 		local targetPosition = getClientTargetPosition()
-		if targetPosition and (os.clock() >= nextPlaceAt) then
+		if targetPosition and os.clock() >= nextPlaceAt and canPlaceMoreTraps() then
 			ghost:PivotTo(CFrame.new(targetPosition + Vector3.new(0, boxSize.Y * 0.5, 0)) * boxToPivot)
 			if ghost.Parent ~= Workspace then
 				ghost.Parent = Workspace
@@ -97,7 +139,7 @@ function BearTrap:ClientEquipped(tool, toolController)
 	local waitingForServer = false
 
 	local connection = tool.Activated:Connect(function()
-		if waitingForServer or os.clock() < nextPlaceAt then return end
+		if waitingForServer or os.clock() < nextPlaceAt or not canPlaceMoreTraps() then return end
 		local targetPosition = getClientTargetPosition()
 		if not targetPosition then return end
 
@@ -168,10 +210,15 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	local now = os.clock()
 	if LastPlaced[player] and now - LastPlaced[player] < PLACE_COOLDOWN then return false end
 
+	local upgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
+	local level = upgradeService:GetUpgradeLevelForPlayer(player, TRAP_UPGRADE_ID)
+	if player.Parent ~= Players then return false end
+	local limit = UpgradesDef.GetAmountForUpgrade(TRAP_UPGRADE_ID, level)
+	if getActiveTrapCount(player, ServerTrapFolder) >= limit then return false end
+
 	local trapAsset = Assets:FindFirstChild("BearTrap")
 	if not trapAsset or not trapAsset:IsA("Model") then return false end
-	local trapFolder = Workspace:FindFirstChild("BearTraps")
-	local groundHit = getGroundHit(player, targetPosition, trapFolder, toolService:GetCharacters())
+	local groundHit = getGroundHit(player, targetPosition, ServerTrapFolder, toolService:GetCharacters())
 	if not groundHit then return false end
 
 	local trap = trapAsset:Clone()
@@ -186,14 +233,15 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	local trigger = trap.HitBox
 	trigger.CanTouch = true
 
-	trap:SetAttribute("OwnerUserId", player.UserId)
+	local ownerUserId = player.UserId
+	trap:SetAttribute("OwnerUserId", ownerUserId)
 	local triggered = false
 	trigger.Touched:Connect(function(part)
 		if triggered then return end
 		local character = part.Parent
 		if not character or not character:IsA("Model") then return end
 		local victim = Players:GetPlayerFromCharacter(character)
-		if not victim or victim.UserId == player.UserId then return end
+		if not victim or victim.UserId == ownerUserId then return end
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
 		if not humanoid or humanoid.Health <= 0 then return end
 
@@ -203,17 +251,11 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 		UtilFunctions.PlaySoundAtLocation(BearTrapSound, trigger.CFrame)
 	end)
 
-	if not trapFolder then
-		trapFolder = Instance.new("Folder")
-		trapFolder.Name = "BearTraps"
-		trapFolder.Parent = Workspace
-	end
 	LastPlaced[player] = now
-	trap.Parent = trapFolder
+	trap.Parent = ServerTrapFolder
 
 	task.delay(TRAP_LIFETIME, function()
 		trap:Destroy()
-		LastPlaced[player] = nil
 	end)
 
 	return true

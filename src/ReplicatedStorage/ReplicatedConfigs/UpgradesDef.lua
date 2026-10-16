@@ -10,6 +10,19 @@ local BoostsEnum = require(Enums:WaitForChild("Boosts"))
 local UpgradesDef = {}
 
 UpgradesDef.Table = {
+	["BearTrapUpgrade"] = {
+		Name = "Bear Trap Place Limit",
+		Icon = "rbxassetid://76727775766182",
+		CostFunction = function(level: number)
+			return 500 * level
+		end,
+		CostType = PlayerStatsEnum.Cash,
+		MaxLevel = 4,
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
 	["SpeedUpgrade"] = {
 		Name = "Speed",
 		Icon = "rbxassetid://136487360980411",
@@ -50,6 +63,10 @@ end
 function UpgradesDef.GetAmountForUpgrade(id, level)
 	local info = UpgradesDef.GetUpgradeInfo(id)
 	if not info then return 0 end
+
+	if info.AmountFunction then
+		return info.AmountFunction(level)
+	end
 
 	local boostId = info.Boost
 	if not boostId then return 0 end

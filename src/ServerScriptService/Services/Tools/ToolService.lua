@@ -11,6 +11,14 @@ local ToolService = {
 	_EquippedTools = {}
 }
 
+function ToolService:KnitInit()
+	for _, moduleScript in ipairs(ToolModules:GetChildren()) do
+		if moduleScript:IsA("ModuleScript") then
+			require(moduleScript)
+		end
+	end
+end
+
 function ToolService:KnitStart()
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
 	self._CharacterService.CharacterAdded:Connect(function(player, character)
