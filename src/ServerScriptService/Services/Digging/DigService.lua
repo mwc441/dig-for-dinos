@@ -16,6 +16,7 @@ local DirtSpawner = require(script.Parent:WaitForChild("DirtSpawner"))
 local SHOVEL_SLOT = ItemDef.Categories.Shovel
 local DEFAULT_SHOVEL_ID = "WoodenShovel"
 local DIG_RANGE = 8
+local BASE_TRAINING_POWER = 1
 
 local DigService = {
 	Name = "DigService",
@@ -26,12 +27,15 @@ local DigService = {
 	_InventoryService = nil,
 	_CommerceService = nil,
 	_CharacterService = nil,
+	_PlotService = nil,
+	_PlayerStatsService = nil,
 	_ReplicationService = nil,
 	_LifecycleService = nil,
 	_BonePileService = nil,
 	_DirtSpawners = {},
 	_ShovelTools = {},
-	_LastDig = {}
+	_LastDig = {},
+	_LastTrainingDig = {}
 }
 
 function DigService:KnitStart()
@@ -39,6 +43,8 @@ function DigService:KnitStart()
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
 	self._CommerceService = require(ServerScriptService.Services.Commerce.CommerceService)
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
+	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
+	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
 	self._BonePileService = require(script.Parent:WaitForChild("BonePileService"))
@@ -84,6 +90,7 @@ end
 function DigService:OnPlayerRemoving(player)
 	self:_DestroyShovelTool(player)
 	self._LastDig[player] = nil
+	self._LastTrainingDig[player] = nil
 end
 
 function DigService:_AddDirtSpawner(instance)
@@ -121,6 +128,54 @@ end
 
 function DigService:_GetDigCooldown(player)
 	return 1 -- TODO: Upgrades for this?
+end
+
+function DigService:_GetDigTrainingSpeed(player)
+	return 1 -- Digs per second. Apply training speed upgrades here later.
+end
+
+function DigService:_GetDigTrainingCooldown(player)
+	return 1 / self:_GetDigTrainingSpeed(player)
+end
+
+function DigService:_IsPlayerOnExcavation(player)
+	local plot = self._PlotService:GetPlotForPlayer(player)
+	local excavation = plot and plot.Instance:FindFirstChild("_Excavation")
+	local part = excavation and excavation:IsA("Model") and excavation.PrimaryPart
+	local character = player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not part or not rootPart or not humanoid or humanoid.Health <= 0 then
+		return false
+	end
+
+	local offset = part.CFrame:PointToObjectSpace(rootPart.Position)
+	return math.abs(offset.X) <= (part.Size.X / 2) * 2 and math.abs(offset.Z) <= (part.Size.Z / 2) * 2
+end
+
+function DigService:_TrainDigPowerForPlayer(player)
+	local currentTime = os.clock()
+	local lastTrainingDig = self._LastTrainingDig[player]
+	if lastTrainingDig and currentTime < lastTrainingDig + self:_GetDigTrainingCooldown(player) * 0.9 then
+		return false
+	end
+
+	if not self:_IsPlayerOnExcavation(player) then
+		return false
+	end
+
+	local shovelId = self._EquipService:GetEquippedItemForPlayer(player, SHOVEL_SLOT)
+	local shovelInfo = ItemDef.GetItemInfo(shovelId)
+	if not shovelInfo or shovelInfo.Category ~= SHOVEL_SLOT
+		or typeof(shovelInfo.DigMultiplier) ~= "number" or shovelInfo.DigMultiplier <= 0
+		or self._InventoryService:GetQuantityOfItemForPlayer(player, shovelId) <= 0 then
+		return false
+	end
+
+	self._LastTrainingDig[player] = currentTime
+	local powerGained = BASE_TRAINING_POWER * shovelInfo.DigMultiplier
+	self._PlayerStatsService:AddToStatForPlayer(player, PlayerStatsEnum.DigPower, powerGained)
+	return powerGained
 end
 
 function DigService:_IsShovel(itemId)
@@ -308,7 +363,12 @@ function DigService:_DigForPlayer(player, dirtGuid, predictionId)
 	end
 
 	local shovelInfo = ItemDef.GetItemInfo(shovelId)
-	if not shovelInfo or shovelInfo.Category ~= SHOVEL_SLOT or typeof(shovelInfo.DigPower) ~= "number" or shovelInfo.DigPower <= 0 then
+	if not shovelInfo or shovelInfo.Category ~= SHOVEL_SLOT then
+		return false
+	end
+
+	local digPower = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.DigPower)
+	if typeof(digPower) ~= "number" or digPower <= 0 or digPower ~= digPower then
 		return false
 	end
 
@@ -322,7 +382,7 @@ function DigService:_DigForPlayer(player, dirtGuid, predictionId)
 	end
 
 	self._LastDig[player] = currentTime
-	local remainingHealth = dirt:Damage(shovelInfo.DigPower, player.UserId, predictionId)
+	local remainingHealth = dirt:Damage(digPower, player.UserId, predictionId)
 	if remainingHealth == 0 then
 		local dirtRarity = DirtDef.GetDirtInfo(dirt:GetDirtId()).Rarity
 		self._BonePileService:AwardForDirt(player, dirtRarity, dirt:GetCFrame(), dirt:GetScale())
@@ -333,6 +393,10 @@ end
 
 function DigService.Client:Dig(player, dirtGuid, predictionId)
 	return self.Server:_DigForPlayer(player, dirtGuid, predictionId)
+end
+
+function DigService.Client:TrainDigPower(player)
+	return self.Server:_TrainDigPowerForPlayer(player)
 end
 
 function DigService.Client:EquipShovel(player, shovelId)

@@ -4,5 +4,6 @@ return {
 	Cash = "Cash",
 	OfflineEarnings = "OfflineEarnings",
 	Rebirths = "Rebirths",
-	PlotLevel = "PlotLevel"
+	PlotLevel = "PlotLevel",
+	DigPower = "DigPower"
 }

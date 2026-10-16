@@ -1,18 +1,35 @@
+local Debris = game:GetService("Debris")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TeleportService = game:GetService("TeleportService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 local Player = Players.LocalPlayer
 
 local External = ReplicatedStorage:WaitForChild("External")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
+local ClientAssets = Assets:WaitForChild("ClientAssets")
+local DigPowerGui = ClientAssets:WaitForChild("DigPowerGui")
 local Animations = Assets:WaitForChild("Animations")
 local ShovelModels : Folder = Assets:WaitForChild("Shovels")
 local ShovelIdleAnimation : Animation = Animations:WaitForChild("ShovelIdle")
 local ShovelDigAnimation : Animation = Animations:WaitForChild("ShovelDig")
+local Sounds = Assets:WaitForChild("Sounds")
+local DigSound = Sounds:WaitForChild("Dig")
+local Particles = Assets:WaitForChild("Particles")
+local DirtDigParticles = Particles:WaitForChild("DirtDigParticles")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local BigNumbers = require(External:WaitForChild("BigNumbers"))
+local CountingText = require(GuiModules:WaitForChild("CountingText"))
+local GuiObject = require(GuiModules:WaitForChild("Object"))
+local GuiButton = require(GuiModules:WaitForChild("Button"))
+local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Trove = require(External:WaitForChild("Trove"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
@@ -23,6 +40,7 @@ local Dirt = require(script.Parent:WaitForChild("Dirt"))
 local DIG_BOX_WIDTH = 6
 local DIG_BOX_VERTICAL_PADDING = 1
 local DIG_RANGE = 8
+local TRAINING_HIT_DISTANCE = 2.5
 local EQUIPPED_SHOVEL_NAME = "EquippedShovel"
 local SHOVEL_MOTOR_NAME = "ShovelMotor6D"
 local DirtFolder = Dirt.GetFolder()
@@ -31,7 +49,11 @@ DirtOverlapParams.IncludeInstances = { DirtFolder }
 
 local DigController = {
 	Name = "DigController",
+	_AfkController = nil,
 	_DigService = nil,
+	_EquipController = nil,
+	_PlotController = nil,
+	_PlayerStatsController = nil,
 	_ReplicationController = nil,
 	_ToolController = nil,
 	_Dirts = {},
@@ -40,13 +62,55 @@ local DigController = {
 	_AttachedShovels = {},
 	_ActiveShovelTool = nil,
 	_LastDig = nil,
+	_LastTrainingDig = nil,
+	_TrainingAnimator = nil,
+	_TrainingTrack = nil,
+	_TrainingMarkerConnection = nil,
+	_TrainingActive = false,
+	_WasOnExcavation = false,
+	_RestoreExcavationAfter = nil,
+	_DigPower = nil,
 	_NextPredictionId = 0
 }
 
+function DigController:KnitInit()
+	local hud = Player:WaitForChild("PlayerGui"):WaitForChild("Main"):WaitForChild("Hud")
+	local digPowerFrame = hud:WaitForChild("DigPowerFrame")
+	local amountFrame = digPowerFrame:WaitForChild("AmountFrame")
+
+	self._DigPowerFrame = digPowerFrame
+	self._DigTemplate = digPowerFrame:WaitForChild("Templates"):WaitForChild("DigTemplate")
+	self._DigTemplate.Visible = false
+	self._DigPowerAmountText = CountingText.new(amountFrame:WaitForChild("AmountText"))
+	self._DigPowerDarkAmountText = CountingText.new(amountFrame:WaitForChild("DarkAmountText"))
+	self._DigPowerGuiObject = GuiObject.new(digPowerFrame)
+	self._DigPowerShadowTrove = Trove.new()
+
+	local plusButton = GuiButton.new(self._DigPowerFrame.PlusButton)
+	plusButton:SetCallback(function()
+		-- TODO: Open premium shop
+	end)
+end
+
 function DigController:KnitStart()
 	self._DigService = Knit.GetService("DigService")
+	self._AfkController = require(ReplicatedStorage.Controllers.Afk.AfkController)
+	self._EquipController = require(ReplicatedStorage.Controllers.Equips.EquipController)
+	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
+	self._PlayerStatsController = require(ReplicatedStorage.Controllers.PlayerStats.PlayerStatsController)
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
 	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
+
+	local teleportData = TeleportService:GetLocalPlayerTeleportData() or {}
+	if teleportData.ReturnToExcavation then
+		self._RestoreExcavationAfter = os.clock() + 1
+	end
+
+	self._PlayerStatsController.StatsUpdatedSignal:Connect(function()
+		self:_UpdateDigPowerFrame()
+	end)
+	self:_UpdateDigPowerFrame()
+
 	self._DigService.InitialDirtGuids:Observe(function(initialGuids)
 		if not initialGuids then return end
 
@@ -93,6 +157,122 @@ function DigController:KnitStart()
 			self:_OnToolEquipped(player, player.Character, tool)
 		end
 	end
+
+	RunService.Heartbeat:Connect(function()
+		self:_RestoreExcavationPosition()
+		self:_UpdateExcavationTraining()
+	end)
+	Player.CharacterRemoving:Connect(function()
+		if self._TrainingMarkerConnection then
+			self._TrainingMarkerConnection:Disconnect()
+			self._TrainingMarkerConnection = nil
+		end
+		if self._TrainingTrack then
+			self._TrainingTrack:Destroy()
+			self._TrainingTrack = nil
+		end
+		self._TrainingAnimator = nil
+		self._TrainingActive = false
+		self._WasOnExcavation = false
+		self._AfkController.TeleportData.ReturnToExcavation = nil
+	end)
+end
+
+function DigController:_UpdateDigPowerFrame()
+	local digPower = self._PlayerStatsController:GetStatValue(PlayerStatsEnum.DigPower) or 0
+
+	if self._DigPower == nil then
+		self._DigPower = digPower
+		self._DigPowerAmountText:Set(digPower)
+		self._DigPowerDarkAmountText:Set(digPower)
+		return
+	end
+
+	if digPower > self._DigPower then
+		self:_PulseDigPowerShadows()
+		self._DigPowerGuiObject:MakeThrob(1.1, 0.3)
+		self:_ShowDigPowerEarned(digPower - self._DigPower)
+	end
+
+	self._DigPowerAmountText:Animate(digPower)
+	self._DigPowerDarkAmountText:Animate(digPower)
+	self._DigPower = digPower
+end
+
+function DigController:_PulseDigPowerShadows()
+	self._DigPowerShadowTrove:Clean()
+
+	local fadeInInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local fadeOutInfo = TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+	for _, shadow in ipairs(self._DigPowerFrame:QueryDescendants("UIShadow")) do
+		shadow.Transparency = 1
+
+		local fadeInTween = TweenService:Create(shadow, fadeInInfo, {
+			Transparency = 0.2
+		})
+		local fadeOutTween = TweenService:Create(shadow, fadeOutInfo, {
+			Transparency = 1
+		})
+
+		self._DigPowerShadowTrove:Add(fadeInTween)
+		self._DigPowerShadowTrove:Add(fadeOutTween)
+		self._DigPowerShadowTrove:Connect(fadeInTween.Completed, function(playbackState)
+			if playbackState == Enum.PlaybackState.Completed then
+				fadeOutTween:Play()
+			end
+		end)
+
+		fadeInTween:Play()
+	end
+end
+
+function DigController:_ShowDigPowerEarned(amount)
+	local digPowerFrame = self._DigPowerFrame
+	local digTemplate = self._DigTemplate:Clone()
+	digTemplate.Text = string.format("+%s", BigNumbers.GetNumberDisplay(amount))
+	digTemplate.ZIndex = 100000
+	digTemplate.Visible = true
+	digTemplate.Parent = digPowerFrame.Parent
+
+	local parent = digPowerFrame.Parent :: GuiObject
+	local originalSize = digTemplate.Size
+	local guiInset = GuiService:GetGuiInset()
+	local framePosition = digPowerFrame.AbsolutePosition - guiInset
+	local parentPosition = parent.AbsolutePosition - guiInset
+	local frameCenterX = framePosition.X + (digPowerFrame.AbsoluteSize.X / 2)
+	local templateCenterY = framePosition.Y
+	digTemplate.Position = UDim2.fromOffset(
+		frameCenterX - parentPosition.X,
+		templateCenterY - parentPosition.Y
+	)
+	digTemplate.Size = UDim2.fromScale(0, 0)
+
+	local startPosition = digTemplate.Position
+	local growTween = TweenService:Create(digTemplate, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = originalSize
+	})
+	local moveTween = TweenService:Create(digTemplate, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Position = startPosition + UDim2.fromOffset(0, -35)
+	})
+
+	growTween:Play()
+	moveTween:Play()
+	moveTween.Completed:Once(function(playbackState)
+		if playbackState ~= Enum.PlaybackState.Completed then
+			digTemplate:Destroy()
+			return
+		end
+
+		local shrinkTween = TweenService:Create(digTemplate, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.fromScale(0, 0)
+		})
+
+		shrinkTween:Play()
+		shrinkTween.Completed:Once(function()
+			digTemplate:Destroy()
+		end)
+	end)
 end
 
 function DigController:_OnToolEquipped(player, character, tool)
@@ -209,6 +389,241 @@ end
 
 function DigController:_GetDigCooldown()
 	return 1 -- TODO: Upgrades for this?
+end
+
+function DigController:_GetDigTrainingSpeed()
+	return 1 -- Digs per second. Apply training speed upgrades here later.
+end
+
+function DigController:_GetDigTrainingCooldown()
+	return 1 / self:_GetDigTrainingSpeed()
+end
+
+function DigController:_RestoreExcavationPosition()
+	if not self._RestoreExcavationAfter or os.clock() < self._RestoreExcavationAfter then return end
+
+	local plot = self._PlotController:GetPlot()
+	local excavation = plot and plot.Instance:FindFirstChild("_Excavation")
+	local part = excavation and excavation:IsA("Model") and excavation.PrimaryPart
+	local character = Player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not part or not rootPart or not humanoid or humanoid.Health <= 0 then return end
+
+	local feetToRoot = rootPart.Size.Y / 2 + humanoid.HipHeight
+	local rootPosition = part.Position + Vector3.new(0, (part.Size.Y / 2 + feetToRoot + 0.1), 0)
+	local rootCFrame = CFrame.new(rootPosition) * part.CFrame.Rotation
+	character:PivotTo(rootCFrame * rootPart.CFrame:ToObjectSpace(character:GetPivot()))
+	self._RestoreExcavationAfter = nil
+end
+
+function DigController:_IsOnExcavation()
+	local plot = self._PlotController:GetPlot()
+	local excavation = plot and plot.Instance:FindFirstChild("_Excavation")
+	local part = excavation and excavation:IsA("Model") and excavation.PrimaryPart
+	local character = Player.Character
+	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not part or not rootPart or not humanoid or humanoid.Health <= 0 then
+		return false
+	end
+
+	local feetPosition = rootPart.Position - Vector3.new(0, rootPart.Size.Y / 2 + humanoid.HipHeight, 0)
+	local offset = part.CFrame:PointToObjectSpace(feetPosition)
+	local withinFootprint = math.abs(offset.X) <= part.Size.X / 2
+		and math.abs(offset.Z) <= part.Size.Z / 2
+	local isOverPart = withinFootprint
+	local lookOffset = part.CFrame:VectorToObjectSpace(rootPart.CFrame.LookVector)
+	local forward = Vector2.new(lookOffset.X, lookOffset.Z)
+	if forward.Magnitude > 0 then
+		forward = forward.Unit * TRAINING_HIT_DISTANCE
+	end
+	local surfacePosition = part.CFrame:PointToWorldSpace(Vector3.new(
+		math.clamp(offset.X + forward.X, -part.Size.X / 2, part.Size.X / 2),
+		part.Size.Y / 2,
+		math.clamp(offset.Z + forward.Y, -part.Size.Z / 2, part.Size.Z / 2)
+	))
+	return isOverPart, CFrame.new(surfacePosition) * part.CFrame.Rotation
+end
+
+function DigController:_EquipTrainingShovel()
+	local character = Player.Character
+	if not character then return end
+
+	local humanoid = character:FindFirstChild("Humanoid")
+	if not humanoid then return end
+
+	local shovelId = self._EquipController:GetEquippedItem(ItemDef.Categories.Shovel)
+	if not shovelId then return false end
+
+	local equippedTool = self._ToolController:GetEquippedToolForPlayer(Player)
+	if equippedTool and equippedTool:GetAttribute("ItemId") == shovelId then
+		return true
+	end
+
+	local backpack = Player:FindFirstChild("Backpack")
+	if not backpack then return false end
+
+	for _, tool in ipairs(backpack:GetChildren()) do
+		if tool:IsA("Tool") and tool:GetAttribute("ItemId") == shovelId then
+			humanoid:EquipTool(tool)
+			break
+		end
+	end
+
+	return false
+end
+
+function DigController:_PlayTrainingDigEffects(surfaceCFrame)
+	local effectCFrame = surfaceCFrame + surfaceCFrame.UpVector * 0.1
+	local random = Random.new()
+	local part = Instance.new("Part")
+	part.Color = Color3.fromRGB(106, 57, 9)
+	part.Material = Enum.Material.Snow
+	part.MaterialVariant = "Studs"
+	UtilFunctions.DoFlyingDebris(part, Vector3.one * 0.5, {
+		Count = math.random(4, 6),
+		ExplosionOrigin = effectCFrame.Position,
+		Force = random:NextNumber(17.5, 20),
+		UpwardBias = 1.75,
+		Lifetime = 1.25,
+		CollisionGroup = "Debris"
+	})
+
+	local newDirtDigParticles = DirtDigParticles:Clone()
+	newDirtDigParticles.Transparency = 1
+	newDirtDigParticles.Anchored = true
+	newDirtDigParticles.CanCollide = false
+	newDirtDigParticles.CanQuery = false
+	newDirtDigParticles.CFrame = effectCFrame
+	UtilFunctions.DisableParticles(newDirtDigParticles)
+	newDirtDigParticles.Parent = Workspace
+
+	local _, longestEmitTime = UtilFunctions.GetLongestEmitter(newDirtDigParticles)
+	Debris:AddItem(newDirtDigParticles, longestEmitTime)
+
+	UtilFunctions.EmitParticles(newDirtDigParticles)
+	UtilFunctions.PlaySoundAtLocation(DigSound, effectCFrame)
+end
+
+function DigController:_ShowTrainingPowerGain(rootPart, amount)
+	if not rootPart or not rootPart:IsDescendantOf(Workspace) then return end
+
+	local gui = DigPowerGui:Clone()
+	gui.AmountFrame.AmountText.Text = "+" .. BigNumbers.GetNumberDisplay(amount)
+	gui.Adornee = rootPart
+	gui.AlwaysOnTop = true
+	gui.Enabled = true
+
+	local fullSize = gui.Size
+	local startOffset = gui.StudsOffsetWorldSpace
+	local side = math.random(0, 1) == 0 and -1 or 1
+	local endOffset = startOffset + rootPart.CFrame.RightVector * (side * 2.5) + Vector3.new(0, 1.25, 0)
+	gui.Size = UDim2.fromScale(0, 0)
+	gui.Parent = rootPart
+
+	local growTween = TweenService:Create(gui, TweenInfo.new(0.2, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+		Size = fullSize
+	})
+	local flyTween = TweenService:Create(gui, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		StudsOffsetWorldSpace = endOffset
+	})
+
+	Debris:AddItem(gui, 2)
+	flyTween.Completed:Once(function(playbackState)
+		if playbackState ~= Enum.PlaybackState.Completed then
+			gui:Destroy()
+			return
+		end
+
+		local shrinkTween = TweenService:Create(gui, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+			Size = UDim2.fromScale(0, 0)
+		})
+		shrinkTween.Completed:Once(function()
+			gui:Destroy()
+		end)
+		shrinkTween:Play()
+	end)
+
+	growTween:Play()
+	flyTween:Play()
+end
+
+function DigController:_TrainDigPower()
+	local character = Player.Character
+	if not character then return end
+
+	local humanoid = character:FindFirstChild("Humanoid")
+	if not humanoid then return end
+
+	local animator = humanoid:FindFirstChildOfClass("Animator")
+	if not animator then return end
+
+	if self._TrainingAnimator ~= animator then
+		if self._TrainingMarkerConnection then
+			self._TrainingMarkerConnection:Disconnect()
+		end
+		if self._TrainingTrack then
+			self._TrainingTrack:Destroy()
+		end
+		self._TrainingAnimator = animator
+		self._TrainingTrack = animator:LoadAnimation(ShovelDigAnimation)
+		self._TrainingTrack.Priority = Enum.AnimationPriority.Action
+		self._TrainingTrack.Looped = false
+		self._TrainingMarkerConnection = self._TrainingTrack:GetMarkerReachedSignal("Execute"):Connect(function()
+			if not self._TrainingActive then return end
+			local onExcavation, surfaceCFrame = self:_IsOnExcavation()
+			if not onExcavation then return end
+			self:_PlayTrainingDigEffects(surfaceCFrame)
+			local character = Player.Character
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			self._DigService:TrainDigPower():andThen(function(powerGained)
+				if typeof(powerGained) == "number" and powerGained > 0 then
+					self:_ShowTrainingPowerGain(rootPart, powerGained)
+				end
+			end):catch(function() end)
+		end)
+	end
+
+	local track = self._TrainingTrack
+	if track.Length <= 0 then return end
+
+	local cooldown = self:_GetDigTrainingCooldown()
+	local currentTime = os.clock()
+	if self._LastTrainingDig and currentTime < self._LastTrainingDig + cooldown then return end
+
+	self._LastTrainingDig = currentTime
+	track:Play(0.05, 1, math.max(1, track.Length / (cooldown * 0.9)))
+end
+
+function DigController:_UpdateExcavationTraining()
+	local onExcavation = self:_IsOnExcavation()
+	if self._WasOnExcavation and not onExcavation then
+		local tool = self._ToolController:GetEquippedToolForPlayer(Player)
+		local itemId = tool and tool:GetAttribute("ItemId")
+		local itemInfo = itemId and ItemDef.GetItemInfo(itemId)
+		local character = Player.Character
+		local currentHumanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if itemInfo and itemInfo.Category == ItemDef.Categories.Shovel
+			and tool.Parent == character and currentHumanoid then
+			currentHumanoid:UnequipTools()
+		end
+	end
+	self._WasOnExcavation = onExcavation
+
+	if not onExcavation or not self:_EquipTrainingShovel() then
+		local wasTraining = self._TrainingActive
+		self._TrainingActive = false
+		self._AfkController.TeleportData.ReturnToExcavation = nil
+		if wasTraining and self._TrainingTrack then
+			self._TrainingTrack:Stop(0.1)
+		end
+		return
+	end
+
+	self._TrainingActive = true
+	self._AfkController.TeleportData.ReturnToExcavation = true
+	self:_TrainDigPower()
 end
 
 function DigController:_GetNearestDirtGuid()
@@ -336,6 +751,8 @@ function DigController:_DoShovelIdleAnim()
 end
 
 function DigController:_Dig()
+	if self:_IsOnExcavation() then return end
+
 	local character = Player.Character
 	if not character then return end
 

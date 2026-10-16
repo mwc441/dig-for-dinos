@@ -68,6 +68,7 @@ function Plot:_UpdateOwner()
 	end
 
 	self:_SetupPlotLeveling()
+	self:_SetupExcavation()
 
 	self.OwnerChanged:Fire(self._Owner)
 end
@@ -92,6 +93,20 @@ function Plot:_SetupPlotOwnerGui()
 		newPlotOwnerGui.Icon.Image = Players:GetUserThumbnailAsync(self._Owner.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size180x180)
 	end))
 	self._OwnerTrove:Add(newPlotOwnerGui)
+end
+
+function Plot:_SetupExcavation()
+	local excavation : Model = self.Instance._Excavation
+
+	if not self._ExcavationTransparency then
+		self._ExcavationTransparency = Transparency.new(excavation)
+	end
+
+	if self._Owner == Player then
+		self._ExcavationTransparency:Restore()
+	else
+		self._ExcavationTransparency:Hide()
+	end
 end
 
 function Plot:_SetupPlotLeveling()

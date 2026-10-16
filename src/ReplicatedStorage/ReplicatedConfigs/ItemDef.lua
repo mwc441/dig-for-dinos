@@ -10,7 +10,7 @@ ItemDef.Table = {
 		Icon = "rbxassetid://105832751310248",
 		GradientColor = ColorSequence.new(Color3.fromRGB(181, 119, 71), Color3.fromRGB(97, 55, 31)),
 		Category = ItemDef.Categories.Shovel,
-		DigPower = 10,
+		DigMultiplier = 10,
 		Cost = 50
 	},
 
@@ -19,7 +19,7 @@ ItemDef.Table = {
 		Icon = "rbxassetid://98327615004173",
 		GradientColor = ColorSequence.new(Color3.fromRGB(190, 193, 196), Color3.fromRGB(92, 96, 101)),
 		Category = ItemDef.Categories.Shovel,
-		DigPower = 25,
+		DigMultiplier = 25,
 		Cost = 100
 	}
 }

@@ -125,7 +125,7 @@ function ShovelUiController:_SetupUi()
 		newShovelTemplate.NameText.Text = info.Name or ""
 		newShovelTemplate.Icon.Image = info.Icon or ""
 		newShovelTemplate.UIGradient.Color = info.GradientColor
-		newShovelTemplate.PowerFrame.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.DigPower or 0)
+		newShovelTemplate.PowerFrame.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.DigMultiplier or 0) .. "x"
 
 		newShovelTemplate.BuyButton.Contents.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.Cost or 0)
 		local buyButton = GuiButton.new(newShovelTemplate.BuyButton)

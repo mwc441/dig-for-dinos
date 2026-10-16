@@ -421,11 +421,24 @@ function LeaderboardService:_UpdateLeaderstatsForPlayer(player)
 		rebirthValue = newNumberValue
 	end
 
+	local digPowerString = "💪 Dig Power"
+	local digPowerValue = leaderstatsFolder:FindFirstChild(digPowerString)
+	if not digPowerValue then
+		local newStringValue = Instance.new("StringValue")
+		newStringValue.Name = digPowerString
+		newStringValue.Parent = leaderstatsFolder
+
+		digPowerValue = newStringValue
+	end
+
 	local cash = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.Cash) or 0
 	cashValue.Value = BigNumbers.GetNumberDisplay(cash)
 
 	local rebirths = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.Rebirths) or 0
 	rebirthValue.Value = rebirths
+
+	local digPower = self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.DigPower) or 0
+	digPowerValue.Value = BigNumbers.GetNumberDisplay(digPower)
 end
 
 return LeaderboardService
