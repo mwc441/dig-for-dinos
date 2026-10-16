@@ -5,8 +5,8 @@ local Knit = require(External:WaitForChild("Knit"))
 
 local TAG_FORMATS = {
 	RobuxSpent = "<font color=\"#07fc03\"></font>#%d", -- TODO: Update these
-	TotalKills = "⚔️#%d",
-	BestLoot = "🍀#%d"
+	Cash = "💸#%d",
+	Rebirths = "🔁#%d"
 }
 
 local LeaderboardController = {
