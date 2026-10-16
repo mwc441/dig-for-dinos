@@ -115,6 +115,7 @@ function HudUiController:_ShowCashEarned(amount)
 	local cashTemplate = self._Gui.CashTemplate:Clone()
 	cashTemplate.Text = string.format("+%s", BigNumbers.GetNumberDisplay(amount))
 	cashTemplate.Visible = true
+	cashTemplate.ZIndex = 1000000
 	cashTemplate.Parent = cashFrame.Parent
 
 	local parent = cashFrame.Parent :: GuiObject
