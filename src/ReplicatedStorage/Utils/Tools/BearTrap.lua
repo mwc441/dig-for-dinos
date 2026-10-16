@@ -20,15 +20,17 @@ local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 local PLACE_COOLDOWN = 0.5
 local MAX_PLACE_DISTANCE = 50
 local TRAP_LIFETIME = 60
-local RAGDOLL_DURATION = 3
+local RAGDOLL_DURATION = 5
 local RAY_DISTANCE = 250
 local TRAP_UPGRADE_ID = "BearTrapUpgrade"
+local PICKUP_DISTANCE = 10
 
 local LastPlaced = setmetatable({}, { __mode = "k" })
 local RagdollTokens = setmetatable({}, { __mode = "k" })
 
 local BearTrap = {}
 local ServerTrapFolder
+local PickupRemote
 if RunService:IsServer() then
 	ServerTrapFolder = Workspace:FindFirstChild("_BearTraps")
 	if not ServerTrapFolder then
@@ -36,6 +38,23 @@ if RunService:IsServer() then
 		ServerTrapFolder.Name = "_BearTraps"
 		ServerTrapFolder.Parent = Workspace
 	end
+
+	PickupRemote = Instance.new("RemoteEvent")
+	PickupRemote.Name = "PickupBearTrap"
+	PickupRemote.Parent = script
+	PickupRemote.OnServerEvent:Connect(function(player, trap)
+		if typeof(trap) ~= "Instance" or not trap:IsA("Model") or trap.Parent ~= ServerTrapFolder then return end
+		if trap:GetAttribute("OwnerUserId") ~= player.UserId then return end
+
+		local character = player.Character
+		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		local hitBox = trap:FindFirstChild("HitBox")
+		if not rootPart or not humanoid or humanoid.Health <= 0 or not hitBox or not hitBox:IsA("BasePart") then return end
+		if (rootPart.Position - hitBox.Position).Magnitude > PICKUP_DISTANCE + 2 then return end
+
+		trap:Destroy()
+	end)
 
 	Players.PlayerRemoving:Connect(function(player)
 		LastPlaced[player] = nil
@@ -46,6 +65,8 @@ if RunService:IsServer() then
 			end
 		end
 	end)
+else
+	PickupRemote = script:WaitForChild("PickupBearTrap")
 end
 
 local function isFiniteVector3(value)
@@ -222,6 +243,7 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	if not groundHit then return false end
 
 	local trap = trapAsset:Clone()
+	trap.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	local boxCFrame, boxSize = trap:GetBoundingBox()
 	local boxToPivot = boxCFrame:ToObjectSpace(trap:GetPivot())
 	trap:PivotTo(CFrame.new(groundHit.Position + Vector3.new(0, boxSize.Y * 0.5, 0)) * boxToPivot)
@@ -259,6 +281,69 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	end)
 
 	return true
+end
+
+if RunService:IsClient() then
+	local player = Players.LocalPlayer
+	local trapFolder = Workspace:WaitForChild("_BearTraps")
+	local trackedTraps = {}
+
+	local function stopTrackingTrap(trap)
+		local state = trackedTraps[trap]
+		if not state then return end
+		trackedTraps[trap] = nil
+
+		if state.PromptConnection then state.PromptConnection:Disconnect() end
+		if state.Prompt then state.Prompt:Destroy() end
+	end
+
+	local setupOwnedTrap
+	setupOwnedTrap = function(trap, state)
+		if trackedTraps[trap] ~= state or trap.Parent ~= trapFolder or state.Prompt then return end
+
+		local hitBox = trap:FindFirstChild("HitBox")
+		if not hitBox then
+			return
+		end
+
+		local prompt = UtilFunctions.CreateProximityPrompt(hitBox, {
+			ObjectText = "Pick Up",
+			HoldDuration = 0.5,
+			MaxActivationDistance = PICKUP_DISTANCE,
+			RequiresLineOfSight = false
+		})
+
+		state.Prompt = prompt
+		state.PromptConnection = prompt.Triggered:Connect(function()
+			if trap.Parent == trapFolder and trap:GetAttribute("OwnerUserId") == player.UserId then
+				PickupRemote:FireServer(trap)
+			end
+		end)
+		prompt.Parent = hitBox
+	end
+
+	local function trackTrap(trap)
+		if not trap:IsA("Model") or trap.Parent ~= trapFolder or trackedTraps[trap] then return end
+
+		local state = {}
+		trackedTraps[trap] = state
+		local function checkOwner()
+			local ownerUserId = trap:GetAttribute("OwnerUserId")
+			if ownerUserId == player.UserId then
+				setupOwnedTrap(trap, state)
+			elseif ownerUserId ~= nil then
+				stopTrackingTrap(trap)
+			end
+		end
+
+		checkOwner()
+	end
+
+	trapFolder.ChildAdded:Connect(trackTrap)
+	trapFolder.ChildRemoved:Connect(stopTrackingTrap)
+	for _, trap in ipairs(trapFolder:GetChildren()) do
+		trackTrap(trap)
+	end
 end
 
 return BearTrap
