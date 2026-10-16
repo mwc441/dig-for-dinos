@@ -78,7 +78,8 @@ function DinosaurService:OnPlayerAdded(player)
 				Guid = entry.Guid,
 				Id = entry.Id,
 				Scale = BonePileUtils.GetScale(entry.Scale),
-				Mutation = entry.Mutation or MutationsEnum.Normal
+				Mutation = entry.Mutation or MutationsEnum.Normal,
+				ZoneId = entry.ZoneId
 			})
 		end
 	end
@@ -98,14 +99,15 @@ function DinosaurService:OnPlayerRemoving(player)
 	self._Dinosaurs[player] = nil
 end
 
-function DinosaurService:GiveDinosaur(player, dinosaurId, scale, mutation)
+function DinosaurService:GiveDinosaur(player, dinosaurId, scale, mutation, zoneId)
 	if not DinosaurDef.GetDinosaurInfo(dinosaurId) then return end
 
 	self._IndexService:UnlockForPlayer(player, mutation, dinosaurId)
 
 	return self._InventoryService:AddNonFungibleItemForPlayer(player, dinosaurId, {
 		Scale = BonePileUtils.GetScale(scale),
-		Mutation = mutation or MutationsEnum.Normal
+		Mutation = mutation or MutationsEnum.Normal,
+		ZoneId = zoneId
 	})
 end
 
@@ -114,7 +116,7 @@ function DinosaurService:_GetIncomeForPlacedDino(placedDino, cashBoost)
 	if not info then return end
 
 	local scale : number = placedDino.Scale or 1
-	return math.round(DinosaurDef.GetIncome(placedDino.Id, scale, placedDino.Mutation) * cashBoost)
+	return math.round(DinosaurDef.GetIncome(placedDino.Id, scale, placedDino.Mutation, placedDino.ZoneId) * cashBoost)
 end
 
 function DinosaurService:GetIncomePerSecondForPlayer(player)
@@ -248,7 +250,8 @@ function DinosaurService:PlaceDinosaur(player, bonePileGuid, groundCFrame)
 		Guid = self:_GenerateGuid(),
 		Id = item.ItemId,
 		Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
-		Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
+		Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal,
+		ZoneId = item.Metadata and item.Metadata.ZoneId
 	}
 	local spawnCFrame = floor.CFrame
 		* CFrame.new(localPosition.X, floorSize.Y / 2, localPosition.Z)
@@ -287,7 +290,7 @@ function DinosaurService:UnequipDinosaur(player, guid)
 	end
 	if not placedEntry then return false end
 
-	local inventoryGuid = self:GiveDinosaur(player, placedEntry.Id, placedEntry.Scale, placedEntry.Mutation)
+	local inventoryGuid = self:GiveDinosaur(player, placedEntry.Id, placedEntry.Scale, placedEntry.Mutation, placedEntry.ZoneId)
 	if not inventoryGuid then return false end
 
 	self:_ClaimIncomeForPlayer(player, guid)
@@ -313,7 +316,7 @@ function DinosaurService:_SellDinosaurForPlayer(player, guid)
 	if not item then return false end
 
 	local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-	local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation)
+	local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation, item.Metadata.ZoneId)
 	if not sellPrice then return false end
 
 	if not self._InventoryService:RemoveNonFungibleItemForPlayer(player, guid) then
@@ -339,7 +342,7 @@ function DinosaurService:_SellAllDinosaursForPlayer(player)
 		if not dinosaurInfo then continue end
 
 		local scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale)
-		local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation)
+		local sellPrice = DinosaurDef.GetSellPrice(item.ItemId, scale, item.Metadata.Mutation, item.Metadata.ZoneId)
 		if sellPrice then
 			table.insert(guids, item.Guid)
 			totalSellPrice += sellPrice
@@ -384,7 +387,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 		table.insert(candidates, {
 			Guid = entry.Guid,
 			Scale = scale,
-			Income = DinosaurDef.GetIncome(entry.Id, scale, entry.Mutation),
+			Income = DinosaurDef.GetIncome(entry.Id, scale, entry.Mutation, entry.ZoneId),
 			Placed = true
 		})
 	end
@@ -396,7 +399,7 @@ function DinosaurService:EquipBestDinosaurs(player)
 			table.insert(candidates, {
 				Guid = item.Guid,
 				Scale = scale,
-				Income = DinosaurDef.GetIncome(item.ItemId, scale, item.Metadata and item.Metadata.Mutation),
+				Income = DinosaurDef.GetIncome(item.ItemId, scale, item.Metadata and item.Metadata.Mutation, item.Metadata and item.Metadata.ZoneId),
 				Placed = false
 			})
 		end

@@ -158,7 +158,7 @@ function DirtSpawner:SpawnDirt()
 	end
 
 	local dirtId = RarityUtils.GetLootTableResults(self._Config.DirtLootTable).Id
-	local dirt = Dirt.new(self._ReplicationService, spawnCFrame, dirtId, scale)
+	local dirt = Dirt.new(self._ReplicationService, spawnCFrame, dirtId, scale, self._Config.Zone, self._Config.HealthMultiplier)
 	local guid = dirt:GetGuid()
 
 	self._Dirts[guid] = dirt

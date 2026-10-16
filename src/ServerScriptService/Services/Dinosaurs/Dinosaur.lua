@@ -26,6 +26,7 @@ function Dinosaur.new(replicationService, owner, floor, savedData, spawnCFrame)
 	self._DinosaurId = savedData.Id
 	self._Scale = savedData.Scale
 	self._Mutation = savedData.Mutation or MutationsEnum.Normal
+	self._ZoneId = savedData.ZoneId
 	self._Floor = floor
 	self._Random = Random.new()
 	self._WalkSpeed = WALK_SPEED
@@ -52,6 +53,7 @@ function Dinosaur:GetReplicationData()
 	replicationData.DinosaurId = self._DinosaurId
 	replicationData.Scale = self._Scale
 	replicationData.Mutation = self._Mutation
+	replicationData.ZoneId = self._ZoneId
 	replicationData.StartCFrame = self._StartCFrame
 	replicationData.TargetCFrame = self._TargetCFrame
 	replicationData.MoveStartTime = self._MoveStartTime

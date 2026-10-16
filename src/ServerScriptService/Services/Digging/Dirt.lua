@@ -13,7 +13,7 @@ local Dirt = {}
 Dirt.__index = Dirt
 setmetatable(Dirt, Replicator)
 
-function Dirt.new(replicationService, cframe, dirtId, scale)
+function Dirt.new(replicationService, cframe, dirtId, scale, zoneId, healthMultiplier)
 	local dirtInfo = DirtDef.GetDirtInfo(dirtId)
 	assert(dirtInfo, "Unknown DirtId: " .. tostring(dirtId))
 
@@ -26,8 +26,9 @@ function Dirt.new(replicationService, cframe, dirtId, scale)
 	self._CFrame = cframe
 	self._DirtId = dirtId
 	self._Scale = scale
-	self._TotalHealth = dirtInfo.TotalHealth
-	self._Health = dirtInfo.TotalHealth
+	self._ZoneId = zoneId
+	self._TotalHealth = math.max(1, math.round(dirtInfo.TotalHealth * healthMultiplier))
+	self._Health = self._TotalHealth
 
 	self.DestroyedSignal = Signal.new()
 	self._Trove:Add(self.DestroyedSignal)
@@ -46,6 +47,10 @@ function Dirt:GetDirtId()
 	return self._DirtId
 end
 
+function Dirt:GetZoneId()
+	return self._ZoneId
+end
+
 function Dirt:GetScale()
 	return self._Scale
 end
@@ -62,6 +67,7 @@ function Dirt:GetReplicationData()
 	local replicationData = Replicator.GetReplicationData(self)
 	replicationData.CFrame = self._CFrame
 	replicationData.DirtId = self._DirtId
+	replicationData.ZoneId = self._ZoneId
 	replicationData.Scale = self._Scale
 	replicationData.Health = self._Health
 	replicationData.TotalHealth = self._TotalHealth

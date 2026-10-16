@@ -139,7 +139,7 @@ function DinosaurUiController:_UpdateUi()
 		local entry = {
 			Dinosaur = dinosaur,
 			Info = info,
-			Income = DinosaurDef.GetIncome(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation),
+			Income = DinosaurDef.GetIncome(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation, dinosaur.ZoneId),
 			Placed = self._DinosaurController:IsDinosaurPlaced(dinosaur.Guid)
 		}
 		table.insert(dinosaurs, entry)

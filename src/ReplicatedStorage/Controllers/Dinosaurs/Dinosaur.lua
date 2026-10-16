@@ -36,6 +36,7 @@ function Dinosaur.new(replicationData)
 	self._DinosaurId = replicationData.DinosaurId
 	self._Scale = replicationData.Scale
 	self._Mutation = replicationData.Mutation or MutationsEnum.Normal
+	self._ZoneId = replicationData.ZoneId
 	self._Income = 0
 
 	self:Update(replicationData)
@@ -65,6 +66,10 @@ end
 
 function Dinosaur:GetMutation()
 	return self._Mutation
+end
+
+function Dinosaur:GetZoneId()
+	return self._ZoneId
 end
 
 function Dinosaur:IsAncestorOf(instance)

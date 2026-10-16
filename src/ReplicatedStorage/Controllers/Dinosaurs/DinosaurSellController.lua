@@ -129,12 +129,13 @@ function DinosaurSellController:_UpdateUi()
 				Id = item.ItemId,
 				Guid = item.Guid,
 				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
-				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
+				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal,
+				ZoneId = item.Metadata and item.Metadata.ZoneId
 			}
 			local entry = {
 				Dinosaur = dinosaur,
 				Info = info,
-				Income = DinosaurDef.GetIncome(item.ItemId, dinosaur.Scale, dinosaur.Mutation),
+				Income = DinosaurDef.GetIncome(item.ItemId, dinosaur.Scale, dinosaur.Mutation, dinosaur.ZoneId),
 				Mutation = dinosaur.Mutation
 			}
 			table.insert(dinosaurs, entry)
@@ -181,7 +182,7 @@ function DinosaurSellController:_UpdateUi()
 		RarityColorUtils.SetColor(template.RarityText, entry.Info.Rarity)
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
 		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
-		local sellPrice = DinosaurDef.GetSellPrice(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation)
+		local sellPrice = DinosaurDef.GetSellPrice(dinosaur.Id, dinosaur.Scale, dinosaur.Mutation, dinosaur.ZoneId)
 		template.SellAmountFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(sellPrice))
 		template.SellButton.Visible = true
 

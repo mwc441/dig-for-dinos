@@ -145,7 +145,7 @@ function DinosaurController:GetIncomePerSecond()
 	local totalIncome = 0
 
 	for _, placedDinosaur in ipairs(self._DinosaurData.Placed or {}) do
-		local income = DinosaurDef.GetIncome(placedDinosaur.Id, placedDinosaur.Scale or 1, placedDinosaur.Mutation)
+		local income = DinosaurDef.GetIncome(placedDinosaur.Id, placedDinosaur.Scale or 1, placedDinosaur.Mutation, placedDinosaur.ZoneId)
 		if income then
 			totalIncome += math.round(income * cashBoost)
 		end
@@ -162,7 +162,8 @@ function DinosaurController:GetOwnedDinosaurs()
 			Id = placedDinosaur.Id,
 			Guid = placedDinosaur.Guid,
 			Scale = BonePileUtils.GetScale(placedDinosaur.Scale),
-			Mutation = placedDinosaur.Mutation or MutationsEnum.Normal
+			Mutation = placedDinosaur.Mutation or MutationsEnum.Normal,
+			ZoneId = placedDinosaur.ZoneId
 		})
 	end
 
@@ -172,7 +173,8 @@ function DinosaurController:GetOwnedDinosaurs()
 				Id = item.ItemId,
 				Guid = item.Guid,
 				Scale = BonePileUtils.GetScale(item.Metadata and item.Metadata.Scale),
-				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal
+				Mutation = item.Metadata and item.Metadata.Mutation or MutationsEnum.Normal,
+				ZoneId = item.Metadata and item.Metadata.ZoneId
 			})
 		end
 	end
