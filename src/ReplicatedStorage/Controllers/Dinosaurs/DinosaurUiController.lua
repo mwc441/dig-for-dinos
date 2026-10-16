@@ -179,6 +179,11 @@ function DinosaurUiController:_UpdateUi()
 				self:_EquipDinosaur(guid)
 			end)
 
+			local unequipButton = GuiButton.new(template.UnequipButton)
+			unequipButton:SetCallback(function()
+				self._DinosaurService:UnequipDinosaur(guid)
+			end)
+
 			template.Parent = self._Gui.DinosaurList
 		end
 
@@ -189,6 +194,7 @@ function DinosaurUiController:_UpdateUi()
 		template.SizeText.Text = string.format("Size: %.1fx", dinosaur.Scale)
 		template.IncomeFrame.AmountFrame.AmountText.Text = string.format("%s", BigNumbers.GetNumberDisplay(math.round(entry.Income)))
 		template.EquipButton.Visible = not entry.Placed
+		template.UnequipButton.Visible = entry.Placed
 
 		local mutation = dinosaur.Mutation
 		template.MutationText.Text = mutation

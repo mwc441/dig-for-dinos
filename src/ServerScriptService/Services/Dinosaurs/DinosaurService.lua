@@ -468,6 +468,10 @@ function DinosaurService.Client:PlaceDinosaur(player, bonePileGuid, groundCFrame
 	return self.Server:PlaceDinosaur(player, bonePileGuid, groundCFrame)
 end
 
+function DinosaurService.Client:UnequipDinosaur(player, guid)
+	return self.Server:UnequipDinosaur(player, guid)
+end
+
 function DinosaurService.Client:EquipBestDinosaurs(player)
 	return self.Server:EquipBestDinosaurs(player)
 end
