@@ -7,6 +7,7 @@ local Workspace = game:GetService("Workspace")
 local Player = Players.LocalPlayer
 
 local random = Random.new()
+local CLAIM_COOLDOWN = 1
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Sounds = Assets:WaitForChild("Sounds")
@@ -213,12 +214,16 @@ function DinosaurController:_CreateDinosaur(replicationData)
 	end
 
 	local dinosaur = Dinosaur.new(replicationData)
+	local lastClaimAt = -math.huge
 
 	dinosaur.Touched:Connect(function()
 		if not self._PlotController:IsInsidePlot() then return end
 
 		local income = dinosaur:GetIncome()
 		if income <= 0 then return end
+		local now = os.clock()
+		if now - lastClaimAt < CLAIM_COOLDOWN then return end
+		lastClaimAt = now
 
 		dinosaur:SetIncome(0)
 
