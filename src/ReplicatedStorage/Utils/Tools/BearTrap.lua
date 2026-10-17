@@ -1,3 +1,4 @@
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -9,6 +10,7 @@ local Assets = ReplicatedStorage:WaitForChild("Assets")
 local Sounds = Assets:WaitForChild("Sounds")
 local BearTrapSound = Sounds:WaitForChild("BearTrap")
 local BearTrapPlacedSound = Sounds:WaitForChild("BearTrapPlaced")
+local ErrorSound = Sounds:WaitForChild("Error")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
@@ -88,6 +90,19 @@ local function isFiniteVector3(value)
 		and value.Z == value.Z and math.abs(value.Z) < 1000000
 end
 
+local function canPlaceHere(position)
+	for _, zone in ipairs(CollectionService:GetTagged("Zone2d")) do
+		if zone.Name == "SafeZone" and zone:IsA("BasePart") and zone:IsDescendantOf(Workspace) then
+			local localPosition = zone.CFrame:PointToObjectSpace(position)
+			if math.abs(localPosition.X) <= zone.Size.X * 0.5
+				and math.abs(localPosition.Z) <= zone.Size.Z * 0.5 then
+				return false
+			end
+		end
+	end
+	return true
+end
+
 local function getClientTargetPosition()
 	local player = Players.LocalPlayer
 	local character = player.Character
@@ -129,6 +144,7 @@ local nextPlaceAt = 0
 function BearTrap:ClientEquipped(tool, toolController)
 	local player = Players.LocalPlayer
 	local upgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
+	local rewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
 	local trapFolder = Workspace:WaitForChild("_BearTraps")
 	local gui = Assets:WaitForChild("BearTrapToolGui"):Clone()
 	local handle = tool:WaitForChild("Handle")
@@ -182,6 +198,11 @@ function BearTrap:ClientEquipped(tool, toolController)
 		if waitingForServer or os.clock() < nextPlaceAt or not canPlaceMoreTraps() then return end
 		local targetPosition = getClientTargetPosition()
 		if not targetPosition then return end
+		if not canPlaceHere(targetPosition) then
+			UtilFunctions.PlayCopyOfSound(ErrorSound)
+			rewardsController:AnnounceMessage("❌ You can't place bear traps in the safe zone!", Color3.fromRGB(255, 85, 85))
+			return
+		end
 
 		waitingForServer = true
 		local request = toolController:ActivateTool(tool, targetPosition)
@@ -264,6 +285,7 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	if not trapAsset or not trapAsset:IsA("Model") then return false end
 	local groundHit = getGroundHit(player, targetPosition, ServerTrapFolder, toolService:GetCharacters())
 	if not groundHit then return false end
+	if not canPlaceHere(groundHit.Position) then return false end
 
 	local trap = trapAsset:Clone()
 	trap.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
