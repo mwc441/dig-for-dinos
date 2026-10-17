@@ -21,7 +21,7 @@ local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 
 local PLACE_COOLDOWN = 0.5
 local MAX_PLACE_DISTANCE = 50
-local TRAP_LIFETIME = 60
+local TRAP_LIFETIME = 5 * 60
 local RAGDOLL_DURATION = 5
 local RAY_DISTANCE = 250
 local TRAP_UPGRADE_ID = "BearTrapUpgrade"
