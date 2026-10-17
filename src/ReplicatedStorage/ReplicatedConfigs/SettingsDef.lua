@@ -20,6 +20,20 @@ SettingsDef.Table = {
 		Default = 1,
 		Type = "number",
 		SetType = "Slider"
+	},
+
+	[SettingsEnum.ShowOtherPlayerDinosaurs] = {
+		Order = 3,
+		Name = "Show Other's Dinos",
+		Default = true,
+		Type = "boolean"
+	},
+
+	[SettingsEnum.ShowOwnDinosaurs] = {
+		Order = 4,
+		Name = "Show Your Dinos",
+		Default = true,
+		Type = "boolean"
 	}
 }
 

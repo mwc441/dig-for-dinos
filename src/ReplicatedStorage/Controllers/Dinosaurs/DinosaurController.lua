@@ -20,6 +20,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local SettingsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Settings"))
 local BoostTypesEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("BoostTypes"))
 local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
 local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
@@ -39,10 +40,13 @@ local DinosaurController = {
 	_DataController = nil,
 	_InventoryController = nil,
 	_ReplicationController = nil,
+	_SettingsController = nil,
 	_DinosaurService = nil,
 	_DinosaurData = {},
 	_Dinosaurs = {},
 	_LocalDinosaursHidden = false,
+	_ShowOtherPlayerDinosaurs = true,
+	_ShowOwnDinosaurs = true,
 	DinosaurDataUpdatedSignal = Signal.new()
 }
 
@@ -62,12 +66,26 @@ function DinosaurController:KnitStart()
 	self._InventoryController = require(ReplicatedStorage.Controllers.Inventory.InventoryController)
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
+	self._SettingsController = require(ReplicatedStorage.Controllers.Settings.SettingsController)
 	self._DinosaurService = Knit.GetService("DinosaurService")
 
 	local folder = Instance.new("Folder")
 	folder.Name = "_Dinosaurs"
 	folder.Parent = Workspace
 	self._Folder = folder
+	self._SettingsController:WaitForSettings()
+	self._ShowOtherPlayerDinosaurs = self._SettingsController:GetSetting(SettingsEnum.ShowOtherPlayerDinosaurs)
+	self._ShowOwnDinosaurs = self._SettingsController:GetSetting(SettingsEnum.ShowOwnDinosaurs)
+	self._SettingsController.SettingUpdated:Connect(function(settingId, value)
+		if settingId == SettingsEnum.ShowOtherPlayerDinosaurs then
+			self._ShowOtherPlayerDinosaurs = value
+		elseif settingId == SettingsEnum.ShowOwnDinosaurs then
+			self._ShowOwnDinosaurs = value
+		else
+			return
+		end
+		self:_ReconcileDinosaurs()
+	end)
 
 	self._DinosaurService.IncomesUpdated:Connect(function(incomesPerDino)
 		for guid, totalIncome in pairs(incomesPerDino) do
@@ -278,7 +296,9 @@ end
 
 function DinosaurController:_ReconcileDinosaur(guid)
 	local dinosaur = self._Dinosaurs[guid]
-	if self._LocalDinosaursHidden and dinosaur:GetOwnerUserId() == Player.UserId then
+	local isLocalDinosaur = dinosaur:GetOwnerUserId() == Player.UserId
+	if (isLocalDinosaur and (self._LocalDinosaursHidden or not self._ShowOwnDinosaurs))
+		or (not isLocalDinosaur and not self._ShowOtherPlayerDinosaurs) then
 		dinosaur:Hide()
 		return
 	end
