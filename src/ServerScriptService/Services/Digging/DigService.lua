@@ -6,6 +6,7 @@ local Workspace = game:GetService("Workspace")
 local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
@@ -29,6 +30,7 @@ local DigService = {
 	_CharacterService = nil,
 	_PlotService = nil,
 	_PlayerStatsService = nil,
+	_BoostsService = nil,
 	_ReplicationService = nil,
 	_LifecycleService = nil,
 	_BonePileService = nil,
@@ -45,6 +47,7 @@ function DigService:KnitStart()
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
+	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
 	self._BonePileService = require(script.Parent:WaitForChild("BonePileService"))
@@ -173,7 +176,8 @@ function DigService:_TrainDigPowerForPlayer(player)
 	end
 
 	self._LastTrainingDig[player] = currentTime
-	local powerGained = BASE_TRAINING_POWER * shovelInfo.DigMultiplier
+	local trainingBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.DigPowerTrainingBoost)
+	local powerGained = BASE_TRAINING_POWER * shovelInfo.DigMultiplier * trainingBoost
 	self._PlayerStatsService:AddToStatForPlayer(player, PlayerStatsEnum.DigPower, powerGained)
 	return powerGained
 end

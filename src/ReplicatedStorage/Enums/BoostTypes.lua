@@ -1,4 +1,8 @@
 return {
 	WalkSpeedBoost = "WalkSpeedBoost",
-	CashBoost = "CashBoost"
+	CashBoost = "CashBoost",
+	GoldMutationChanceBoost = "GoldMutationChanceBoost",
+	VoidMutationChanceBoost = "VoidMutationChanceBoost",
+	FlameMutationChanceBoost = "FlameMutationChanceBoost",
+	DigPowerTrainingBoost = "DigPowerTrainingBoost"
 }
