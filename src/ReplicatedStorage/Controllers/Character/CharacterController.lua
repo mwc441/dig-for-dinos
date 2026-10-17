@@ -10,7 +10,11 @@ local NameGui = ClientAssets:WaitForChild("NameGui")
 local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
+local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
+local GuiButton = require(GuiModules:WaitForChild("Button"))
+local ToggleButton = require(GuiModules:WaitForChild("ToggleButton"))
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
+local SettingsEnum = require(Enums:WaitForChild("Settings"))
 local Transparency = require(Utils:WaitForChild("Transparency"))
 local Knit = require(External:WaitForChild("Knit"))
 local Signal = require(External:WaitForChild("Signal"))
@@ -23,6 +27,7 @@ CharacterSoundGroup.Parent = SoundService
 local CharacterController = {
 	Name = "CharacterController",
 	_BoostController = nil,
+	_SettingsController = nil,
 	_WalkSpeedOverride = nil,
 	_AllCharactersVisibleConnection = nil,
 	_CharacterTransparencies = {},
@@ -31,8 +36,19 @@ local CharacterController = {
 	CharacterRemoving = Signal.new()
 }
 
+function CharacterController:KnitInit()
+	local mainGui = Player:WaitForChild("PlayerGui"):WaitForChild("Main")
+	local hud = mainGui:WaitForChild("Hud")
+	local speedToggleFrame = hud:WaitForChild("SpeedToggleFrame")
+
+	self._Gui = {
+		SpeedToggleFrame = speedToggleFrame
+	}
+end
+
 function CharacterController:KnitStart()
 	self._BoostController = require(ReplicatedStorage.Controllers.Boosts.BoostController)
+	self._SettingsController = require(ReplicatedStorage.Controllers.Settings.SettingsController)
 
 	Players.PlayerAdded:Connect(function(player)
 		self:_SetupPlayer(player)
@@ -58,6 +74,24 @@ function CharacterController:KnitStart()
 
 	self._BoostController.BoostsUpdatedSignal:Connect(function()
 		self:_UpdateWalkSpeed()
+	end)
+
+	self._SettingsController:WaitForSettings()
+
+	local speedOn = self._SettingsController:GetSetting(SettingsEnum.SpeedOn)
+	local speedToggle = ToggleButton.new(self._Gui.SpeedToggleFrame.ToggleButton, speedOn)
+	speedToggle.Toggled:Connect(function(value)
+		self._SettingsController:ConfigureSetting(SettingsEnum.SpeedOn, value)
+	end)
+	local speedToggleButton = GuiButton.new(self._Gui.SpeedToggleFrame.ToggleButton)
+	speedToggleButton:SetCallback(function()
+		speedToggle:Toggle()
+	end)
+
+	self._SettingsController.SettingUpdated:Connect(function(settingId)
+		if settingId == SettingsEnum.SpeedOn then
+			self:_UpdateWalkSpeed()
+		end
 	end)
 end
 
@@ -167,13 +201,9 @@ function CharacterController:AnchorCharacter(anchor)
 	rootPart.Anchored = anchor
 end
 
-function CharacterController:SetWalkspeed(walkSpeed: number?)
+function CharacterController:SetWalkSpeed(walkSpeed: number?)
 	self._WalkSpeedOverride = walkSpeed
 	self:_UpdateWalkSpeed()
-end
-
-function CharacterController:SetWalkSpeed(walkSpeed: number?)
-	self:SetWalkspeed(walkSpeed)
 end
 
 function CharacterController:MakeAllCharactersVisible(visible)
@@ -242,10 +272,16 @@ function CharacterController:_UpdateWalkSpeed()
 		return
 	end
 
+	local speedOn = self._SettingsController:GetSetting(SettingsEnum.SpeedOn)
+
 	local walkSpeedAdditive = self._BoostController:GetAddingBoostAmountOfType(BoostTypesEnum.WalkSpeedBoost) or 0
 	local walkSpeedMultiplying = self._BoostController:GetMultiplyingBoostAmountOfType(BoostTypesEnum.WalkSpeedBoost) or 1
 
-	humanoid.WalkSpeed = (StarterPlayer.CharacterWalkSpeed + walkSpeedAdditive) * walkSpeedMultiplying
+	if speedOn then
+		humanoid.WalkSpeed = (StarterPlayer.CharacterWalkSpeed + walkSpeedAdditive) * walkSpeedMultiplying
+	else
+		humanoid.WalkSpeed = StarterPlayer.CharacterWalkSpeed
+	end
 end
 
 return CharacterController

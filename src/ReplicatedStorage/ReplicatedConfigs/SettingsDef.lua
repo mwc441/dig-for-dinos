@@ -34,6 +34,13 @@ SettingsDef.Table = {
 		Name = "Show Your Dinos",
 		Default = true,
 		Type = "boolean"
+	},
+
+	[SettingsEnum.SpeedOn] = {
+		ShowInUi = false,
+		Name = "Speed On",
+		Default = true,
+		Type = "boolean"
 	}
 }
 

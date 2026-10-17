@@ -2,5 +2,6 @@ return {
 	MusicVolume = "MusicVolume",
 	SoundEffectVolume = "SoundEffectVolume",
 	ShowOtherPlayerDinosaurs = "ShowOtherPlayerDinosaurs",
-	ShowOwnDinosaurs = "ShowOwnDinosaurs"
+	ShowOwnDinosaurs = "ShowOwnDinosaurs",
+	SpeedOn = "SpeedOn"
 }
