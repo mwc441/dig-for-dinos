@@ -20,14 +20,16 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
-local SettingsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Settings"))
-local BoostTypesEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("BoostTypes"))
-local MutationsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("Mutations"))
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local SettingsEnum = require(Enums:WaitForChild("Settings"))
+local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local Tooltip = require(GuiModules:WaitForChild("Tooltip"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
 local Dinosaur = require(script.Parent.Dinosaur)
@@ -439,6 +441,11 @@ function DinosaurController:_SetupDinosaurHover()
 			local newDinosaurTooltip = DinosaurHoverTooltip:Clone()
 			newDinosaurTooltip.NameText.Text = info.Name or ""
 			newDinosaurTooltip.RarityText.Text = info.Rarity or ""
+
+			local mutation = dinosaurHovered:GetMutation()
+			newDinosaurTooltip.MutationText.Text = mutation
+			newDinosaurTooltip.MutationText.Visible = mutation ~= "Normal"
+			newDinosaurTooltip.MutationText.UIGradient.Color = Constants.MutationGradients[mutation] or ColorSequence.new(Color3.fromRGB(255, 255, 255))
 			RarityColorUtils.SetColor(newDinosaurTooltip.RarityText, info.Rarity)
 			newDinosaurTooltip.SizeText.Text = string.format("Size: %0.1fx", dinosaurHovered:GetScale())
 
