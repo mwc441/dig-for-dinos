@@ -28,6 +28,18 @@ local PICKUP_DISTANCE = 10
 local LastPlaced = setmetatable({}, { __mode = "k" })
 local RagdollTokens = setmetatable({}, { __mode = "k" })
 
+local function getActiveTrapCount(player, trapFolder)
+	if not trapFolder then return 0 end
+
+	local count = 0
+	for _, trap in ipairs(trapFolder:GetChildren()) do
+		if trap:GetAttribute("OwnerUserId") == player.UserId then
+			count += 1
+		end
+	end
+	return count
+end
+
 local BearTrap = {}
 local ServerTrapFolder
 local PickupRemote
@@ -76,18 +88,6 @@ local function isFiniteVector3(value)
 		and value.Z == value.Z and math.abs(value.Z) < 1000000
 end
 
-local function getActiveTrapCount(player, trapFolder)
-	if not trapFolder then return 0 end
-
-	local count = 0
-	for _, trap in ipairs(trapFolder:GetChildren()) do
-		if trap:GetAttribute("OwnerUserId") == player.UserId then
-			count += 1
-		end
-	end
-	return count
-end
-
 local function getClientTargetPosition()
 	local player = Players.LocalPlayer
 	local character = player.Character
@@ -129,10 +129,29 @@ local nextPlaceAt = 0
 function BearTrap:ClientEquipped(tool, toolController)
 	local player = Players.LocalPlayer
 	local upgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
-	local function canPlaceMoreTraps()
+	local trapFolder = Workspace:WaitForChild("_BearTraps")
+	local gui = Assets:WaitForChild("BearTrapToolGui"):Clone()
+	local handle = tool:WaitForChild("Handle")
+	gui.Adornee = handle
+	gui.Parent = handle
+
+	local function getRemainingTrapCount()
 		local level = upgradeController:GetUpgradeLevel(TRAP_UPGRADE_ID)
 		local limit = UpgradesDef.GetAmountForUpgrade(TRAP_UPGRADE_ID, level)
-		return getActiveTrapCount(player, Workspace:FindFirstChild("_BearTraps")) < limit
+		return math.max(0, limit - getActiveTrapCount(player, trapFolder))
+	end
+
+	local function updateAmount()
+		gui.AmountText.Text = string.format("%dx", getRemainingTrapCount())
+	end
+
+	local trapAddedConnection = trapFolder.ChildAdded:Connect(updateAmount)
+	local trapRemovedConnection = trapFolder.ChildRemoved:Connect(updateAmount)
+	local upgradeConnection = upgradeController.UpgradesUpdated:Connect(updateAmount)
+	updateAmount()
+
+	local function canPlaceMoreTraps()
+		return getRemainingTrapCount() > 0
 	end
 
 	local ghost = Assets:WaitForChild("BearTrap"):Clone()
@@ -184,6 +203,10 @@ function BearTrap:ClientEquipped(tool, toolController)
 	return function()
 		connection:Disconnect()
 		previewConnection:Disconnect()
+		trapAddedConnection:Disconnect()
+		trapRemovedConnection:Disconnect()
+		upgradeConnection:Disconnect()
+		gui:Destroy()
 		ghost:Destroy()
 	end
 end
@@ -286,6 +309,7 @@ end
 if RunService:IsClient() then
 	local player = Players.LocalPlayer
 	local trapFolder = Workspace:WaitForChild("_BearTraps")
+	local BearTrapGui = Assets:WaitForChild("BearTrapGui")
 	local trackedTraps = {}
 
 	local function stopTrackingTrap(trap)
@@ -295,6 +319,7 @@ if RunService:IsClient() then
 
 		if state.PromptConnection then state.PromptConnection:Disconnect() end
 		if state.Prompt then state.Prompt:Destroy() end
+		if state.MarkerGui then state.MarkerGui:Destroy() end
 	end
 
 	local setupOwnedTrap
@@ -320,6 +345,11 @@ if RunService:IsClient() then
 			end
 		end)
 		prompt.Parent = hitBox
+
+		local markerGui = BearTrapGui:Clone()
+		markerGui.Adornee = hitBox
+		markerGui.Parent = hitBox
+		state.MarkerGui = markerGui
 	end
 
 	local function trackTrap(trap)
