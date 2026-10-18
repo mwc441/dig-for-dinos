@@ -93,6 +93,61 @@ BoostsDef.Table = {
 		end
 	},
 
+	[BoostsEnum.GoldWeatherBoost] = {
+		Type = BoostTypesEnum.GoldMutationChanceBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Gold Weather",
+		Icon = "rbxassetid://84279161348248",
+		Description = "Gold Dinosaur Luck<br/><br/>x%d",
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
+	[BoostsEnum.VoidWeatherBoost] = {
+		Type = BoostTypesEnum.VoidMutationChanceBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Void Weather",
+		Icon = "rbxassetid://104998627371322",
+		Description = "Void Dinosaur Luck<br/><br/>x%d",
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
+	[BoostsEnum.FlameWeatherBoost] = {
+		Type = BoostTypesEnum.FlameMutationChanceBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Flame Weather",
+		Icon = "rbxassetid://103784198225882",
+		Description = "Flame Dinosaur Luck<br/><br/>x%d",
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
+	[BoostsEnum.CashWeatherBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Cash Weather",
+		Icon = Constants.Icons[PlayerStatsEnum.Cash],
+		Description = "Cash x%d",
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
+	[BoostsEnum.RadioactiveWeatherBoost] = {
+		Type = BoostTypesEnum.DigPowerTrainingBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Radioactive Weather",
+		Icon = "rbxassetid://73000488313692",
+		Description = "Dig Power Training<br/><br/>x%d",
+		AmountFunction = function(level: number)
+			return 1 + level
+		end
+	},
+
 	-- GAMEPASSES
 
 	-- UGPRADES

@@ -6,6 +6,11 @@ return {
 	GoldIndexCashBoost = "GoldIndexCashBoost",
 	VoidIndexCashBoost = "VoidIndexCashBoost",
 	FlameIndexCashBoost = "FlameIndexCashBoost",
+	GoldWeatherBoost = "GoldWeatherBoost",
+	VoidWeatherBoost = "VoidWeatherBoost",
+	FlameWeatherBoost = "FlameWeatherBoost",
+	CashWeatherBoost = "CashWeatherBoost",
+	RadioactiveWeatherBoost = "RadioactiveWeatherBoost",
 
 	-- GAMEPASSES
 
