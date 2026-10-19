@@ -4,8 +4,8 @@ local BoostsEnum = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild(
 
 local WeatherDef = {}
 
-WeatherDef.IntervalSeconds = 45 * 60
-WeatherDef.DurationSeconds = 15 * 60
+WeatherDef.IntervalSeconds = 60 * 60
+WeatherDef.DurationSeconds = 10 * 60
 WeatherDef.OffsetSeconds = 15 * 60 -- 00:15 UTC, then every 45 minutes
 
 -- Boosts entries use { Id = "WeatherBoostId", Level = 1 }.
