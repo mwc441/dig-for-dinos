@@ -17,7 +17,7 @@ local STATS_DEFAULT_DATA = {
 		[PlayerStatsEnum.OfflineEarnings] = 0,
 		[PlayerStatsEnum.Rebirths] = 0,
 		[PlayerStatsEnum.PlotLevel] = 1,
-		[PlayerStatsEnum.DigPower] = 1
+		[PlayerStatsEnum.DigPower] = 10
 	}
 }
 
