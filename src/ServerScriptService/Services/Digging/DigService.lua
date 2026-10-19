@@ -6,11 +6,16 @@ local Workspace = game:GetService("Workspace")
 local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
+local Rarities = require(Enums:WaitForChild("Rarities"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
+local ZoneDef = require(ReplicatedConfigs:WaitForChild("ZoneDef"))
+local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
 local DirtSpawner = require(script.Parent:WaitForChild("DirtSpawner"))
 
@@ -22,7 +27,8 @@ local BASE_TRAINING_POWER = 1
 local DigService = {
 	Name = "DigService",
 	Client = {
-		InitialDirtGuids = Knit.CreateProperty(nil)
+		InitialDirtGuids = Knit.CreateProperty(nil),
+		UpcomingGuaranteedSpawns = Knit.CreateProperty({})
 	},
 	_EquipService = nil,
 	_InventoryService = nil,
@@ -34,7 +40,11 @@ local DigService = {
 	_ReplicationService = nil,
 	_LifecycleService = nil,
 	_BonePileService = nil,
+	_RewardsService = nil,
+	_TimeService = nil,
 	_DirtSpawners = {},
+	_GuaranteedNextSpawns = {},
+	_GuaranteedRandom = Random.new(),
 	_ShovelTools = {},
 	_LastDig = {},
 	_LastTrainingDig = {}
@@ -50,6 +60,8 @@ function DigService:KnitStart()
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
+	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
+	self._TimeService = require(ServerScriptService.Services.Time.TimeService)
 	self._BonePileService = require(script.Parent:WaitForChild("BonePileService"))
 
 	CollectionService:GetInstanceAddedSignal("DirtSpawner"):Connect(function(instance)
@@ -62,6 +74,16 @@ function DigService:KnitStart()
 	for _, instance in ipairs(CollectionService:GetTagged("DirtSpawner")) do
 		self:_AddDirtSpawner(instance)
 	end
+
+	local now = os.time()
+	for _, guarantee in ipairs(DirtSpawnerDef.GuaranteedSpawns) do
+		self._GuaranteedNextSpawns[guarantee.Rarity] = now + guarantee.IntervalSeconds
+	end
+	self:_PublishGuaranteedSpawns()
+
+	self._TimeService.TimeUpdatedSignal:Connect(function()
+		self:_UpdateGuaranteedSpawns()
+	end)
 
 	self._EquipService.PlayerEquipUpdated:Connect(function(player, slotId)
 		if slotId ~= SHOVEL_SLOT then
@@ -107,7 +129,15 @@ function DigService:_AddDirtSpawner(instance)
 		return
 	end
 
-	self._DirtSpawners[instance] = DirtSpawner.new(instance, self._ReplicationService, config, self._LifecycleService)
+	self._DirtSpawners[instance] = DirtSpawner.new(
+		instance,
+		self._ReplicationService,
+		config,
+		self._LifecycleService,
+		function(dirt)
+			self:_AnnounceRareDirt(dirt)
+		end
+	)
 end
 
 function DigService:_RemoveDirtSpawner(instance)
@@ -118,6 +148,75 @@ function DigService:_RemoveDirtSpawner(instance)
 
 	self._DirtSpawners[instance] = nil
 	spawner:Destroy()
+end
+
+function DigService:_AnnounceRareDirt(dirt)
+	local dirtInfo = DirtDef.GetDirtInfo(dirt:GetDirtId())
+	local rarity = dirtInfo.Rarity
+	if rarity ~= Rarities.Mythical and rarity ~= Rarities.Secret then
+		return
+	end
+
+	local zoneInfo = ZoneDef.GetZoneInfo(dirt:GetZoneId())
+	local zoneName = zoneInfo and zoneInfo.Name or dirt:GetZoneId()
+	local rarityColor = RarityColorUtils.GetColor(rarity):ToHex()
+	local zoneColor = zoneInfo and UtilFunctions.GetColorFromColorSequence(zoneInfo.Color):ToHex() or "FFFFFF"
+	local message = `A <font color="#{rarityColor}">{rarity}</font> dirt pile has spawned in <font color="#{zoneColor}">{zoneName}</font>!`
+	self._RewardsService:MakeAnnouncement(message, Color3.new(1, 1, 1))
+	self._RewardsService:MakeSystemMessage(message, Color3.new(1, 1, 1))
+end
+
+function DigService:_PublishGuaranteedSpawns()
+	local upcoming = {}
+	for _, guarantee in ipairs(DirtSpawnerDef.GuaranteedSpawns) do
+		table.insert(upcoming, {
+			Rarity = guarantee.Rarity,
+			SpawnsAt = self._GuaranteedNextSpawns[guarantee.Rarity]
+		})
+	end
+	self.Client.UpcomingGuaranteedSpawns:Set(upcoming)
+end
+
+function DigService:_SpawnGuaranteedDirt(dirtId)
+	local spawnersByZone = {}
+	for _, spawner in pairs(self._DirtSpawners) do
+		local zoneId = spawner:GetZoneId()
+		spawnersByZone[zoneId] = spawnersByZone[zoneId] or {}
+		table.insert(spawnersByZone[zoneId], spawner)
+	end
+
+	local zoneIds = {}
+	for zoneId in pairs(spawnersByZone) do
+		table.insert(zoneIds, zoneId)
+	end
+
+	while #zoneIds > 0 do
+		local zoneId = table.remove(zoneIds, self._GuaranteedRandom:NextInteger(1, #zoneIds))
+		local spawners = spawnersByZone[zoneId]
+		while #spawners > 0 do
+			local spawner = table.remove(spawners, self._GuaranteedRandom:NextInteger(1, #spawners))
+			local dirt = spawner:SpawnDirt(dirtId)
+			if dirt then
+				return dirt
+			end
+		end
+	end
+end
+
+function DigService:_UpdateGuaranteedSpawns()
+	local now = os.time()
+	local changed = false
+	for _, guarantee in ipairs(DirtSpawnerDef.GuaranteedSpawns) do
+		if now >= self._GuaranteedNextSpawns[guarantee.Rarity]
+			and self:_SpawnGuaranteedDirt(guarantee.DirtId) then
+			self._GuaranteedNextSpawns[guarantee.Rarity] = now + guarantee.IntervalSeconds
+			changed = true
+		end
+	end
+
+	if changed then
+		self:_PublishGuaranteedSpawns()
+	end
 end
 
 function DigService:GetDirt(guid)

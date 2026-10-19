@@ -1,5 +1,6 @@
 local DirtDef = require(script.Parent:WaitForChild("DirtDef"))
 local DinosaurDef = require(script.Parent:WaitForChild("DinosaurDef"))
+local Rarities = require(script.Parent.Parent:WaitForChild("Enums"):WaitForChild("Rarities"))
 
 local DirtSpawnerDef = {}
 
@@ -7,6 +8,12 @@ DirtSpawnerDef.DinosaurPools = {
 	Zones1To3 = { DinosaurDef.Ids.Trex },
 	Zones4To6 = { DinosaurDef.Ids.Trex },
 	Zone7 = { DinosaurDef.Ids.Trex }
+}
+
+DirtSpawnerDef.GuaranteedSpawns = {
+	{ Rarity = Rarities.Legendary, DirtId = DirtDef.Ids.Legendary, IntervalSeconds = 10 * 60 },
+	{ Rarity = Rarities.Mythical, DirtId = DirtDef.Ids.Mythical, IntervalSeconds = 30 * 60 },
+	{ Rarity = Rarities.Secret, DirtId = DirtDef.Ids.SecretDirt, IntervalSeconds = 60 * 60 }
 }
 
 local DirtIdsByRarity = {

@@ -1,3 +1,4 @@
+local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -13,6 +14,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local DigPowerGui = ClientAssets:WaitForChild("DigPowerGui")
+local GuaranteedBoardGui = ClientAssets:WaitForChild("GuaranteedBoardGui")
 local Animations = Assets:WaitForChild("Animations")
 local ShovelModels : Folder = Assets:WaitForChild("Shovels")
 local ShovelIdleAnimation : Animation = Animations:WaitForChild("ShovelIdle")
@@ -32,6 +34,8 @@ local GuiButton = require(GuiModules:WaitForChild("Button"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Trove = require(External:WaitForChild("Trove"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
+local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
 local Derpbar = require(ReplicatedStorage:WaitForChild("Derpbar"))
@@ -43,9 +47,20 @@ local DIG_RANGE = 8
 local TRAINING_HIT_DISTANCE = 2.5
 local EQUIPPED_SHOVEL_NAME = "EquippedShovel"
 local SHOVEL_MOTOR_NAME = "ShovelMotor6D"
+local GUARANTEED_BOARD_TAG = "GuaranteedBoard"
 local DirtFolder = Dirt.GetFolder()
 local DirtOverlapParams = OverlapParams.new()
 DirtOverlapParams.IncludeInstances = { DirtFolder }
+
+local function getGuaranteedBoardAdornee(board)
+	if board:IsA("BasePart") then
+		return board
+	elseif board:IsA("Model") then
+		return board.PrimaryPart or board:FindFirstChildWhichIsA("BasePart", true)
+	elseif board:IsA("Attachment") and GuaranteedBoardGui:IsA("BillboardGui") then
+		return board
+	end
+end
 
 local DigController = {
 	Name = "DigController",
@@ -55,8 +70,11 @@ local DigController = {
 	_PlotController = nil,
 	_PlayerStatsController = nil,
 	_ReplicationController = nil,
+	_TimeController = nil,
 	_ToolController = nil,
 	_Dirts = {},
+	_GuaranteedBoards = {},
+	_UpcomingGuaranteedSpawns = {},
 	_InitialDirtGuids = nil,
 	_ShovelTrove = Trove.new(),
 	_AttachedShovels = {},
@@ -99,7 +117,30 @@ function DigController:KnitStart()
 	self._PlotController = require(ReplicatedStorage.Controllers.Plots.PlotController)
 	self._PlayerStatsController = require(ReplicatedStorage.Controllers.PlayerStats.PlayerStatsController)
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
+	self._TimeController = require(ReplicatedStorage.Controllers.Time.TimeController)
 	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
+	self._PlayerGui = Player:WaitForChild("PlayerGui")
+
+	CollectionService:GetInstanceAddedSignal(GUARANTEED_BOARD_TAG):Connect(function(board)
+		self:_AddGuaranteedBoard(board)
+	end)
+	CollectionService:GetInstanceRemovedSignal(GUARANTEED_BOARD_TAG):Connect(function(board)
+		self:_RemoveGuaranteedBoard(board)
+	end)
+	for _, board in ipairs(CollectionService:GetTagged(GUARANTEED_BOARD_TAG)) do
+		self:_AddGuaranteedBoard(board)
+	end
+
+	self._DigService.UpcomingGuaranteedSpawns:Observe(function(upcoming)
+		self._UpcomingGuaranteedSpawns = upcoming or {}
+		for _, boardState in pairs(self._GuaranteedBoards) do
+			self:_RenderGuaranteedBoard(boardState)
+		end
+		self:_UpdateGuaranteedBoardCountdowns()
+	end)
+	self._TimeController.TimeUpdatedSignal:Connect(function()
+		self:_UpdateGuaranteedBoardCountdowns()
+	end)
 
 	local teleportData = TeleportService:GetLocalPlayerTeleportData() or {}
 	if teleportData.ReturnToExcavation then
@@ -176,6 +217,84 @@ function DigController:KnitStart()
 		self._WasOnExcavation = false
 		self._AfkController.TeleportData.ReturnToExcavation = nil
 	end)
+end
+
+function DigController:_AddGuaranteedBoard(board)
+	if self._GuaranteedBoards[board] or not board:IsDescendantOf(Workspace) then
+		return
+	end
+
+	local gui = GuaranteedBoardGui:Clone()
+	gui.Adornee = board
+	gui.Parent = self._PlayerGui
+
+	local boardState = { Gui = gui, Rows = {} }
+	self._GuaranteedBoards[board] = boardState
+	self:_RenderGuaranteedBoard(boardState)
+	self:_UpdateGuaranteedBoardCountdowns()
+end
+
+function DigController:_ClearGuaranteedBoardRows(boardState)
+	for _, row in ipairs(boardState.Rows) do
+		if row.Effect then
+			row.Effect:Destroy()
+		end
+		row.Label:Destroy()
+	end
+	table.clear(boardState.Rows)
+end
+
+function DigController:_RemoveGuaranteedBoard(board)
+	local boardState = self._GuaranteedBoards[board]
+	if not boardState then
+		return
+	end
+
+	self._GuaranteedBoards[board] = nil
+	self:_ClearGuaranteedBoardRows(boardState)
+	boardState.Gui:Destroy()
+end
+
+function DigController:_RenderGuaranteedBoard(boardState)
+	self:_ClearGuaranteedBoardRows(boardState)
+
+	local upcoming = table.clone(self._UpcomingGuaranteedSpawns)
+	table.sort(upcoming, function(first, second)
+		local firstRarityOrder = table.find(Constants.RarityOrder, first.Rarity) or 100000
+		local secondRarityOrder = table.find(Constants.RarityOrder, second.Rarity) or 100000
+		return firstRarityOrder < secondRarityOrder
+	end)
+
+	local gui = boardState.Gui
+	local templateSource = gui.Templates.GuaranteedTemplate
+	for order, spawn in ipairs(upcoming) do
+		local label = templateSource:Clone()
+		label.LayoutOrder = order
+		label.Visible = true
+		label.Parent = gui.GuaranteedList
+		label.RarityText.Text = spawn.Rarity .. ":"
+		local effect = RarityColorUtils.SetColor(label.RarityText, spawn.Rarity)
+		table.insert(boardState.Rows, {
+			Label = label,
+			Effect = effect,
+			Rarity = spawn.Rarity,
+			SpawnsAt = spawn.SpawnsAt
+		})
+	end
+end
+
+function DigController:_UpdateGuaranteedBoardCountdowns()
+	local now = Workspace:GetServerTimeNow()
+	for _, boardState in pairs(self._GuaranteedBoards) do
+		for _, row in ipairs(boardState.Rows) do
+			local timeLeft = math.ceil(row.SpawnsAt - now)
+			if timeLeft > 0 then
+				row.Label.TimeText.Text = self._TimeController:GetTimeStringFromTime(timeLeft)
+			else
+				row.Label.TimeText.Text = "Spawning..."
+			end
+		end
+	end
 end
 
 function DigController:_UpdateDigPowerFrame()

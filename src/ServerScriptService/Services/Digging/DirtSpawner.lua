@@ -29,7 +29,7 @@ local function getStageOneRadius()
 	return radius
 end
 
-function DirtSpawner.new(instance, replicationService, config, lifecycleService)
+function DirtSpawner.new(instance, replicationService, config, lifecycleService, onDirtSpawned)
 	assert(instance:IsA("BasePart"), "DirtSpawner must be a BasePart")
 
 	local self = setmetatable({}, DirtSpawner)
@@ -37,6 +37,7 @@ function DirtSpawner.new(instance, replicationService, config, lifecycleService)
 	self._Config = config
 	self._ReplicationService = replicationService
 	self._LifecycleService = lifecycleService
+	self._OnDirtSpawned = onDirtSpawned
 	self._Dirts = {}
 	self._DirtCount = 0
 	self._Random = Random.new()
@@ -63,6 +64,10 @@ end
 
 function DirtSpawner:_GetSpawnCooldown()
 	return math.max(0.1, self._Config.SpawnCooldown)
+end
+
+function DirtSpawner:GetZoneId()
+	return self._Config.Zone
 end
 
 function DirtSpawner:_GetSpawnCFrame(scale)
@@ -145,8 +150,9 @@ function DirtSpawner:_GetSpacedSpawnCFrame(scale)
 	return bestCFrame
 end
 
-function DirtSpawner:SpawnDirt()
-	if self._Destroyed or not self.Instance:IsDescendantOf(Workspace) or self._DirtCount >= self:_GetMaxDirt() then
+function DirtSpawner:SpawnDirt(guaranteedDirtId)
+	if self._Destroyed or not self.Instance:IsDescendantOf(Workspace)
+		or (not guaranteedDirtId and self._DirtCount >= self:_GetMaxDirt()) then
 		return
 	end
 
@@ -157,7 +163,7 @@ function DirtSpawner:SpawnDirt()
 		return
 	end
 
-	local dirtId = RarityUtils.GetLootTableResults(self._Config.DirtLootTable).Id
+	local dirtId = guaranteedDirtId or RarityUtils.GetLootTableResults(self._Config.DirtLootTable).Id
 	local dirt = Dirt.new(self._ReplicationService, spawnCFrame, dirtId, scale, self._Config.Zone, self._Config.HealthMultiplier)
 	local guid = dirt:GetGuid()
 
@@ -172,6 +178,9 @@ function DirtSpawner:SpawnDirt()
 	end)
 
 	dirt:ReplicateTo(self._LifecycleService:GetInitializedPlayers())
+	if self._OnDirtSpawned then
+		self._OnDirtSpawned(dirt)
+	end
 
 	return dirt
 end
