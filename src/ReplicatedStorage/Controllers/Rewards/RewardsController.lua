@@ -6,8 +6,13 @@ local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sounds = Assets:WaitForChild("Sounds")
+local AnnouncementSound = Sounds:WaitForChild("Announcement")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
@@ -391,6 +396,8 @@ function RewardsController:MakeAnnouncement(message, color)
 		newAnnouncementTemplate.LayoutOrder = lowestLayoutOrder - 1
 		newAnnouncementTemplate.Visible = true
 		newAnnouncementTemplate.Parent = self._Gui.AnnouncementsFrame
+
+		UtilFunctions.PlayCopyOfSound(AnnouncementSound)
 
 		task.wait(5)
 
