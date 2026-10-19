@@ -298,7 +298,8 @@ function DigController:_UpdateGuaranteedBoardCountdowns()
 end
 
 function DigController:_UpdateDigPowerFrame()
-	local digPower = self._PlayerStatsController:GetStatValue(PlayerStatsEnum.DigPower) or 0
+	local digPower = self._PlayerStatsController:GetStatValue(PlayerStatsEnum.DigPower)
+	if not digPower then return end
 
 	if self._DigPower == nil then
 		self._DigPower = digPower
