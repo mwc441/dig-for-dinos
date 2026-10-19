@@ -10,10 +10,12 @@ local Player = Players.LocalPlayer
 
 local External = ReplicatedStorage:WaitForChild("External")
 local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sounds = Assets:WaitForChild("Sounds")
+local RevealPopSound = Sounds:WaitForChild("RevealPop")
+local BonePileModels = Assets:WaitForChild("BonePiles")
 local Animations = Assets:WaitForChild("Animations")
 local BonePileHoldAnimation : Animation = Animations:WaitForChild("BonePileHold")
 local BoneAssembleAnimation : Animation = Animations:WaitForChild("BoneAssemble")
-local Sounds = Assets:WaitForChild("Sounds")
 local BonePickupSound = Sounds:WaitForChild("BonePickup")
 local BoneRewardedSound = Sounds:WaitForChild("BoneRewarded")
 local BoneGlowSound = Sounds:WaitForChild("BoneGlow")
@@ -41,6 +43,45 @@ local Device = require(External:WaitForChild("Device"))
 local START_BONE_SCALE = 0.1
 local ASSEMBLY_EXPLOSION_TIME = 0.5
 local MAX_PLACEMENT_DISTANCE = 50
+local REVEAL_ROLL_STEPS = 14
+
+local function makeRevealSilhouette(template, scale)
+	local model = BonePileUtils.CreateModel(template.Name, scale)
+	if not model then return end
+	for _, instance in ipairs(model:GetDescendants()) do
+		if instance:IsA("BasePart") then
+			instance.Anchored = true
+			instance.CanCollide = false
+			instance.CanTouch = false
+			instance.CanQuery = false
+			instance.Color = Color3.new(0, 0, 0)
+			instance.Material = Enum.Material.SmoothPlastic
+			instance.MaterialVariant = ""
+			instance.Reflectance = 0
+			if instance:IsA("MeshPart") then
+				instance.TextureID = ""
+			end
+		elseif instance:IsA("SpecialMesh") then
+			instance.TextureId = ""
+		elseif instance:IsA("SurfaceAppearance") or instance:IsA("Decal") or instance:IsA("Texture")
+			or instance:IsA("ParticleEmitter") or instance:IsA("Trail") or instance:IsA("Beam")
+			or instance:IsA("Highlight") or instance:IsA("BillboardGui") or instance:IsA("SurfaceGui")
+			or instance:IsA("PointLight") or instance:IsA("SpotLight") or instance:IsA("SurfaceLight")
+			or instance:IsA("Script") or instance:IsA("LocalScript") or instance:IsA("ProximityPrompt") then
+			instance:Destroy()
+		end
+	end
+	local highlight = Instance.new("Highlight")
+	highlight.Name = "RevealHighlight"
+	highlight.Adornee = model
+	highlight.FillColor = Color3.new(0, 0, 0)
+	highlight.FillTransparency = 0
+	highlight.OutlineColor = Color3.new(1, 1, 1)
+	highlight.OutlineTransparency = 0
+	highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+	highlight.Parent = model
+	return model
+end
 
 local BonePileController = {
 	Name = "BonePileController",
@@ -97,6 +138,9 @@ function BonePileController:KnitStart()
 	self._BonePileService.BonesRewarded:Connect(function()
 		UtilFunctions.PlayCopyOfSound(BoneRewardedSound)
 	end)
+	self._BonePileService.RevealStarted:Connect(function(reveal)
+		self:_PlayReveal(reveal)
+	end)
 
 	self._ToolController.ToolEquipped:Connect(function(player, character, tool)
 		self:_OnInventoryToolEquipped(player, character, tool)
@@ -111,6 +155,118 @@ function BonePileController:KnitStart()
 			self:_OnInventoryToolEquipped(player, player.Character, tool)
 		end
 	end
+end
+
+function BonePileController:_PlayReveal(reveal)
+	local templates = {}
+	for _, template in ipairs(BonePileModels:GetChildren()) do
+		if template:IsA("Model") and template.PrimaryPart and DinosaurDef.GetDinosaurInfo(template.Name) then
+			table.insert(templates, template)
+		end
+	end
+	if #templates == 0 then
+		return
+	end
+	table.sort(templates, function(first, second)
+		return first.Name < second.Name
+	end)
+
+	local random = Random.new()
+	local rolls = {}
+	local previousTemplate
+	for step = 1, REVEAL_ROLL_STEPS do
+		local template = templates[random:NextInteger(1, #templates)]
+		if #templates > 1 and template == previousTemplate then
+			local index = table.find(templates, template)
+			template = templates[index % #templates + 1]
+		end
+		rolls[step] = {
+			Template = template,
+			Scale = reveal.Scale
+		}
+		previousTemplate = template
+	end
+
+	local officialTemplate = BonePileModels:FindFirstChild(reveal.DinosaurId)
+	if officialTemplate and officialTemplate:IsA("Model") then
+		rolls[REVEAL_ROLL_STEPS] = { Template = officialTemplate, Scale = reveal.Scale }
+	end
+
+	local currentModel
+	local currentScale
+	local lastStep
+	local finalShown = false
+	local connection
+
+	local function setModel(model, scale)
+		if currentModel then
+			currentModel:Destroy()
+		end
+		currentModel = model
+		currentScale = scale
+	end
+
+	local function placeModel(growth)
+		currentModel:ScaleTo(currentScale * math.max(0.01, growth))
+		currentModel:PivotTo(reveal.DropCFrame)
+		if not currentModel.Parent then
+			currentModel.Parent = Workspace
+		end
+	end
+
+	local function update()
+		local now = Workspace:GetServerTimeNow()
+		if now >= reveal.EndsAt then
+			connection:Disconnect()
+			setModel(nil)
+			return
+		end
+
+		local elapsed = math.max(0, now - reveal.StartsAt)
+		if now < reveal.RollEndsAt then
+			local progress = math.clamp(elapsed / (reveal.RollEndsAt - reveal.StartsAt), 0, 1)
+			local rollPosition = REVEAL_ROLL_STEPS * (1 - (1 - progress) ^ 2)
+			local step = math.min(REVEAL_ROLL_STEPS, math.floor(rollPosition) + 1)
+			if step ~= lastStep then
+				lastStep = step
+				local choice = rolls[step]
+				setModel(makeRevealSilhouette(choice.Template, choice.Scale), choice.Scale)
+				if currentModel then
+					local popSound = RevealPopSound:Clone()
+					popSound.PlaybackSpeed = random:NextNumber(0.95, 1.05)
+					UtilFunctions.PlaySoundAtLocation(popSound, reveal.DirtCFrame)
+					popSound:Destroy()
+				end
+			end
+			if currentModel then
+				local stepProgress = rollPosition - (step - 1)
+				local growth = TweenService:GetValue(math.clamp(stepProgress / 0.7, 0, 1),
+					Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				placeModel(growth)
+			end
+		else
+			if not finalShown then
+				finalShown = true
+				local model = BonePileUtils.CreateModel(reveal.DinosaurId, reveal.Scale, reveal.Mutation)
+				if model then
+					UtilFunctions.AnchorAllDescendants(model, true)
+					UtilFunctions.CanQueryAllDescendants(model, false)
+				end
+				setModel(model, reveal.Scale)
+
+				UtilFunctions.PlaySoundAtLocation(BoneRewardedSound, reveal.DirtCFrame)
+			end
+			if currentModel then
+				local progress = math.clamp((now - reveal.RollEndsAt) / (reveal.EndsAt - reveal.RollEndsAt), 0, 1)
+				local growth = TweenService:GetValue(math.clamp(progress / 0.6, 0, 1),
+					Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				placeModel(growth)
+			end
+		end
+	end
+
+	connection = RunService.Heartbeat:Connect(update)
+	update()
 end
 
 function BonePileController:_OnInventoryToolEquipped(player, character, tool)

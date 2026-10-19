@@ -21,8 +21,10 @@ local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
 
 local PICKUP_DISTANCE = 10
-local PICKUP_HOLD_DURATION = 2.5
+local PICKUP_HOLD_DURATION = 1.5
 local DROP_LIFETIME = 2 * 60
+local REVEAL_ROLL_DURATION = 2.8
+local REVEAL_DURATION = 3.6
 local MUTATION_BOOST_TYPES = {
 	[MutationsEnum.Gold] = BoostTypesEnum.GoldMutationChanceBoost,
 	[MutationsEnum.Void] = BoostTypesEnum.VoidMutationChanceBoost,
@@ -33,7 +35,8 @@ local BonePileService = {
 	Name = "BonePileService",
 	Client = {
 		CarriedDinosaurId = Knit.CreateProperty(nil),
-		BonesRewarded = Knit.CreateSignal()
+		BonesRewarded = Knit.CreateSignal(),
+		RevealStarted = Knit.CreateSignal()
 	},
 	_InventoryService = nil,
 	_DinosaurService = nil,
@@ -272,6 +275,7 @@ function BonePileService:_CreatePile(dinosaurId, scale, mutation, zoneId)
 	model:SetAttribute("ZoneId", zoneId)
 
 	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "Hold"
 	prompt.HoldDuration = PICKUP_HOLD_DURATION
 	prompt.MaxActivationDistance = PICKUP_DISTANCE
 	prompt.RequiresLineOfSight = false
@@ -334,7 +338,7 @@ function BonePileService:_Carry(pile, player)
 	return true
 end
 
-function BonePileService:_PlaceDropped(pile, position, lookVector)
+function BonePileService:_GetDropCFrame(pile, position, lookVector)
 	local excluded = { pile.Model }
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player.Character then
@@ -354,11 +358,14 @@ function BonePileService:_PlaceDropped(pile, position, lookVector)
 		facing = Vector3.new(0, 0, -1)
 	end
 
-	local pileModel = pile.Model
-
 	local groundCFrame = CFrame.lookAt(groundPosition, groundPosition + facing.Unit)
-	local _, boundsSize = pileModel:GetBoundingBox()
-	local cframe = groundCFrame + Vector3.new(0, boundsSize.Y / 2, 0) + Vector3.new(0, 1.5, 0)
+	local _, boundsSize = pile.Model:GetBoundingBox()
+	return groundCFrame + Vector3.new(0, boundsSize.Y / 2 + 1.5, 0)
+end
+
+function BonePileService:_PlaceDropped(pile, position, lookVector, dropCFrame)
+	local pileModel = pile.Model
+	dropCFrame = dropCFrame or self:_GetDropCFrame(pile, position, lookVector)
 
 	pileModel:SetAttribute("HoverDistance", 0.5)
 	pileModel:SetAttribute("HoverTime", 2)
@@ -366,7 +373,7 @@ function BonePileService:_PlaceDropped(pile, position, lookVector)
 	CollectionService:AddTag(pileModel, "Hover")
 	CollectionService:AddTag(pileModel, "Spin")
 
-	pileModel:PivotTo(cframe)
+	pileModel:PivotTo(dropCFrame)
 	pileModel.Parent = self._Folder
 
 	self._Dropped[pileModel] = pile
@@ -446,14 +453,23 @@ function BonePileService:AwardForDirt(player, zoneId, dirtRarity, dirtCFrame, di
 		return false
 	end
 
-	if self._Carried[player] then
-		self:DropForPlayer(player)
-	end
+	local dropCFrame = self:_GetDropCFrame(pile, dirtCFrame.Position, dirtCFrame.LookVector)
+	local startsAt = Workspace:GetServerTimeNow()
+	self.Client.RevealStarted:FireAll({
+		DinosaurId = dinosaurId,
+		Scale = pile.Scale,
+		Mutation = pile.Mutation,
+		DirtCFrame = dirtCFrame,
+		DropCFrame = dropCFrame,
+		StartsAt = startsAt,
+		RollEndsAt = startsAt + REVEAL_ROLL_DURATION,
+		EndsAt = startsAt + REVEAL_DURATION
+	})
 
-	if not self:_Carry(pile, player) then
+	task.delay(REVEAL_DURATION, function()
 		UtilFunctions.AnchorAllDescendants(pile.Model, true)
-		self:_PlaceDropped(pile, dirtCFrame.Position, dirtCFrame.LookVector)
-	end
+		self:_PlaceDropped(pile, dirtCFrame.Position, dirtCFrame.LookVector, dropCFrame)
+	end)
 
 	return true
 end
