@@ -14,6 +14,8 @@ local ErrorSound = Sounds:WaitForChild("Error")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local Device = require(External:WaitForChild("Device"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
@@ -26,6 +28,7 @@ local RAGDOLL_DURATION = 5
 local RAY_DISTANCE = 250
 local TRAP_UPGRADE_ID = "BearTrapUpgrade"
 local PICKUP_DISTANCE = 10
+local GIANT_TRAP_SCALE = 3
 
 local LastPlaced = setmetatable({}, { __mode = "k" })
 local RagdollTokens = setmetatable({}, { __mode = "k" })
@@ -145,6 +148,7 @@ function BearTrap:ClientEquipped(tool, toolController)
 	local player = Players.LocalPlayer
 	local upgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
 	local rewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
+	local iapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
 	local trapFolder = Workspace:WaitForChild("_BearTraps")
 	local gui = Assets:WaitForChild("BearTrapToolGui"):Clone()
 	local handle = tool:WaitForChild("Handle")
@@ -172,8 +176,21 @@ function BearTrap:ClientEquipped(tool, toolController)
 
 	local ghost = Assets:WaitForChild("BearTrap"):Clone()
 	ghost.Name = "BearTrapGhost"
-	local boxCFrame, boxSize = ghost:GetBoundingBox()
-	local boxToPivot = boxCFrame:ToObjectSpace(ghost:GetPivot())
+	local baseScale = ghost:GetScale()
+	local ghostScale
+	local boxSize, boxToPivot
+	local function updateGhostScale()
+		local scale = iapController:OwnsIap(IapsEnum.GiantBearTraps) and GIANT_TRAP_SCALE or 1
+		if ghostScale == scale then return end
+
+		ghostScale = scale
+		ghost:ScaleTo(baseScale * scale)
+		local boxCFrame
+		boxCFrame, boxSize = ghost:GetBoundingBox()
+		boxToPivot = boxCFrame:ToObjectSpace(ghost:GetPivot())
+	end
+	updateGhostScale()
+	local iapConnection = iapController.IapsUpdatedSignal:Connect(updateGhostScale)
 	UtilFunctions.AnchorAllDescendants(ghost, true)
 	UtilFunctions.CanCollideAllDescendants(ghost, false)
 	UtilFunctions.CanQueryAllDescendants(ghost, false)
@@ -227,6 +244,7 @@ function BearTrap:ClientEquipped(tool, toolController)
 		trapAddedConnection:Disconnect()
 		trapRemovedConnection:Disconnect()
 		upgradeConnection:Disconnect()
+		iapConnection:Disconnect()
 		gui:Destroy()
 		ghost:Destroy()
 	end
@@ -289,6 +307,10 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 
 	local trap = trapAsset:Clone()
 	trap.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	local iapService = require(ServerScriptService.Services.Iaps.IapService)
+	if iapService:PlayerOwnsProduct(player, IapsEnum.GiantBearTraps) then
+		trap:ScaleTo(trap:GetScale() * GIANT_TRAP_SCALE)
+	end
 	local boxCFrame, boxSize = trap:GetBoundingBox()
 	local boxToPivot = boxCFrame:ToObjectSpace(trap:GetPivot())
 	trap:PivotTo(CFrame.new(groundHit.Position + Vector3.new(0, boxSize.Y * 0.5, 0)) * boxToPivot)

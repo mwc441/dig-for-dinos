@@ -149,6 +149,47 @@ BoostsDef.Table = {
 	},
 
 	-- GAMEPASSES
+	[BoostsEnum.VIPCashBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "VIP",
+		Icon = "rbxassetid://86493387113836",
+		Description = "2x Cash<br/><br/>2x Dig Power Training",
+		AmountFunction = function()
+			return 2
+		end
+	},
+
+	[BoostsEnum.VIPDigPowerBoost] = {
+		Type = BoostTypesEnum.DigPowerTrainingBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "VIP",
+		AmountFunction = function()
+			return 2
+		end
+	},
+
+	[BoostsEnum.Cash2xBoost] = {
+		Type = BoostTypesEnum.CashBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Gamepass",
+		Description = "%dx Cash",
+		Icon = "rbxassetid://107540056404677",
+		AmountFunction = function(level: number)
+			return 2 ^ level
+		end
+	},
+
+	[BoostsEnum.DigPower2xBoost] = {
+		Type = BoostTypesEnum.DigPowerTrainingBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Gamepass",
+		Description = "2x Dig Power Training",
+		Icon = "rbxassetid://87407472042343",
+		AmountFunction = function()
+			return 2
+		end
+	},
 
 	-- UGPRADES
 	[BoostsEnum.SpeedUpgradeBoost] = {

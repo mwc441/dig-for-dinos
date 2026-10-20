@@ -10,6 +10,7 @@ local Enums = ReplicatedStorage:WaitForChild("Enums")
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local DataKeys = require(ServerScriptService.ServerConfigs.DataKeys)
 local DinosaurDef = require(ReplicatedConfigs.DinosaurDef)
 local BonePileUtils = require(ReplicatedStorage.Utils.BonePileUtils)
@@ -37,6 +38,7 @@ local DinosaurService = {
 	_RewardsService = nil,
 	_BoostsService = nil,
 	_IndexService = nil,
+	_IapService = nil,
 	_Dinosaurs = {}
 }
 
@@ -56,6 +58,7 @@ function DinosaurService:KnitStart()
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 	self._IndexService = require(ServerScriptService.Services.Index.IndexService)
+	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
 
 	self._TimeService.TimeUpdatedSignal:Connect(function()
 		for _, player in pairs(self._LifecycleService:GetInitializedPlayers()) do
@@ -135,6 +138,7 @@ function DinosaurService:_AddToDinoIncomes(player)
 	local dinosaurData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
 
 	local cashBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.CashBoost)
+	local autoCollect = self._IapService:PlayerOwnsProduct(player, IapsEnum.AutoCollect)
 
 	local totalCash = 0
 	local incomesPerDino = {}
@@ -146,15 +150,33 @@ function DinosaurService:_AddToDinoIncomes(player)
 		local dinosaur = self:_GetDinosaurByGuid(player, guid)
 		if not dinosaur then continue end
 
-		totalCash += income
-		dinosaur:AddToIncome(income)
-
-		incomesPerDino[guid] = dinosaur:GetIncome()
+		if autoCollect then
+			local pendingIncome = dinosaur:GetIncome()
+			totalCash += income + pendingIncome
+			if pendingIncome > 0 then
+				dinosaur:SetIncome(0)
+				incomesPerDino[guid] = 0
+			end
+		else
+			totalCash += income
+			dinosaur:AddToIncome(income)
+			incomesPerDino[guid] = dinosaur:GetIncome()
+		end
 	end
 
 	if totalCash <= 0 then return end
 
-	self.Client.IncomesUpdated:Fire(player, incomesPerDino)
+	if autoCollect then
+		self._RewardsService:RewardPlayer(player, PlayerStatsEnum.Cash, totalCash, false, {
+			TransactionType = Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
+			Sku = "Income"
+		})
+		if next(incomesPerDino) then
+			self.Client.IncomesUpdated:Fire(player, incomesPerDino)
+		end
+	else
+		self.Client.IncomesUpdated:Fire(player, incomesPerDino)
+	end
 end
 
 function DinosaurService:_ClaimIncomeForPlayer(player, guid)

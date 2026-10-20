@@ -10,10 +10,59 @@ local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local Knit = require(External:WaitForChild("Knit"))
 
 local GAMEPASS_BOOSTS = {
-	-- [IapsEnum.Bricks2xGamepass] = {
-	-- 	BoostId = BoostsEnum.Bricks2xGamepass,
-	-- 	Level = 1
-	-- }
+	[IapsEnum.VIP] = {
+		{
+			BoostId = BoostsEnum.VIPCashBoost,
+			Level = 1
+		},
+
+		{
+			BoostId = BoostsEnum.VIPDigPowerBoost,
+			Level = 1
+		}
+	},
+
+	[IapsEnum.Cash2x] = {
+		{
+			BoostId = BoostsEnum.Cash2xBoost,
+			Level = 1
+		}
+	},
+
+	[IapsEnum.Cash4x] = {
+		{
+			BoostId = BoostsEnum.Cash2xBoost,
+			Level = 2
+		}
+	},
+
+	[IapsEnum.Cash8x] = {
+		{
+			BoostId = BoostsEnum.Cash2xBoost,
+			Level = 3
+		}
+	},
+
+	[IapsEnum.Cash16x] = {
+		{
+			BoostId = BoostsEnum.Cash2xBoost,
+			Level = 4
+		}
+	},
+
+	[IapsEnum.Cash32x] = {
+		{
+			BoostId = BoostsEnum.Cash2xBoost,
+			Level = 5
+		}
+	},
+
+	[IapsEnum.DigPower2x] = {
+		{
+			BoostId = BoostsEnum.DigPower2xBoost,
+			Level = 1
+		}
+	}
 }
 
 local PremiumService = {
@@ -142,7 +191,7 @@ function PremiumService:_GiveBoostToPlayer(player, boostId, level)
 			Id = boostId,
 			Level = level
 		})
-	else
+	elseif boost.Level ~= level then
 		self._BoostsService:UpdateBoostOfId(player, boostId, {
 			Level = level
 		})
@@ -150,18 +199,34 @@ function PremiumService:_GiveBoostToPlayer(player, boostId, level)
 end
 
 function PremiumService:_UpdateGamepassesForPlayer(player)
-	for iapId, boostInfo in pairs(GAMEPASS_BOOSTS) do
-		if self._IapService:PlayerOwnsProduct(player, iapId) then
-			self:_GiveBoostToPlayer(player, boostInfo.BoostId, boostInfo.Level)
-		else
-			self._BoostsService:RemoveBoostForPlayer(player, boostInfo.BoostId)
+	local levelsByBoostId = {}
+	for iapId, boosts in pairs(GAMEPASS_BOOSTS) do
+		local ownsIap = self._IapService:PlayerOwnsProduct(player, iapId)
+		for _, boostInfo in ipairs(boosts) do
+			local boostId = boostInfo.BoostId
+			local level = ownsIap and (boostInfo.Level or 1) or 0
+			levelsByBoostId[boostId] = math.max(levelsByBoostId[boostId] or 0, level)
 		end
+	end
+
+	for boostId, level in pairs(levelsByBoostId) do
+		if level > 0 then
+			self:_GiveBoostToPlayer(player, boostId, level)
+		else
+			self._BoostsService:RemoveBoostForPlayer(player, boostId)
+		end
+	end
+
+	if self._IapService:PlayerOwnsProduct(player, IapsEnum.VIP) then
+		player:SetAttribute("Vip", true)
 	end
 end
 
 function PremiumService:_RemoveGamepassBoostsForPlayer(player)
-	for _, boostInfo in pairs(GAMEPASS_BOOSTS) do
-		self._BoostsService:RemoveBoostForPlayer(player, boostInfo.BoostId)
+	for _, boosts in pairs(GAMEPASS_BOOSTS) do
+		for _, boostInfo in ipairs(boosts) do
+			self._BoostsService:RemoveBoostForPlayer(player, boostInfo.BoostId)
+		end
 	end
 end
 

@@ -4,6 +4,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local Knit = require(External:WaitForChild("Knit"))
 
 local MAX_OFFLINE_TIME = 8 * 60 * 60
@@ -19,6 +20,7 @@ local OfflineRewardsService = {
 	_DinosaurService = nil,
 	_PlotService = nil,
 	_RewardsService = nil,
+	_IapService = nil,
 	_Revisions = {}
 }
 
@@ -28,6 +30,7 @@ function OfflineRewardsService:KnitStart()
 	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
+	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
 
 	self._TimerService.PlayerLoggedBackIn:Connect(function(player, offlineTime)
 		self:_AddOfflineEarnings(player, offlineTime)
@@ -64,7 +67,8 @@ function OfflineRewardsService:GiveOfflineRewards(player, seconds)
 	if type(seconds) ~= "number" or seconds <= 0 or seconds == math.huge or seconds ~= seconds then return end
 
 	local incomePerSecond = self._DinosaurService:GetIncomePerSecondForPlayer(player)
-	local amount = math.round(incomePerSecond * seconds * OFFLINE_EARNINGS_MULTIPLIER)
+	local iapMultiplier = self._IapService:PlayerOwnsProduct(player, IapsEnum.OfflineCash2x) and 2 or 1
+	local amount = math.round(incomePerSecond * seconds * OFFLINE_EARNINGS_MULTIPLIER * iapMultiplier)
 	if amount <= 0 then return end
 
 	self._PlayerStatsService:AddToStatForPlayer(player, PlayerStatsEnum.OfflineEarnings, amount)

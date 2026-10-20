@@ -13,6 +13,10 @@ return {
 	RadioactiveWeatherBoost = "RadioactiveWeatherBoost",
 
 	-- GAMEPASSES
+	VIPCashBoost = "VIPCashBoost",
+	VIPDigPowerBoost = "VIPDigPowerBoost",
+	Cash2xBoost = "Cash2xBoost",
+	DigPower2xBoost = "DigPower2xBoost",
 
 	-- UPGRADES
 	SpeedUpgradeBoost = "SpeedUpgradeBoost"

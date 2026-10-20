@@ -91,6 +91,9 @@ function OfflineRewardsController:KnitStart()
 	self._IapController.IapCacheChanged:Connect(function()
 		self:_UpdateUi()
 	end)
+	self._IapController.IapsUpdatedSignal:Connect(function()
+		self:_UpdateUi()
+	end)
 
 	self:_UpdateUi()
 
@@ -218,7 +221,8 @@ end
 
 -- UI STUFF
 function OfflineRewardsController:_UpdateUi()
-	local hourAmount = math.round(self._DinosaurController:GetIncomePerSecond() * SECONDS_PER_HOUR * OFFLINE_EARNINGS_MULTIPLIER)
+	local iapMultiplier = self._IapController:OwnsIap(IapsEnum.OfflineCash2x) and 2 or 1
+	local hourAmount = math.round(self._DinosaurController:GetIncomePerSecond() * SECONDS_PER_HOUR * OFFLINE_EARNINGS_MULTIPLIER * iapMultiplier)
 
 	self._Gui.AmountText.Text = string.format("%s / HR", BigNumbers.GetNumberDisplay(hourAmount))
 	self._Gui.HourButton.PriceText.Text = string.format(" %d", self._IapController:GetPriceOfIap(IapsEnum.OfflineRewards1Hour) or 0)

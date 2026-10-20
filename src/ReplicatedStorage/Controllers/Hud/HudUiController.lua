@@ -18,6 +18,7 @@ local Knit = require(External:WaitForChild("Knit"))
 local HudUiController = {
 	Name = "HudUiController",
 	_PlayerStatsController = nil,
+	_PremiumController = nil,
 	_Cash = nil,
 }
 
@@ -43,12 +44,13 @@ function HudUiController:KnitInit()
 
 	local cashPlusButton = GuiButton.new(self._Gui.CashPlusButton)
 	cashPlusButton:SetCallback(function()
-		-- TODO: Cash iaps
+		self._PremiumController:OpenToFrame("Cash")
 	end)
 end
 
 function HudUiController:KnitStart()
 	self._PlayerStatsController = require(ReplicatedStorage.Controllers.PlayerStats.PlayerStatsController)
+	self._PremiumController = require(ReplicatedStorage.Controllers.Premium.PremiumController)
 
 	self._PlayerStatsController.StatsUpdatedSignal:Connect(function()
 		self:_UpdateUi()

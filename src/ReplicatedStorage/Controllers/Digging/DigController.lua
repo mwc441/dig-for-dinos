@@ -72,6 +72,7 @@ local DigController = {
 	_ReplicationController = nil,
 	_TimeController = nil,
 	_ToolController = nil,
+	_PremiumController = nil,
 	_Dirts = {},
 	_GuaranteedBoards = {},
 	_UpcomingGuaranteedSpawns = {},
@@ -106,7 +107,7 @@ function DigController:KnitInit()
 
 	local plusButton = GuiButton.new(self._DigPowerFrame.PlusButton)
 	plusButton:SetCallback(function()
-		-- TODO: Open premium shop
+		self._PremiumController:OpenToFrame("DigPower")
 	end)
 end
 
@@ -119,6 +120,7 @@ function DigController:KnitStart()
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
 	self._TimeController = require(ReplicatedStorage.Controllers.Time.TimeController)
 	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
+	self._PremiumController = require(ReplicatedStorage.Controllers.Premium.PremiumController)
 	self._PlayerGui = Player:WaitForChild("PlayerGui")
 
 	CollectionService:GetInstanceAddedSignal(GUARANTEED_BOARD_TAG):Connect(function(board)

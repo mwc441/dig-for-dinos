@@ -216,7 +216,7 @@ function IapController:PurchaseIap(iapId, costType, giftedPlayerId)
 	local giftedPlayer = Players:GetPlayerByUserId(giftedPlayerId or -1000)
 	local orderedTable = IapDef.GetOrderOfPurchaseTable(iapId)
 
-	if orderedTable and (not giftedPlayer) then
+	if orderedTable and (giftedPlayerId and not giftedPlayer) then
 		return
 	end
 
@@ -224,7 +224,13 @@ function IapController:PurchaseIap(iapId, costType, giftedPlayerId)
 end
 
 function IapController:GiftIap(iapId, callback)
+	local orderedTable = IapDef.GetOrderOfPurchaseTable(iapId)
+
 	local friends = self._FriendController:GetAllFriends()
+
+	if orderedTable then
+		friends = {}
+	end
 
 	local players = {}
 	for _, player in pairs(Players:GetPlayers()) do
