@@ -141,6 +141,21 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 			analyticsTable.Sku,
 			analyticsTable.CustomFields
 		)
+	elseif rewardType == PlayerStatsEnum.DigPower then
+		reward = math.round(reward)
+
+		self._PlayerStatsService:AddToStatForPlayer(player, PlayerStatsEnum.DigPower, reward)
+
+		self._AnalyticsService:LogEconomyEvent(
+			player,
+			Enum.AnalyticsEconomyFlowType.Source,
+			PlayerStatsEnum.DigPower,
+			reward,
+			self._PlayerStatsService:GetStatValueForPlayer(player, PlayerStatsEnum.DigPower),
+			analyticsTable.TransactionType or Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
+			analyticsTable.Sku,
+			analyticsTable.CustomFields
+		)
 	elseif ItemDef.GetItemInfo(rewardType) then
 		self._InventoryService:AddItemsToPlayersInventory(player, {
 			[rewardType] = reward
