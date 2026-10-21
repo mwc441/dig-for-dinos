@@ -36,6 +36,13 @@ SettingsDef.Table = {
 		Type = "boolean"
 	},
 
+	[SettingsEnum.AutoCollect] = {
+		Order = 5,
+		Name = "Auto Collect",
+		Default = true,
+		Type = "boolean"
+	},
+
 	[SettingsEnum.SpeedOn] = {
 		ShowInUi = false,
 		Name = "Speed On",

@@ -11,6 +11,7 @@ local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local IapsEnum = require(Enums:WaitForChild("Iaps"))
+local SettingsEnum = require(Enums:WaitForChild("Settings"))
 local DataKeys = require(ServerScriptService.ServerConfigs.DataKeys)
 local DinosaurDef = require(ReplicatedConfigs.DinosaurDef)
 local BonePileUtils = require(ReplicatedStorage.Utils.BonePileUtils)
@@ -39,6 +40,7 @@ local DinosaurService = {
 	_BoostsService = nil,
 	_IndexService = nil,
 	_IapService = nil,
+	_SettingsService = nil,
 	_Dinosaurs = {}
 }
 
@@ -59,6 +61,7 @@ function DinosaurService:KnitStart()
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 	self._IndexService = require(ServerScriptService.Services.Index.IndexService)
 	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
+	self._SettingsService = require(ServerScriptService.Services.Settings.SettingsService)
 
 	self._TimeService.TimeUpdatedSignal:Connect(function()
 		for _, player in pairs(self._LifecycleService:GetInitializedPlayers()) do
@@ -139,6 +142,7 @@ function DinosaurService:_AddToDinoIncomes(player)
 
 	local cashBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.CashBoost)
 	local autoCollect = self._IapService:PlayerOwnsProduct(player, IapsEnum.AutoCollect)
+		and self._SettingsService:GetSettingForPlayer(player, SettingsEnum.AutoCollect)
 
 	local totalCash = 0
 	local incomesPerDino = {}
