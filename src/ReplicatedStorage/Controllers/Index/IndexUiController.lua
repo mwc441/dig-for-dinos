@@ -18,6 +18,8 @@ local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local NumberTypesEnum = require(Enums:WaitForChild("NumberTypes"))
 local IndexDef = require(ReplicatedConfigs:WaitForChild("IndexDef"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
+local ZoneDef = require(ReplicatedConfigs:WaitForChild("ZoneDef"))
 local BoostsDef = require(ReplicatedConfigs:WaitForChild("BoostsDef"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
@@ -52,8 +54,10 @@ function IndexUiController:KnitInit()
 		RewardsList = indexFrame:WaitForChild("InfoFrames"):WaitForChild("RewardsFrame"):WaitForChild("RewardsList"),
 		ProgressBar = indexFrame:WaitForChild("ProgressBar"),
 		InfoFrame = indexFrame:WaitForChild("InfoFrames"):WaitForChild("InfoFrame"),
+		ZoneTemplate = indexFrame:WaitForChild("Templates"):WaitForChild("ZoneTemplate"),
 		ClaimButton = indexFrame:WaitForChild("InfoFrames"):WaitForChild("RewardsFrame"):WaitForChild("ClaimButton")
 	}
+	self._Gui.InfoFrame.ZonesFrame.Visible = false
 
 	local indexButton = GuiButton.new(self._Gui.IndexButton)
 	indexButton:SetMakeIconRotateLeftRightWhenHovered(true)
@@ -359,6 +363,7 @@ function IndexUiController:_SetupInfoFrame()
 	if not info then return end
 
 	local infoFrame = self._Gui.InfoFrame
+	infoFrame.ZonesFrame.Visible = true
 
 	local income = DinosaurDef.GetIncome(itemId, 1, self._SelectedCategory)
 	local incomeFrame = infoFrame.IncomeFrame
@@ -369,6 +374,37 @@ function IndexUiController:_SetupInfoFrame()
 	infoFrame.MutationText.UIGradient.Color = Constants.MutationGradients[category] or ColorSequence.new(Color3.fromRGB(255, 255, 255))
 
 	infoFrame.RarityText.Text = info.Rarity or ""
+
+	local zonesList = infoFrame.ZonesFrame.ZonesList :: Frame
+	local zoneIds = {}
+	for zoneId, spawnerInfo in pairs(DirtSpawnerDef.Table) do
+		if table.find(spawnerInfo.DinosaurIds, itemId) then
+			table.insert(zoneIds, zoneId)
+		end
+	end
+	table.sort(zoneIds, function(first, second)
+		local firstInfo = ZoneDef.GetZoneInfo(first)
+		local secondInfo = ZoneDef.GetZoneInfo(second)
+		local firstOrder = firstInfo and firstInfo.Order or math.huge
+		local secondOrder = secondInfo and secondInfo.Order or math.huge
+		if firstOrder == secondOrder then
+			return first < second
+		end
+		return firstOrder < secondOrder
+	end)
+
+	for _, zoneId in ipairs(zoneIds) do
+		local zoneInfo = ZoneDef.GetZoneInfo(zoneId)
+		if zoneInfo then
+			local zoneTemplate = self._Gui.ZoneTemplate:Clone()
+			zoneTemplate.Name = zoneId
+			zoneTemplate.LayoutOrder = zoneInfo.Order or 1000
+			zoneTemplate.NameText.Text = zoneInfo.Name
+			zoneTemplate.NameText.UIGradient.Color = zoneInfo.Color
+			zoneTemplate.Visible = true
+			zoneTemplate.Parent = zonesList
+		end
+	end
 
 	self._InfoFrameRarityText = RarityColorUtils.SetColor(infoFrame.RarityText, info.Rarity)
 
@@ -586,6 +622,13 @@ end
 
 function IndexUiController:_ClearInfoFrame()
 	local infoFrame = self._Gui.InfoFrame
+	infoFrame.ZonesFrame.Visible = false
+
+	for _, template in pairs(infoFrame.ZonesFrame.ZonesList:GetChildren()) do
+		if template:IsA(self._Gui.ZoneTemplate.ClassName) then
+			template:Destroy()
+		end
+	end
 
 	if self._InfoFrameFlipbook then
 		self._InfoFrameFlipbook:Destroy()

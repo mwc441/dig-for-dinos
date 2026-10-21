@@ -2,6 +2,7 @@ local ZoneDef = {}
 
 ZoneDef.Table = {
 	["Zone1"] = {
+		Order = 1,
 		Name = "Grassland",
 		IncomeMultiplier = 1,
 		Emoji = "🌱",
@@ -9,6 +10,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone2"] = {
+		Order = 2,
 		Name = "Farm",
 		IncomeMultiplier = 1.5,
 		Emoji = "🚜",
@@ -16,6 +18,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone3"] = {
+		Order = 3,
 		Name = "Aztec",
 		IncomeMultiplier = 2,
 		Emoji = "🗿",
@@ -23,6 +26,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone4"] = {
+		Order = 4,
 		Name = "Desert",
 		IncomeMultiplier = 3,
 		Emoji = "🐪",
@@ -30,6 +34,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone5"] = {
+		Order = 5,
 		Name = "Snow",
 		IncomeMultiplier = 4,
 		Emoji = "❄️",
@@ -37,6 +42,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone6"] = {
+		Order = 6,
 		Name = "Volcano",
 		IncomeMultiplier = 5,
 		Emoji = "🌋",
@@ -44,6 +50,7 @@ ZoneDef.Table = {
 	},
 
 	["Zone7"] = {
+		Order = 7,
 		Name = "Fantasy",
 		IncomeMultiplier = 7,
 		Emoji = "🍄",
