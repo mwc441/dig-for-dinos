@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local CostTypesEnum = require(Enums:WaitForChild("CostTypes"))
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local RaritiesEnum = require(Enums:WaitForChild("Rarities"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
@@ -45,6 +46,13 @@ return {
 
 	MaxFriends = 5,
 	CashPerFriend = 0.05,
+	CashPacks = {
+		IapsEnum.SmallCashPack,
+		IapsEnum.MediumCashPack,
+		IapsEnum.LargeCashPack,
+		IapsEnum.GiantCashPack,
+		IapsEnum.MassiveCashPack
+	},
 
 	RarityOrder = {
 		RaritiesEnum.Common,
