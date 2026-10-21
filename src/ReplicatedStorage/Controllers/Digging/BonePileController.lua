@@ -377,12 +377,41 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mut
 		return rootPart and (position - rootPart.Position).Magnitude <= MAX_PLACEMENT_DISTANCE
 	end
 
+	local floorPreview = Instance.new("Part")
+	floorPreview.Name = "BuildFloorPreview"
+	floorPreview.Material = Enum.Material.Glass
+	floorPreview.Anchored = true
+	floorPreview.CanCollide = false
+	floorPreview.CanTouch = false
+	floorPreview.CanQuery = false
+	floorPreview.CastShadow = false
+	floorPreview.Transparency = 1
+	self._BuildTrove:Add(floorPreview)
+
+	local floorHighlight = Instance.new("Highlight")
+	floorHighlight.Name = "BuildFloorHighlight"
+	floorHighlight.FillColor = Color3.fromRGB(255, 255, 255)
+	floorHighlight.FillTransparency = 0.85
+	floorHighlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+	floorHighlight.OutlineTransparency = 0
+	floorHighlight.DepthMode = Enum.HighlightDepthMode.Occluded
+	floorHighlight.Adornee = floorPreview
+	floorHighlight.Parent = floorPreview
+
 	self._BuildTrove:Add(RunService.Heartbeat:Connect(function()
 		local plot = self._PlotController:GetPlot()
-		if not plot then return end
+		local floor : BasePart = plot and plot.Instance:FindFirstChild("_Floor")
+		if not floor then
+			floorPreview.Parent = nil
+			return
+		end
 
-		local floor : BasePart = plot.Instance:FindFirstChild("_Floor")
-		if not floor then return end
+		floorPreview.Size = floor.Size
+		floorPreview.CFrame = floor.CFrame
+		floorPreview.Color = floor.Color
+		if floorPreview.Parent ~= Workspace then
+			floorPreview.Parent = Workspace
+		end
 
 		local camera = Workspace.CurrentCamera
 
