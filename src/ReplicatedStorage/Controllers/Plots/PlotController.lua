@@ -9,6 +9,7 @@ local ErrorSound = Sounds:WaitForChild("Error")
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
+local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
 local PlotLevelDef = require(ReplicatedConfigs:WaitForChild("PlotLevelDef"))
 local PartUtil = require(Utils:WaitForChild("Part"))
 local Signal = require(External:WaitForChild("Signal"))
@@ -18,8 +19,10 @@ local PlotController = {
 	Name = "PlotController",
 	_PlotComponent = nil,
 	_PlotService = nil,
+	_IapController = nil,
 	_DinosaurController = nil,
 	_RewardsController = nil,
+	_OwnedIaps = nil,
 	_LevelUpPending = false,
 	PlotsChanged = Signal.new()
 }
@@ -30,8 +33,13 @@ end
 
 function PlotController:KnitStart()
 	self._PlotService = Knit.GetService("PlotService")
+	self._IapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
 	self._DinosaurController = require(ReplicatedStorage.Controllers.Dinosaurs.DinosaurController)
 	self._RewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
+
+	self._IapController.IapsUpdatedSignal:Connect(function()
+		self:_UpdateIapOwnership()
+	end)
 
 	self._DinosaurController.DinosaurDataUpdatedSignal:Connect(function()
 		self:_UpdateCapacity()
@@ -47,9 +55,12 @@ function PlotController:KnitStart()
 	for _, plotComponent in ipairs(self._PlotComponent:GetAll()) do
 		self:_WatchPlot(plotComponent)
 	end
+	self:_UpdateIapOwnership()
 end
 
 function PlotController:_WatchPlot(plotComponent)
+	plotComponent:SetOwnedIaps(self._OwnedIaps)
+
 	plotComponent.OwnerChanged:Connect(function()
 		if plotComponent:GetOwner() == Player then
 			self:_UpdateCapacity()
@@ -85,6 +96,18 @@ function PlotController:_UpdateCapacity()
 	local plot = self:GetPlot()
 	if plot then
 		plot:SetCapacityUsed(self._DinosaurController:GetDinosaurCount())
+	end
+end
+
+function PlotController:_UpdateIapOwnership()
+	local ownedIaps = {}
+	for iapId in pairs(IapDef.GetAllIaps()) do
+		ownedIaps[iapId] = self._IapController:OwnsIap(iapId)
+	end
+
+	self._OwnedIaps = ownedIaps
+	for _, plotComponent in ipairs(self._PlotComponent:GetAll()) do
+		plotComponent:SetOwnedIaps(ownedIaps)
 	end
 end
 

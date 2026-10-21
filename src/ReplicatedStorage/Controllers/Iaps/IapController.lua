@@ -280,6 +280,20 @@ function IapController:GetPriceOfIap(iapId)
 	end
 end
 
+function IapController:GetIconOfIap(iapId)
+	iapId = self:GetOrderedIap(iapId) or iapId
+
+	local iapInfo = IapDef.GetIapInfo(iapId)
+	if not iapInfo then return end
+	if iapInfo.Icon then return iapInfo.Icon end
+
+	local info = self._IapCache[iapId]
+	local iconId = info and info.IconImageAssetId
+	if iconId and iconId ~= 0 then
+		return "rbxassetid://" .. tostring(iconId)
+	end
+end
+
 function IapController:_CacheAllProductInfos()
 	local function cacheIap(iapId)
 		local iapInfo = IapDef.GetIapInfo(iapId)

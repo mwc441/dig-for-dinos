@@ -32,6 +32,8 @@ function Plot:Construct()
 	self._OwnerTrove = nil
 	self._Owner = nil :: Player?
 	self._CapacityUsed = 0
+	self._GamepassSignTransparencies = {}
+	self._OwnedIaps = nil
 	self.OwnerChanged = Signal.new()
 	self._Trove:Add(self.OwnerChanged)
 
@@ -54,6 +56,11 @@ function Plot:SetCapacityUsed(count : number)
 	self:_UpdateLevelGui()
 end
 
+function Plot:SetOwnedIaps(ownedIaps)
+	self._OwnedIaps = ownedIaps
+	self:_SetupGamepassSigns()
+end
+
 function Plot:_UpdateOwner()
 	local ownerUserId = self.Instance:GetAttribute("Owner") or -1000
 	local owner = Players:GetPlayerByUserId(ownerUserId)
@@ -69,6 +76,7 @@ function Plot:_UpdateOwner()
 
 	self:_SetupPlotLeveling()
 	self:_SetupExcavation()
+	self:_SetupGamepassSigns()
 
 	self.OwnerChanged:Fire(self._Owner)
 end
@@ -106,6 +114,25 @@ function Plot:_SetupExcavation()
 		self._ExcavationTransparency:Restore()
 	else
 		self._ExcavationTransparency:Hide()
+	end
+end
+
+function Plot:_SetupGamepassSigns()
+	for _, descendant in ipairs(self.Instance:QueryDescendants("#GamepassSign")) do
+		local signPart = descendant.PrimaryPart
+		local iapId = signPart and signPart.Name
+
+		local transparency = self._GamepassSignTransparencies[descendant]
+		if not transparency then
+			transparency = Transparency.new(descendant)
+			self._GamepassSignTransparencies[descendant] = transparency
+		end
+
+		if self._Owner == Player and self._OwnedIaps and not self._OwnedIaps[iapId] then
+			transparency:Restore()
+		else
+			transparency:Hide()
+		end
 	end
 end
 

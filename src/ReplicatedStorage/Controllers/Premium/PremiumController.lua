@@ -6,6 +6,7 @@ local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 
 local External = ReplicatedStorage:WaitForChild("External")
+local Components = ReplicatedStorage:WaitForChild("Components")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
@@ -20,7 +21,9 @@ local TableUtils = require(External:WaitForChild("TableUtils"))
 local PremiumController = {
 	Name = "PremiumController",
 	_IapController = nil,
-	_HudController = nil
+	_IapSignComponent = nil,
+	_IapVendorComponent = nil,
+	_HudController = nil,
 }
 
 function PremiumController:KnitInit()
@@ -79,6 +82,8 @@ end
 
 function PremiumController:KnitStart()
 	self._IapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
+	self._IapSignComponent = require(Components.IapSign)
+	self._IapVendorComponent = require(Components.IapVendor)
 	self._HudController = require(ReplicatedStorage.Controllers.Hud.HudController)
 
 	self._IapController.IapCacheChanged:Connect(function()
@@ -90,6 +95,8 @@ function PremiumController:KnitStart()
 	end)
 
 	self:_SetupUi()
+	self:_SetupIapSigns()
+	self:_SetupIapVendors()
 	self:_UpdateIaps()
 end
 
@@ -139,6 +146,48 @@ function PremiumController:_SetupUi()
 			self:_SetupIap(descendant)
 		end
 	end
+end
+
+function PremiumController:_SetupIapSigns()
+	for _, iapSign in pairs(self._IapSignComponent:GetAll()) do
+		self:_SetupIapSign(iapSign)
+	end
+
+	self._IapSignComponent.Started:Connect(function(iapSign)
+		self:_SetupIapSign(iapSign)
+	end)
+end
+
+function PremiumController:_SetupIapSign(iapSign)
+	local iapId = iapSign.Instance.Name
+	if not IapDef.GetIapInfo(iapId) then return end
+
+	iapSign.Interacted:Connect(function()
+		self._IapController:PurchaseIap(iapId)
+	end)
+
+	self:_UpdateIapSign(iapSign)
+end
+
+function PremiumController:_SetupIapVendors()
+	for _, iapVendor in pairs(self._IapVendorComponent:GetAll()) do
+		self:_SetupIapVendor(iapVendor)
+	end
+
+	self._IapVendorComponent.Started:Connect(function(iapVendor)
+		self:_SetupIapVendor(iapVendor)
+	end)
+end
+
+function PremiumController:_SetupIapVendor(iapVendor)
+	local iapId = iapVendor.Instance.Name
+	if not IapDef.GetIapInfo(iapId) then return end
+
+	iapVendor.Interacted:Connect(function()
+		self._IapController:PurchaseIap(iapId)
+	end)
+
+	self:_UpdateIapVendor(iapVendor)
 end
 
 function PremiumController:_SetupIap(frame)
@@ -260,7 +309,36 @@ function PremiumController:_UpdateIaps()
 			self:_UpdateIap(descendant)
 		end
 	end
+	for _, iapSign in pairs(self._IapSignComponent:GetAll()) do
+		self:_UpdateIapSign(iapSign)
+	end
+	for _, iapVendor in pairs(self._IapVendorComponent:GetAll()) do
+		self:_UpdateIapVendor(iapVendor)
+	end
 	self:_UpdateCashGamepassButton()
+end
+
+function PremiumController:_UpdateIapSign(iapSign)
+	local iapId = self._IapController:GetOrderedIap(iapSign.Instance.Name) or iapSign.Instance.Name
+	local iapInfo = IapDef.GetIapInfo(iapId)
+	if not iapInfo then return end
+
+	iapSign.NameText.Text = iapInfo.Name or ""
+	iapSign.Icon.Image = self._IapController:GetIconOfIap(iapId) or ""
+
+	local price = self._IapController:GetPriceOfIap(iapId)
+	iapSign.PriceText.Text = price and tostring(price) or "..."
+end
+
+function PremiumController:_UpdateIapVendor(iapVendor)
+	local iapId = self._IapController:GetOrderedIap(iapVendor.Instance.Name) or iapVendor.Instance.Name
+	local iapInfo = IapDef.GetIapInfo(iapId)
+	if not iapInfo then return end
+
+	iapVendor.NameText.Text = iapInfo.Name or ""
+
+	local price = self._IapController:GetPriceOfIap(iapId)
+	iapVendor.PriceText.Text = price and string.format("%d", price) or "..."
 end
 
 function PremiumController:_UpdateCashGamepassButton()
