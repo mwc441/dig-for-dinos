@@ -11,6 +11,8 @@ local Dirt = require(script.Parent:WaitForChild("Dirt"))
 local DirtSpawner = {}
 DirtSpawner.__index = DirtSpawner
 
+local SPAWN_COOLDOWN_VARIANCE = 0.3
+
 local function getStageOneRadius()
 	local boundingCFrame, boundingSize = StageOneModel:GetBoundingBox()
 	local relativeBounds = StageOneModel:GetPivot():ToObjectSpace(boundingCFrame)
@@ -63,7 +65,9 @@ function DirtSpawner:_GetMaxDirt()
 end
 
 function DirtSpawner:_GetSpawnCooldown()
-	return math.max(0.1, self._Config.SpawnCooldown)
+	local cooldown = self._Config.SpawnCooldown
+	local multiplier = self._Random:NextNumber(1 - SPAWN_COOLDOWN_VARIANCE, 1 + SPAWN_COOLDOWN_VARIANCE)
+	return math.max(0.1, cooldown * multiplier)
 end
 
 function DirtSpawner:GetZoneId()
