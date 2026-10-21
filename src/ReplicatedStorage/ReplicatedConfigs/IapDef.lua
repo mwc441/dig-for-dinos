@@ -294,6 +294,19 @@ IapDef.Table = {
 		Rewards = {},
 		Giftable = true,
 		MaxPurchases = 1
+	},
+
+	[IapsEnum.OmegaShovel] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3720823548
+		},
+		Name = "Omega Shovel",
+		Description = "",
+		Rewards = {
+			["OmegaShovel"] = 1
+		},
+		Giftable = true,
+		MaxPurchases = 1
 	}
 	-- [IapsEnum.Bricks2xGamepass] = {
 	-- 	Ids = {

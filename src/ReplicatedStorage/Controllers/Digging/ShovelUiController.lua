@@ -11,9 +11,12 @@ local EquipSound = Sounds:WaitForChild("EquipSound")
 local External = ReplicatedStorage:WaitForChild("External")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local CostTypesEnum = require(Enums:WaitForChild("CostTypes"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
@@ -26,6 +29,7 @@ local ShovelUiController = {
 	_EquipController = nil,
 	_InventoryController = nil,
 	_RewardsController = nil,
+	_IapController = nil,
 	_DigService = nil
 }
 
@@ -52,6 +56,7 @@ function ShovelUiController:KnitStart()
 	self._EquipController = require(ReplicatedStorage.Controllers.Equips.EquipController)
 	self._InventoryController = require(ReplicatedStorage.Controllers.Inventory.InventoryController)
 	self._RewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
+	self._IapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
 	self._ShovelStoreComponent = require(Components.ShovelStore)
 	self._DigService = Knit.GetService("DigService")
 
@@ -60,6 +65,9 @@ function ShovelUiController:KnitStart()
 	end)
 
 	self._InventoryController.InventoryUpdatedSignal:Connect(function()
+		self:_UpdateUi()
+	end)
+	self._IapController.IapCacheChanged:Connect(function()
 		self:_UpdateUi()
 	end)
 
@@ -113,7 +121,7 @@ function ShovelUiController:_SetupUi()
 		local aInfo = a.Info
 		local bInfo = b.Info
 
-		return (aInfo.Cost or 0) < (bInfo.Cost or 0)
+		return (aInfo.Cost or math.huge) < (bInfo.Cost or math.huge)
 	end)
 
 	for order, shovelTable in pairs(shovelsSorted) do
@@ -126,11 +134,13 @@ function ShovelUiController:_SetupUi()
 		newShovelTemplate.Icon.Image = info.Icon or ""
 		newShovelTemplate.UIGradient.Color = info.GradientColor
 		newShovelTemplate.PowerFrame.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.DigMultiplier or 0) .. "x"
+		newShovelTemplate.BuyButton.Contents.Icon.Image = Constants.Icons[info.CostType] or ""
 
-		newShovelTemplate.BuyButton.Contents.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.Cost or 0)
 		local buyButton = GuiButton.new(newShovelTemplate.BuyButton)
 		buyButton:SetCallback(function()
 			self._DigService:BuyShovel(id):andThen(function(success)
+				if info.CostType == CostTypesEnum.Robux then return end
+
 				if not success then
 					self._RewardsController:AnnounceMessage("❌ Can't afford!", Color3.fromRGB(255, 0, 0))
 					UtilFunctions.PlayCopyOfSound(ErrorSound)
@@ -222,6 +232,12 @@ function ShovelUiController:_UpdateUi()
 		local id = template.Name
 		local info = ItemDef.GetItemInfo(id)
 		if not info then continue end
+		if info.CostType == CostTypesEnum.Robux then
+			local price = self._IapController:GetPriceOfIap(info.IapId)
+			template.BuyButton.Contents.AmountFrame.AmountText.Text = price and tostring(price) or "..."
+		else
+			template.BuyButton.Contents.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(info.Cost or 0)
+		end
 
 		local isEquipped = self._EquipController:IsItemEquipped(id)
 		local isOwned = self._InventoryController:HasItems(id, 1)

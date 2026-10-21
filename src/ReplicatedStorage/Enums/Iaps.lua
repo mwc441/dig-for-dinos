@@ -25,5 +25,6 @@ return {
 	DigPower2x = "DigPower2xIap",
 	AutoCollect = "AutoCollectIap",
 	OfflineCash2x = "OfflineCash2xIap",
-	GiantBearTraps = "GiantBearTrapsIap"
+	GiantBearTraps = "GiantBearTrapsIap",
+	OmegaShovel = "OmegaShovelIap"
 }

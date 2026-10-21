@@ -16,6 +16,8 @@ function Inventory.new(player, inventory, nonFungibles)
 	self._FungibleItems = TableUtils.Copy(inventory)
 	self._NonFungibleItems = TableUtils.Copy(nonFungibles)
 	self.Changed = Signal.new()
+	self.ItemsAdded = Signal.new()
+	self.ItemsRemoved = Signal.new()
 
 	return self
 end
@@ -131,15 +133,20 @@ function Inventory:GetQuantityOfItem(itemId)
 end
 
 function Inventory:AddItems(itemQuantityPairs)
+	local addedItems = {}
 	for itemId, quantity in pairs(itemQuantityPairs) do
 		if quantity <= 0 then
 			continue
 		end
 
 		self._FungibleItems[itemId] = (self._FungibleItems[itemId] or 0) + quantity
+		addedItems[itemId] = quantity
 	end
 
 	self.Changed:Fire()
+	if next(addedItems) then
+		self.ItemsAdded:Fire(addedItems)
+	end
 end
 
 function Inventory:AddItem(itemId, quantity)
@@ -147,18 +154,23 @@ function Inventory:AddItem(itemId, quantity)
 		return
 	end
 
-	self._FungibleItems[itemId] = (self._FungibleItems[itemId] or 0) + quantity
-
-	self.Changed:Fire()
+	self:AddItems({[itemId] = quantity})
 end
 
 function Inventory:RemoveItems(itemQuantityPairs)
+	local removedItems = {}
 	for itemId, quantity in pairs(itemQuantityPairs) do
 		if quantity <= 0 then
 			continue
 		end
 
-		local amountLeft = (self._FungibleItems[itemId] or 0) - quantity
+		local currentAmount = self._FungibleItems[itemId] or 0
+		local amountRemoved = math.min(currentAmount, quantity)
+		if amountRemoved > 0 then
+			removedItems[itemId] = amountRemoved
+		end
+
+		local amountLeft = currentAmount - quantity
 		if amountLeft <= 0 then
 			amountLeft = nil
 		end
@@ -167,6 +179,9 @@ function Inventory:RemoveItems(itemQuantityPairs)
 	end
 
 	self.Changed:Fire()
+	if next(removedItems) then
+		self.ItemsRemoved:Fire(removedItems)
+	end
 end
 
 function Inventory:RemoveItem(itemId, quantity)
@@ -174,18 +189,13 @@ function Inventory:RemoveItem(itemId, quantity)
 		return
 	end
 
-	local amountLeft = (self._FungibleItems[itemId] or 0) - quantity
-	if amountLeft <= 0 then
-		amountLeft = nil
-	end
-
-	self._FungibleItems[itemId] = amountLeft
-
-	self.Changed:Fire()
+	self:RemoveItems({[itemId] = quantity})
 end
 
 function Inventory:Destroy()
 	self.Changed:Destroy()
+	self.ItemsAdded:Destroy()
+	self.ItemsRemoved:Destroy()
 end
 
 return Inventory

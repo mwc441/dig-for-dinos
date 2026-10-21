@@ -8,6 +8,7 @@ local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
+local CostTypesEnum = require(Enums:WaitForChild("CostTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Rarities = require(Enums:WaitForChild("Rarities"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
@@ -33,6 +34,7 @@ local DigService = {
 	_EquipService = nil,
 	_InventoryService = nil,
 	_CommerceService = nil,
+	_IapService = nil,
 	_CharacterService = nil,
 	_PlotService = nil,
 	_PlayerStatsService = nil,
@@ -54,6 +56,7 @@ function DigService:KnitStart()
 	self._EquipService = require(ServerScriptService.Services.Equips.EquipService)
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
 	self._CommerceService = require(ServerScriptService.Services.Commerce.CommerceService)
+	self._IapService = require(ServerScriptService.Services.Iaps.IapService)
 	self._CharacterService = require(ServerScriptService.Services.Character.CharacterService)
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
@@ -91,6 +94,16 @@ function DigService:KnitStart()
 		end
 
 		self:_UpdateShovelToolForPlayer(player)
+	end)
+	self._InventoryService.PlayerItemsAdded:Connect(function(player, itemQuantityPairs)
+		for itemId in pairs(itemQuantityPairs) do
+			local itemInfo = ItemDef.GetItemInfo(itemId)
+			if itemInfo and itemInfo.Category == ItemDef.Categories.Shovel and itemInfo.CostType == CostTypesEnum.Robux then
+				if self:EquipShovelForPlayer(player, itemId) then
+					self:_EquipShovelToolForPlayer(player)
+				end
+			end
+		end
 	end)
 
 	self._CharacterService.CharacterAdded:Connect(function(player, character)
@@ -315,7 +328,12 @@ function DigService:BuyShovelForPlayer(player, shovelId)
 	if hasShovel then return end
 
 	local shovelInfo = ItemDef.GetItemInfo(shovelId)
-	if not self._CommerceService:Spend(player, PlayerStatsEnum.Cash, shovelInfo.Cost, {
+	if shovelInfo.CostType == CostTypesEnum.Robux then
+		self._IapService:PurchaseIap(player, shovelInfo.IapId)
+		return
+	end
+
+	if not self._CommerceService:Spend(player, shovelInfo.CostType, shovelInfo.Cost, {
 		Sku = shovelId
 	}) then
 		return false

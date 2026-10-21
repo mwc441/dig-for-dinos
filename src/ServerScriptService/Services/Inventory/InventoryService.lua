@@ -19,7 +19,9 @@ local InventoryService = {
 	Client = {},
 	_DataService = nil,
 	_Inventories = {},
-	PlayerInventoryUpdated = Signal.new()
+	PlayerInventoryUpdated = Signal.new(),
+	PlayerItemsAdded = Signal.new(),
+	PlayerItemsRemoved = Signal.new()
 }
 
 function InventoryService:KnitStart()
@@ -48,6 +50,12 @@ function InventoryService:_CreateInventoryForPlayer(player)
 		self:_SerializeInventory(player)
 
 		self.PlayerInventoryUpdated:Fire(player)
+	end)
+	newInventory.ItemsAdded:Connect(function(itemQuantityPairs)
+		self.PlayerItemsAdded:Fire(player, itemQuantityPairs)
+	end)
+	newInventory.ItemsRemoved:Connect(function(itemQuantityPairs)
+		self.PlayerItemsRemoved:Fire(player, itemQuantityPairs)
 	end)
 end
 
