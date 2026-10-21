@@ -25,7 +25,7 @@ function BonePileUtils.GetScale(scale)
 	return scale
 end
 
-function BonePileUtils.CreateModel(dinosaurId, scale, mutation) : Model?
+function BonePileUtils.CreateModel(dinosaurId, scale, mutation, zoneId) : Model?
 	local dinosaurInfo = DinosaurDef.GetDinosaurInfo(dinosaurId)
 	if not dinosaurInfo then
 		warn("Unknown dinosaur for bone pile " .. tostring(dinosaurId))
@@ -79,6 +79,7 @@ function BonePileUtils.CreateModel(dinosaurId, scale, mutation) : Model?
 	model:SetAttribute("Rarity", dinosaurInfo.Rarity)
 	model:SetAttribute("Scale", scale)
 	model:SetAttribute("Mutation", mutation or MutationsEnum.Normal)
+	model:SetAttribute("ZoneId", zoneId)
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	CollectionService:AddTag(model, "BonePile")
 

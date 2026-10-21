@@ -45,8 +45,8 @@ local ASSEMBLY_EXPLOSION_TIME = 0.5
 local MAX_PLACEMENT_DISTANCE = 50
 local REVEAL_ROLL_STEPS = 14
 
-local function makeRevealSilhouette(template, scale)
-	local model = BonePileUtils.CreateModel(template.Name, scale)
+local function makeRevealSilhouette(template, scale, zoneId)
+	local model = BonePileUtils.CreateModel(template.Name, scale, nil, zoneId)
 	if not model then return end
 	for _, instance in ipairs(model:GetDescendants()) do
 		if instance:IsA("BasePart") then
@@ -230,7 +230,7 @@ function BonePileController:_PlayReveal(reveal)
 			if step ~= lastStep then
 				lastStep = step
 				local choice = rolls[step]
-				setModel(makeRevealSilhouette(choice.Template, choice.Scale), choice.Scale)
+				setModel(makeRevealSilhouette(choice.Template, choice.Scale, reveal.ZoneId), choice.Scale)
 				if currentModel then
 					local popSound = RevealPopSound:Clone()
 					popSound.PlaybackSpeed = random:NextNumber(0.95, 1.05)
@@ -247,7 +247,7 @@ function BonePileController:_PlayReveal(reveal)
 		else
 			if not finalShown then
 				finalShown = true
-				local model = BonePileUtils.CreateModel(reveal.DinosaurId, reveal.Scale, reveal.Mutation)
+				local model = BonePileUtils.CreateModel(reveal.DinosaurId, reveal.Scale, reveal.Mutation, reveal.ZoneId)
 				if model then
 					UtilFunctions.AnchorAllDescendants(model, true)
 					UtilFunctions.CanQueryAllDescendants(model, false)
@@ -279,7 +279,7 @@ function BonePileController:_OnInventoryToolEquipped(player, character, tool)
 		self._ToolTrove:Clean()
 		self._ActiveInventoryTool = tool
 		self:_DoBonePileHoldAnim()
-		self:_StartBuildMode(guid, dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"))
+			self:_StartBuildMode(guid, dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"), tool:GetAttribute("ZoneId"))
 		self._ToolTrove:Add(function()
 			self:_StopBuildMode()
 		end)
@@ -317,7 +317,7 @@ function BonePileController:_AttachInventoryToolDisplay(player, character, tool,
 	local display = self._EquippedInventoryDisplays[character]
 	if display and display.Tool == tool and display.Model.Parent == character then return end
 
-	local model = BonePileUtils.CreateModel(dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"))
+	local model = BonePileUtils.CreateModel(dinosaurId, tool:GetAttribute("Scale"), tool:GetAttribute("Mutation"), tool:GetAttribute("ZoneId"))
 	if not model then return end
 	if display then
 		display.Model:Destroy()
@@ -370,7 +370,7 @@ function BonePileController:_GetPlacementRay(camera: Camera)
 	return camera:ViewportPointToRay(mousePos.X, mousePos.Y)
 end
 
-function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mutation)
+function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mutation, zoneId)
 	local function isWithinPlacementDistance(position)
 		local character = Player.Character
 		local rootPart = character and character:FindFirstChild("HumanoidRootPart")
@@ -426,7 +426,7 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mut
 			self._PlacementCFrame = CFrame.new(raycastResult.Position) * floor.CFrame.Rotation
 
 			if not self._PlacementModel then
-				local newBonePileModel = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
+				local newBonePileModel = BonePileUtils.CreateModel(dinosaurId, scale, mutation, zoneId)
 				newBonePileModel.Parent = Workspace
 				self._BuildTrove:Add(newBonePileModel)
 				self._PlacementModel = newBonePileModel
@@ -470,7 +470,7 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mut
 
 		if (input.UserInputType == Enum.UserInputType.MouseButton1) or (input.KeyCode == Enum.KeyCode.ButtonR2) then
 			if self._PlacementCFrame and isWithinPlacementDistance(self._PlacementCFrame.Position) then
-				self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, self._PlacementCFrame)
+				self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, zoneId, self._PlacementCFrame)
 			end
 		end
 	end))
@@ -479,12 +479,12 @@ function BonePileController:_StartBuildMode(bonePileGuid, dinosaurId, scale, mut
 		if gpe then return end
 
 		if self._PlacementCFrame and isWithinPlacementDistance(self._PlacementCFrame.Position) then
-			self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, self._PlacementCFrame)
+			self:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, zoneId, self._PlacementCFrame)
 		end
 	end))
 end
 
-function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, cframe)
+function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId, scale, mutation, zoneId, cframe)
 	if self._IsAssembling or typeof(cframe) ~= "CFrame" then return end
 
 	if self._DinosaurController:IsAtMaxCapacity() then
@@ -561,7 +561,7 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 	humanoid:UnequipTools()
 	Derpbar.Enabled = false
 
-	local pileModel = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
+	local pileModel = BonePileUtils.CreateModel(dinosaurId, scale, mutation, zoneId)
 	if pileModel then
 		local function removeTags(instance)
 			for _, tag in ipairs(CollectionService:GetTags(instance)) do

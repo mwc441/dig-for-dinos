@@ -268,11 +268,10 @@ function BonePileService:_SyncInventoryTools(player)
 end
 
 function BonePileService:_CreatePile(dinosaurId, scale, mutation, zoneId)
-	local model = BonePileUtils.CreateModel(dinosaurId, scale, mutation)
+	local model = BonePileUtils.CreateModel(dinosaurId, scale, mutation, zoneId)
 	if not model then
 		return
 	end
-	model:SetAttribute("ZoneId", zoneId)
 
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "Hold"
@@ -457,6 +456,7 @@ function BonePileService:AwardForDirt(player, zoneId, dirtRarity, dirtCFrame, di
 	local startsAt = Workspace:GetServerTimeNow()
 	self.Client.RevealStarted:FireAll({
 		DinosaurId = dinosaurId,
+		ZoneId = pile.ZoneId,
 		Scale = pile.Scale,
 		Mutation = pile.Mutation,
 		DirtCFrame = dirtCFrame,
