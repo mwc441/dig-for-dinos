@@ -17,7 +17,7 @@ local function scaleEmitterSize(emitter: ParticleEmitter, scale: number)
 	emitter.Size = NumberSequence.new(keypoints)
 end
 
-function MutationUtils.Apply(model: Model, mutation: string)
+function MutationUtils.Apply(model: Model, mutation: string, cloneParticles: boolean)
 	local mutationPart = mutation and MutationParticles:FindFirstChild(mutation)
 	if not mutationPart or not mutationPart:IsA("BasePart") then return end
 
@@ -33,6 +33,8 @@ function MutationUtils.Apply(model: Model, mutation: string)
 
 		local sizeScale = basePart.Size.Magnitude / mutationPart.Size.Magnitude
 		for _, child in mutationChildren do
+			if child:IsA("ParticleEmitter") and (not cloneParticles) then continue end
+
 			local newChild = child:Clone()
 			if newChild:IsA("ParticleEmitter") then
 				scaleEmitterSize(newChild, sizeScale)

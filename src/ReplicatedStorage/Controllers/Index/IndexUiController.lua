@@ -1,5 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Player = Players.LocalPlayer
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
@@ -27,13 +28,19 @@ local GuiObject = require(GuiModules:WaitForChild("Object"))
 local Knit = require(External:WaitForChild("Knit"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 
+local INDEX_VIEWPORT_FRAME_GAP = 5
+
 local IndexUiController = {
 	Name = "IndexUiController",
 	_HudController = nil,
 	_IndexController = nil,
 	_IndexService = nil,
 	_ActiveIndexTemplates = {},
-	_IndexTemplateVisualUpdateQueued = false
+	_IndexTemplateVisualUpdateQueued = false,
+	_IndexViewportQueue = {},
+	_PendingIndexViewports = {},
+	_IndexViewportFrame = 0,
+	_LastIndexViewportFrame = -INDEX_VIEWPORT_FRAME_GAP
 }
 
 function IndexUiController:KnitInit()
@@ -104,6 +111,9 @@ function IndexUiController:KnitStart()
 			self:_QueueIndexTemplateVisualUpdate()
 		end)
 	end
+	RunService.RenderStepped:Connect(function()
+		self:_ProcessIndexViewportQueue()
+	end)
 
 	self:_UpdateUi()
 end
@@ -220,7 +230,7 @@ function IndexUiController:_SetupIndex()
 			return aRarityOrder < bRarityOrder
 		end
 
-		return a.Name < b.Name
+		return a.Id < b.Id
 	end)
 
 	for order, dinosaurTable in pairs(dinosaurs) do
@@ -258,6 +268,35 @@ function IndexUiController:_QueueIndexTemplateVisualUpdate()
 		self._IndexTemplateVisualUpdateQueued = false
 		self:_UpdateIndexTemplateVisuals()
 	end)
+end
+
+function IndexUiController:_ProcessIndexViewportQueue()
+	self._IndexViewportFrame += 1
+	if self._IndexViewportFrame - self._LastIndexViewportFrame < INDEX_VIEWPORT_FRAME_GAP then return end
+
+	while #self._IndexViewportQueue > 0 do
+		local template = table.remove(self._IndexViewportQueue, 1)
+		if not self._PendingIndexViewports[template] then continue end
+		self._PendingIndexViewports[template] = nil
+		if template.Parent ~= self._Gui.IndexList or not self._ActiveIndexTemplates[template] then continue end
+
+		local button = template.Button
+		local inView = self._Gui.Frame.Visible
+			and not self._Hiding
+			and self._Gui.IndexList.Visible
+			and template.Visible
+			and button.Visible
+			and self:_IsTemplateInView(template)
+		if not inView then
+			self:_ClearIndexTemplateVisuals(template)
+			continue
+		end
+		if not button.ViewportFrame.Visible then continue end
+
+		self._LastIndexViewportFrame = self._IndexViewportFrame
+		DinosaurUtils.CreateViewportModel(button.ViewportFrame, template.Name, 1, self._SelectedCategory)
+		break
+	end
 end
 
 function IndexUiController:_IsTemplateInView(template)
@@ -303,14 +342,22 @@ function IndexUiController:_UpdateIndexTemplateVisuals()
 			visuals.Flipbook:Play()
 		end
 
-		if button.ViewportFrame.Visible then
-			DinosaurUtils.CreateViewportModel(button.ViewportFrame, template.Name, 1, self._SelectedCategory)
-		end
 		self._ActiveIndexTemplates[template] = visuals
+		if button.ViewportFrame.Visible and not self._PendingIndexViewports[template] then
+			self._PendingIndexViewports[template] = true
+			table.insert(self._IndexViewportQueue, template)
+		end
 	end
 end
 
 function IndexUiController:_ClearIndexTemplateVisuals(template)
+	if self._PendingIndexViewports[template] then
+		self._PendingIndexViewports[template] = nil
+		local queueIndex = table.find(self._IndexViewportQueue, template)
+		if queueIndex then
+			table.remove(self._IndexViewportQueue, queueIndex)
+		end
+	end
 	local visuals = self._ActiveIndexTemplates[template]
 	if not visuals then return end
 	self._ActiveIndexTemplates[template] = nil
@@ -612,6 +659,8 @@ function IndexUiController:_UpdateInfoFrame()
 end
 
 function IndexUiController:_ClearIndex()
+	table.clear(self._IndexViewportQueue)
+	table.clear(self._PendingIndexViewports)
 	for _, template in pairs(self._Gui.IndexList:GetChildren()) do
 		if template:IsA(self._Gui.IndexTemplate.ClassName) then
 			self:_ClearIndexTemplateVisuals(template)
