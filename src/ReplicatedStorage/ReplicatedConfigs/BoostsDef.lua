@@ -25,7 +25,7 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Friends Boost",
 		Icon = "rbxassetid://117403910373763",
-		Description = "Invite friends for +5%% bricks each!<br/>(Click to invite)<br/>x%0.2f",
+		Description = "Invite friends for <font color=\"#55ff00\">+10%% cash</font> each!<br/><font color=\"#55ff00\">(Click to invite)</font><br/>x%0.2f",
 		AmountFunction = function(level: number)
 			if level <= 0 then return 1 end
 
@@ -39,7 +39,7 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Roblox Plus",
 		Icon = "rbxassetid://75220652271430",
-		Description = "Roblox Plus users get more bricks!<br/><br/>x%0.2f",
+		Description = "Roblox Plus users get more cash!<br/><br/>x%0.2f",
 		AmountFunction = function(level: number)
 			if level <= 0 then return 1 end
 

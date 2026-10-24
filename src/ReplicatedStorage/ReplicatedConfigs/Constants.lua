@@ -45,7 +45,7 @@ return {
 	},
 
 	MaxFriends = 5,
-	CashPerFriend = 0.05,
+	CashPerFriend = 0.1,
 	CashPacks = {
 		IapsEnum.SmallCashPack,
 		IapsEnum.MediumCashPack,
