@@ -48,6 +48,29 @@ function DinosaurService:KnitInit()
 	for _, animSaves in pairs(DinosaurModels:QueryDescendants("#AnimSaves")) do
 		animSaves:Destroy()
 	end
+
+	local bonePileModels = Assets:FindFirstChild("BonePiles")
+	if not bonePileModels then
+		warn("[DinosaurService] Missing BonePiles folder in ReplicatedStorage.Assets")
+	end
+
+	for dinosaurId in pairs(DinosaurDef.GetAllDinosaurs()) do
+		local dinosaurModel = DinosaurModels:FindFirstChild(dinosaurId)
+		if not dinosaurModel or not dinosaurModel:IsA("Model") then
+			warn("[DinosaurService] Missing dinosaur model: " .. dinosaurId)
+		elseif not dinosaurModel.PrimaryPart then
+			warn("[DinosaurService] Dinosaur model has no PrimaryPart: " .. dinosaurId)
+		end
+
+		if bonePileModels then
+			local bonePileModel = bonePileModels:FindFirstChild(dinosaurId)
+			if not bonePileModel or not bonePileModel:IsA("Model") then
+				warn("[DinosaurService] Missing bone pile model: " .. dinosaurId)
+			elseif not bonePileModel.PrimaryPart then
+				warn("[DinosaurService] Bone pile model has no PrimaryPart: " .. dinosaurId)
+			end
+		end
+	end
 end
 
 function DinosaurService:KnitStart()
