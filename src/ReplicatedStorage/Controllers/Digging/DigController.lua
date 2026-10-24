@@ -34,6 +34,7 @@ local GuiButton = require(GuiModules:WaitForChild("Button"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Trove = require(External:WaitForChild("Trove"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
+local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
@@ -73,6 +74,7 @@ local DigController = {
 	_TimeController = nil,
 	_ToolController = nil,
 	_PremiumController = nil,
+	_UpgradeController = nil,
 	_Dirts = {},
 	_GuaranteedBoards = {},
 	_UpcomingGuaranteedSpawns = {},
@@ -121,6 +123,7 @@ function DigController:KnitStart()
 	self._TimeController = require(ReplicatedStorage.Controllers.Time.TimeController)
 	self._ToolController = require(ReplicatedStorage.Controllers.Tools.ToolController)
 	self._PremiumController = require(ReplicatedStorage.Controllers.Premium.PremiumController)
+	self._UpgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
 	self._PlayerGui = Player:WaitForChild("PlayerGui")
 
 	CollectionService:GetInstanceAddedSignal(GUARANTEED_BOARD_TAG):Connect(function(board)
@@ -514,7 +517,8 @@ function DigController:_GetDigCooldown()
 end
 
 function DigController:_GetDigTrainingSpeed()
-	return 1 -- Digs per second. Apply training speed upgrades here later.
+	local level = self._UpgradeController:GetUpgradeLevel("DigTrainingSpeedUpgrade")
+	return UpgradesDef.GetAmountForUpgrade("DigTrainingSpeedUpgrade", level)
 end
 
 function DigController:_GetDigTrainingCooldown()

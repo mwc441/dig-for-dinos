@@ -12,6 +12,7 @@ local CostTypesEnum = require(Enums:WaitForChild("CostTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Rarities = require(Enums:WaitForChild("Rarities"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
+local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
 local ZoneDef = require(ReplicatedConfigs:WaitForChild("ZoneDef"))
@@ -39,6 +40,7 @@ local DigService = {
 	_PlotService = nil,
 	_PlayerStatsService = nil,
 	_BoostsService = nil,
+	_UpgradeService = nil,
 	_ReplicationService = nil,
 	_LifecycleService = nil,
 	_BonePileService = nil,
@@ -61,6 +63,7 @@ function DigService:KnitStart()
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
+	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
@@ -246,7 +249,8 @@ function DigService:_GetDigCooldown(player)
 end
 
 function DigService:_GetDigTrainingSpeed(player)
-	return 1 -- Digs per second. Apply training speed upgrades here later.
+	local level = self._UpgradeService:GetUpgradeLevelForPlayer(player, "DigTrainingSpeedUpgrade")
+	return UpgradesDef.GetAmountForUpgrade("DigTrainingSpeedUpgrade", level)
 end
 
 function DigService:_GetDigTrainingCooldown(player)

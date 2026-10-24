@@ -2,6 +2,8 @@ return {
 	-- Dev products
 	SkipRebirth = "SkipRebirthIap",
 	SpeedUpgrade = "SpeedUpgradeIap",
+	DigSpeedUpgrade = "DigSpeedUpgradeIap",
+	BearTrapUpgrade = "BearTrapUpgradeIap",
 	OfflineRewards1Hour = "OfflineRewards1HourIap",
 	OfflineRewards24Hours = "OfflineRewards24HoursIap",
 	SmallCashPack = "SmallCashPackIap",

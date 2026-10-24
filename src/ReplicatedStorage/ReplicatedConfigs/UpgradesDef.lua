@@ -13,6 +13,7 @@ UpgradesDef.Table = {
 	["BearTrapUpgrade"] = {
 		Name = "Bear Trap Place Limit",
 		Icon = "rbxassetid://76727775766182",
+		IapId = IapsEnum.BearTrapUpgrade,
 		CostFunction = function(level: number)
 			return 500 * level
 		end,
@@ -20,6 +21,20 @@ UpgradesDef.Table = {
 		MaxLevel = 4,
 		AmountFunction = function(level: number)
 			return 1 + level
+		end
+	},
+
+	["DigTrainingSpeedUpgrade"] = {
+		Name = "Dig Training Speed",
+		Icon = "rbxassetid://139669454865825",
+		IapId = IapsEnum.DigSpeedUpgrade,
+		CostFunction = function(level: number)
+			return 500 * level
+		end,
+		CostType = PlayerStatsEnum.Cash,
+		MaxLevel = 10,
+		AmountFunction = function(level: number)
+			return 1 + level * 0.2
 		end
 	},
 

@@ -41,6 +41,28 @@ IapDef.Table = {
 		Giftable = true
 	},
 
+	[IapsEnum.DigSpeedUpgrade] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3721998209
+		},
+		Name = "+1 Dig Training Speed",
+		Rewards = {
+			["DigTrainingSpeedUpgrade"] = 1
+		},
+		Giftable = true,
+	},
+
+	[IapsEnum.BearTrapUpgrade] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3721998742
+		},
+		Name = "+1 Bear Trap Place",
+		Rewards = {
+			["BearTrapUpgrade"] = 1
+		},
+		Giftable = true
+	},
+
 	[IapsEnum.OfflineRewards1Hour] = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3718677900
