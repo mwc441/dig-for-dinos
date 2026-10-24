@@ -15,7 +15,7 @@ function PreloadController:KnitStart()
 
 	local assets = ReplicatedStorage.Assets
 
-	local toLoad = { assets.Dirt, assets.Sounds, assets.Animations, assets.ClientAssets, assets.Particles }
+	local toLoad = { assets.Dirt, assets.BonePiles, assets.Sounds, assets.Animations, assets.ClientAssets, assets.Particles }
 	for _, descendant in pairs(Player:WaitForChild("PlayerGui"):GetDescendants()) do
 		table.insert(toLoad, descendant)
 	end
