@@ -5,9 +5,33 @@ local Rarities = require(script.Parent.Parent:WaitForChild("Enums"):WaitForChild
 local DirtSpawnerDef = {}
 
 DirtSpawnerDef.DinosaurPools = {
-	Zones1To3 = { DinosaurDef.Ids.Trex },
-	Zones4To6 = { DinosaurDef.Ids.Trex },
-	Zone7 = { DinosaurDef.Ids.Trex }
+	Zones1To3 = {
+		DinosaurDef.Ids.Triceratops,
+		DinosaurDef.Ids.Brachiosaurus,
+		DinosaurDef.Ids.Tung,
+		DinosaurDef.Ids.Velociraptor,
+		DinosaurDef.Ids.Dilophosaurus,
+		DinosaurDef.Ids.Pterodactyl,
+		DinosaurDef.Ids.Trex
+	},
+	Zones4To6 = {
+		DinosaurDef.Ids.Carnotaurus,
+		DinosaurDef.Ids.Allosaurus,
+		DinosaurDef.Ids.BallerinaSkeletina,
+		DinosaurDef.Ids.Deinonychus,
+		DinosaurDef.Ids.Pachycephalosaurus,
+		DinosaurDef.Ids.Plesiosaurus,
+		DinosaurDef.Ids.Hydra
+	},
+	Zone7 = {
+		DinosaurDef.Ids.Camarasaurus,
+		DinosaurDef.Ids.Ceratosaurus,
+		DinosaurDef.Ids.Protoceratops,
+		DinosaurDef.Ids.Pachyrhinosaurus,
+		DinosaurDef.Ids.Styracosaurus,
+		DinosaurDef.Ids.Therizinosaurus,
+		DinosaurDef.Ids.Dragon
+	}
 }
 
 DirtSpawnerDef.GuaranteedSpawns = {

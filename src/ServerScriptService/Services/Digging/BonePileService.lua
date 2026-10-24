@@ -13,6 +13,7 @@ local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
+local DirtDef = require(ReplicatedConfigs:WaitForChild("DirtDef"))
 local DirtSpawnerDef = require(ReplicatedConfigs:WaitForChild("DirtSpawnerDef"))
 local Knit = require(External:WaitForChild("Knit"))
 local PartUtil = require(Utils:WaitForChild("Part"))
@@ -427,16 +428,34 @@ function BonePileService:_PickUp(pile, player)
 	self:_Carry(pile, player)
 end
 
-function BonePileService:AwardForDirt(player, zoneId, dirtRarity, dirtCFrame, dirtScale)
+function BonePileService:AwardForDirt(player, zoneId, dirtId, dirtCFrame, dirtScale)
 	local zoneConfig = DirtSpawnerDef.GetSpawnerInfo(zoneId)
-	if not zoneConfig then return false end
+	local dirtInfo = DirtDef.GetDirtInfo(dirtId)
+	if not zoneConfig or not dirtInfo then return false end
 
-	local lootTable = DinosaurDef.GetLootTableForRarity(dirtRarity, zoneConfig.DinosaurIds)
-	if #lootTable == 0 then
-		return false
+	local dinosaursByRarity = {}
+	for _, candidateId in ipairs(zoneConfig.DinosaurIds) do
+		local info = DinosaurDef.GetDinosaurInfo(candidateId)
+		if info and info.Weight > 0 then
+			local candidates = dinosaursByRarity[info.Rarity]
+			if not candidates then
+				candidates = {}
+				dinosaursByRarity[info.Rarity] = candidates
+			end
+			table.insert(candidates, { Id = candidateId, Weight = info.Weight })
+		end
 	end
 
-	local dinosaurId = RarityUtils.GetLootTableResults(lootTable).Id
+	local rarityLootTable = {}
+	for _, entry in ipairs(dirtInfo.DinosaurRarityLootTable) do
+		if entry.Weight > 0 and dinosaursByRarity[entry.Id] then
+			table.insert(rarityLootTable, { Id = entry.Id, Weight = entry.Weight })
+		end
+	end
+	if #rarityLootTable == 0 then return false end
+
+	local rolledRarity = RarityUtils.GetLootTableResults(rarityLootTable).Id
+	local dinosaurId = RarityUtils.GetLootTableResults(dinosaursByRarity[rolledRarity]).Id
 	local mutationLootTable = {}
 	for _, entry in ipairs(DinosaurDef.MutationLootTable) do
 		local boostType = MUTATION_BOOST_TYPES[entry.Id]

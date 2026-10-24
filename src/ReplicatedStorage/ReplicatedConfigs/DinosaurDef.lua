@@ -10,14 +10,154 @@ local DinosaurDef = {}
 local SELL_INCOME_SECONDS = 60
 
 DinosaurDef.Ids = {
-	Trex = "Trex"
+	Triceratops = "Triceratops",
+	Brachiosaurus = "Brachiosaurus",
+	Tung = "Tung",
+	Velociraptor = "Velociraptor",
+	Dilophosaurus = "Dilophosaurus",
+	Pterodactyl = "Pterodactyl",
+	Trex = "Trex",
+	Carnotaurus = "Carnotaurus",
+	Allosaurus = "Allosaurus",
+	BallerinaSkeletina = "BallerinaSkeletina",
+	Deinonychus = "Deinonychus",
+	Pachycephalosaurus = "Pachycephalosaurus",
+	Plesiosaurus = "Plesiosaurus",
+	Hydra = "Hydra",
+	Camarasaurus = "Camarasaurus",
+	Ceratosaurus = "Ceratosaurus",
+	Protoceratops = "Protoceratops",
+	Pachyrhinosaurus = "Pachyrhinosaurus",
+	Styracosaurus = "Styracosaurus",
+	Therizinosaurus = "Therizinosaurus",
+	Dragon = "Dragon"
 }
 
 DinosaurDef.Table = {
-	[DinosaurDef.Ids.Trex] = {
-		Name = "Trex",
+	[DinosaurDef.Ids.Triceratops] = {
+		Name = "Triceratops",
 		Rarity = RaritiesEnum.Common,
 		Income = 50,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Brachiosaurus] = {
+		Name = "Brachiosaurus",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Tung] = {
+		Name = "Tung",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Velociraptor] = {
+		Name = "Velociraptor",
+		Rarity = RaritiesEnum.Epic,
+		Income = 400,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Dilophosaurus] = {
+		Name = "Dilophosaurus",
+		Rarity = RaritiesEnum.Legendary,
+		Income = 800,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Pterodactyl] = {
+		Name = "Pterodactyl",
+		Rarity = RaritiesEnum.Mythical,
+		Income = 1600,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Trex] = {
+		Name = "Trex",
+		Rarity = RaritiesEnum.Secret,
+		Income = 3200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Carnotaurus] = {
+		Name = "Carnotaurus",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Allosaurus] = {
+		Name = "Allosaurus",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.BallerinaSkeletina] = {
+		Name = "BallerinaSkeletina",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Deinonychus] = {
+		Name = "Deinonychus",
+		Rarity = RaritiesEnum.Epic,
+		Income = 400,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Pachycephalosaurus] = {
+		Name = "Pachycephalosaurus",
+		Rarity = RaritiesEnum.Legendary,
+		Income = 800,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Plesiosaurus] = {
+		Name = "Plesiosaurus",
+		Rarity = RaritiesEnum.Mythical,
+		Income = 1600,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Hydra] = {
+		Name = "Hydra",
+		Rarity = RaritiesEnum.Secret,
+		Income = 3200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Camarasaurus] = {
+		Name = "Camarasaurus",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Ceratosaurus] = {
+		Name = "Ceratosaurus",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Protoceratops] = {
+		Name = "Protoceratops",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Pachyrhinosaurus] = {
+		Name = "Pachyrhinosaurus",
+		Rarity = RaritiesEnum.Epic,
+		Income = 400,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Styracosaurus] = {
+		Name = "Styracosaurus",
+		Rarity = RaritiesEnum.Legendary,
+		Income = 800,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Therizinosaurus] = {
+		Name = "Therizinosaurus",
+		Rarity = RaritiesEnum.Mythical,
+		Income = 1600,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Dragon] = {
+		Name = "Dragon",
+		Rarity = RaritiesEnum.Secret,
+		Income = 3200,
 		Weight = 100
 	}
 }

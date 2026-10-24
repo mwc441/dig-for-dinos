@@ -512,8 +512,7 @@ function DigService:_DigForPlayer(player, dirtGuid, predictionId)
 	self._LastDig[player] = currentTime
 	local remainingHealth = dirt:Damage(digPower, player.UserId, predictionId)
 	if remainingHealth == 0 then
-		local dirtRarity = DirtDef.GetDirtInfo(dirt:GetDirtId()).Rarity
-		self._BonePileService:AwardForDirt(player, dirt:GetZoneId(), dirtRarity, dirt:GetCFrame(), dirt:GetScale())
+		self._BonePileService:AwardForDirt(player, dirt:GetZoneId(), dirt:GetDirtId(), dirt:GetCFrame(), dirt:GetScale())
 	end
 
 	return remainingHealth ~= nil
