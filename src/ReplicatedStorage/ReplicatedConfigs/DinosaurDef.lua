@@ -11,15 +11,27 @@ local SELL_INCOME_SECONDS = 60
 
 DinosaurDef.Ids = {
 	Triceratops = "Triceratops",
+	Ableisaurus = "Ableisaurus",
+	Microraptor = "Microraptor",
 	Brachiosaurus = "Brachiosaurus",
+	Utahraptor = "Utahraptor",
+	Troodon = "Troodon",
 	Tung = "Tung",
+	Majungasaurus = "Majungasaurus",
+	Gallimimus = "Gallimimus",
 	Velociraptor = "Velociraptor",
 	Dilophosaurus = "Dilophosaurus",
 	Pterodactyl = "Pterodactyl",
 	Trex = "Trex",
 	Carnotaurus = "Carnotaurus",
+	Carcharodontosaurus = "Carcharodontosaurus",
+	Giganotosaurus = "Giganotosaurus",
 	Allosaurus = "Allosaurus",
+	Cryolophosaurus = "Cryolophosaurus",
+	Monolophosaurus = "Monolophosaurus",
 	BallerinaSkeletina = "BallerinaSkeletina",
+	Quetzalcoatlus = "Quetzalcoatlus",
+	HornedGallimimus = "HornedGallimimus",
 	Deinonychus = "Deinonychus",
 	Pachycephalosaurus = "Pachycephalosaurus",
 	Plesiosaurus = "Plesiosaurus",
@@ -40,14 +52,50 @@ DinosaurDef.Table = {
 		Income = 50,
 		Weight = 100
 	},
+	[DinosaurDef.Ids.Ableisaurus] = {
+		Name = "Ableisaurus",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Microraptor] = {
+		Name = "Microraptor",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
 	[DinosaurDef.Ids.Brachiosaurus] = {
 		Name = "Brachiosaurus",
 		Rarity = RaritiesEnum.Uncommon,
 		Income = 100,
 		Weight = 100
 	},
+	[DinosaurDef.Ids.Utahraptor] = {
+		Name = "Utahraptor",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Troodon] = {
+		Name = "Troodon",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
 	[DinosaurDef.Ids.Tung] = {
 		Name = "Tung",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Majungasaurus] = {
+		Name = "Majungasaurus",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Gallimimus] = {
+		Name = "Gallimimus",
 		Rarity = RaritiesEnum.Rare,
 		Income = 200,
 		Weight = 100
@@ -82,14 +130,50 @@ DinosaurDef.Table = {
 		Income = 50,
 		Weight = 100
 	},
+	[DinosaurDef.Ids.Carcharodontosaurus] = {
+		Name = "Carcharodontosaurus",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Giganotosaurus] = {
+		Name = "Giganotosaurus",
+		Rarity = RaritiesEnum.Common,
+		Income = 50,
+		Weight = 100
+	},
 	[DinosaurDef.Ids.Allosaurus] = {
 		Name = "Allosaurus",
 		Rarity = RaritiesEnum.Uncommon,
 		Income = 100,
 		Weight = 100
 	},
+	[DinosaurDef.Ids.Cryolophosaurus] = {
+		Name = "Cryolophosaurus",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Monolophosaurus] = {
+		Name = "Monolophosaurus",
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 100,
+		Weight = 100
+	},
 	[DinosaurDef.Ids.BallerinaSkeletina] = {
 		Name = "BallerinaSkeletina",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.Quetzalcoatlus] = {
+		Name = "Quetzalcoatlus",
+		Rarity = RaritiesEnum.Rare,
+		Income = 200,
+		Weight = 100
+	},
+	[DinosaurDef.Ids.HornedGallimimus] = {
+		Name = "Horned Gallimimus",
 		Rarity = RaritiesEnum.Rare,
 		Income = 200,
 		Weight = 100
