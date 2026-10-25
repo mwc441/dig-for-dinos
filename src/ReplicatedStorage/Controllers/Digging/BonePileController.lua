@@ -109,6 +109,7 @@ function BonePileController:KnitInit()
 	dropButton:SetCallback(function()
 		self._BonePileService:Drop()
 	end)
+	dropButton:SetButtonKeyCodes({ Enum.KeyCode.ButtonB })
 end
 
 function BonePileController:KnitStart()

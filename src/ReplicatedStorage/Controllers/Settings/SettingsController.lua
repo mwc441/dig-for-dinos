@@ -1,3 +1,4 @@
+local GamepadService = game:GetService("GamepadService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
@@ -8,6 +9,7 @@ local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local Slider = require(GuiModules:WaitForChild("Slider"))
 local SettingsDef = require(ReplicatedConfigs:WaitForChild("SettingsDef"))
+local Device = require(External:WaitForChild("Device"))
 local Signal = require(External:WaitForChild("Signal"))
 local TopbarPlus = require(External:WaitForChild("TopbarPlus"))
 local Knit = require(External:WaitForChild("Knit"))
@@ -129,6 +131,9 @@ function SettingsController:SetVisibility(visible, toTween)
 		self._Gui.Frame.Visible = visible
 		self:_SetupUi()
 		self._HudController:SetCurrentlyActiveFrame(self)
+		if Device.GetUserDevice() == "Controller" and not GamepadService.GamepadCursorEnabled then
+			GamepadService:EnableGamepadCursor(nil)
+		end
 		hideTrack:Stop()
 		self._Hiding = false
 		openTrack:Play()

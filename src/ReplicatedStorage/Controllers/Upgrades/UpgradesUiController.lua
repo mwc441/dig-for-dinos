@@ -1,3 +1,4 @@
+local GamepadService = game:GetService("GamepadService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = Players.LocalPlayer
@@ -15,6 +16,7 @@ local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
+local Device = require(External:WaitForChild("Device"))
 local Knit = require(External:WaitForChild("Knit"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 
@@ -72,6 +74,9 @@ function UpgradesUiController:SetVisibility(visible, toTween)
 	if visible then
 		self._Gui.Frame.Visible = visible
 		self._HudController:SetCurrentlyActiveFrame(self)
+		if Device.GetUserDevice() == "Controller" and not GamepadService.GamepadCursorEnabled then
+			GamepadService:EnableGamepadCursor(nil)
+		end
 		hideTrack:Stop()
 		self._Hiding = false
 		openTrack:Play()

@@ -1,3 +1,4 @@
+local GamepadService = game:GetService("GamepadService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = Players.LocalPlayer
@@ -19,6 +20,7 @@ local DinosaurUtils = require(Utils:WaitForChild("DinosaurUtils"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
+local Device = require(External:WaitForChild("Device"))
 local Knit = require(External:WaitForChild("Knit"))
 
 local DinosaurSellController = {
@@ -90,6 +92,9 @@ function DinosaurSellController:SetVisibility(visible, toTween)
 	if visible then
 		self._Gui.Frame.Visible = visible
 		self._HudController:SetCurrentlyActiveFrame(self)
+		if Device.GetUserDevice() == "Controller" and not GamepadService.GamepadCursorEnabled then
+			GamepadService:EnableGamepadCursor(nil)
+		end
 		hideTrack:Stop()
 		self._Hiding = false
 		self:_UpdateUi()

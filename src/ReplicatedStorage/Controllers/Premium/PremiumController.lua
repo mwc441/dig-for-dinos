@@ -1,3 +1,4 @@
+local GamepadService = game:GetService("GamepadService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,7 @@ local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
 local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
+local Device = require(External:WaitForChild("Device"))
 local Knit = require(External:WaitForChild("Knit"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
@@ -111,6 +113,9 @@ function PremiumController:SetVisibility(visible, toTween)
 	if visible then
 		self._Gui.Frame.Visible = visible
 		self._HudController:SetCurrentlyActiveFrame(self)
+		if Device.GetUserDevice() == "Controller" and not GamepadService.GamepadCursorEnabled then
+			GamepadService:EnableGamepadCursor(nil)
+		end
 		self._NotificationBubbleObject:StopPulse()
 		self._Gui.ShopButton.NotificationBubble.Visible = false
 		hideTrack:Stop()

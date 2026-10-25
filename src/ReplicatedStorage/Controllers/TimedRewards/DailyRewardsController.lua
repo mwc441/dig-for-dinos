@@ -1,3 +1,4 @@
+local GamepadService = game:GetService("GamepadService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = Players.LocalPlayer
@@ -15,6 +16,7 @@ local TimersEnum = require(Enums:WaitForChild("Timers"))
 local DailyRewardsDef = require(ReplicatedConfigs:WaitForChild("DailyRewardsDef"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
+local Device = require(External:WaitForChild("Device"))
 local Knit = require(External:WaitForChild("Knit"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
 
@@ -87,6 +89,9 @@ function DailyRewardsController:SetVisibility(visible, toTween)
 		self._Gui.Frame.Visible = visible
 		self:_UpdateUi()
 		self._HudController:SetCurrentlyActiveFrame(self)
+		if Device.GetUserDevice() == "Controller" and not GamepadService.GamepadCursorEnabled then
+			GamepadService:EnableGamepadCursor(nil)
+		end
 		hideTrack:Stop()
 		self._Hiding = false
 		openTrack:Play()
