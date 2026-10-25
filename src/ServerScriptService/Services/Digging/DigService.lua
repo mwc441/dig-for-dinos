@@ -293,7 +293,7 @@ function DigService:_TrainDigPowerForPlayer(player)
 
 	self._LastTrainingDig[player] = currentTime
 	local trainingBoost = self._BoostsService:GetTotalBoostAmountForType(player, BoostTypesEnum.DigPowerTrainingBoost)
-	local powerGained = BASE_TRAINING_POWER * shovelInfo.DigMultiplier * trainingBoost
+	local powerGained = math.round(BASE_TRAINING_POWER * shovelInfo.DigMultiplier * trainingBoost)
 	self._RewardsService:RewardPlayer(player, PlayerStatsEnum.DigPower, powerGained, false, {
 		TransactionType = Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
 		Sku = "Training",
