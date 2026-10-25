@@ -27,7 +27,9 @@ function Dirt.new(replicationService, cframe, dirtId, scale, zoneId, healthMulti
 	self._DirtId = dirtId
 	self._Scale = scale
 	self._ZoneId = zoneId
-	self._TotalHealth = math.max(1, math.round(dirtInfo.TotalHealth * healthMultiplier))
+	-- bigger piles get extra health, scale ^ SizeHealthExponent (set in DirtDef). 1x piles are unchanged
+	local sizeHealthMultiplier = scale ^ (DirtDef.SizeHealthExponent or 1)
+	self._TotalHealth = math.max(1, math.round(dirtInfo.TotalHealth * healthMultiplier * sizeHealthMultiplier))
 	self._Health = self._TotalHealth
 
 	self.DestroyedSignal = Signal.new()

@@ -29,7 +29,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(190, 193, 196), Color3.fromRGB(92, 96, 101)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 2,
-		Cost = 15_000,
+		Cost = 250, -- cheap on purpose for the tutorial
 		CostType = PlayerStatsEnum.Cash,
 	},
 

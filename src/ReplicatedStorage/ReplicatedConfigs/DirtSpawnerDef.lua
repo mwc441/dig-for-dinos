@@ -47,8 +47,8 @@ DirtSpawnerDef.DinosaurPools = {
 }
 
 DirtSpawnerDef.GuaranteedSpawns = {
-	{ Rarity = Rarities.Legendary, DirtId = DirtDef.Ids.Legendary, IntervalSeconds = 15 * 60 },
-	{ Rarity = Rarities.Mythical, DirtId = DirtDef.Ids.Mythical, IntervalSeconds = 30 * 60 },
+	{ Rarity = Rarities.Legendary, DirtId = DirtDef.Ids.Legendary, IntervalSeconds = 20 * 60 },
+	{ Rarity = Rarities.Mythical, DirtId = DirtDef.Ids.Mythical, IntervalSeconds = 45 * 60 },
 	{ Rarity = Rarities.Secret, DirtId = DirtDef.Ids.SecretDirt, IntervalSeconds = 60 * 60 },
 }
 
@@ -91,20 +91,20 @@ end
 -- Name each BasePart tagged "DirtSpawner" with one of these zone IDs.
 DirtSpawnerDef.Table = {
 	-- set 1 (zones 1-3): 5x health each step. deeper zones = better piles, go deeper u bum
-	["Zone1"] = makeSpawner("Zone1", 1, DirtSpawnerDef.DinosaurPools.Zones1To3, { 70, 22, 6, 1.5, 0.4, 0.08, 0.02 }),
-	["Zone2"] = makeSpawner("Zone2", 5, DirtSpawnerDef.DinosaurPools.Zones1To3, { 50, 30, 13, 5, 1.5, 0.4, 0.05 }),
-	["Zone3"] = makeSpawner("Zone3", 25, DirtSpawnerDef.DinosaurPools.Zones1To3, { 35, 32, 20, 9, 3, 0.8, 0.1 }),
+	["Zone1"] = makeSpawner("Zone1", 1, DirtSpawnerDef.DinosaurPools.Zones1To3, { 74, 20.5, 4.4, 0.8, 0.15, 0.025, 0.008 }),
+	["Zone2"] = makeSpawner("Zone2", 5, DirtSpawnerDef.DinosaurPools.Zones1To3, { 60, 27, 9.5, 2.6, 0.6, 0.1, 0.016 }),
+	["Zone3"] = makeSpawner("Zone3", 25, DirtSpawnerDef.DinosaurPools.Zones1To3, { 48, 31, 15, 4.8, 1.2, 0.25, 0.03 }),
 	-- set 2 (zones 4-6): fat 40x wall into zone 4 then 4x steps. odds reset then get good again
 	["Zone4"] = makeSpawner(
 		"Zone4",
 		1_000,
 		DirtSpawnerDef.DinosaurPools.Zones4To6,
-		{ 70, 22, 6, 1.5, 0.4, 0.08, 0.02 }
+		{ 74, 20.5, 4.4, 0.8, 0.15, 0.025, 0.008 }
 	),
-	["Zone5"] = makeSpawner("Zone5", 4_000, DirtSpawnerDef.DinosaurPools.Zones4To6, { 50, 30, 13, 5, 1.5, 0.4, 0.05 }),
-	["Zone6"] = makeSpawner("Zone6", 16_000, DirtSpawnerDef.DinosaurPools.Zones4To6, { 35, 32, 20, 9, 3, 0.8, 0.1 }),
+	["Zone5"] = makeSpawner("Zone5", 4_000, DirtSpawnerDef.DinosaurPools.Zones4To6, { 60, 27, 9.5, 2.6, 0.6, 0.1, 0.016 }),
+	["Zone6"] = makeSpawner("Zone6", 16_000, DirtSpawnerDef.DinosaurPools.Zones4To6, { 48, 31, 15, 4.8, 1.2, 0.25, 0.03 }),
 	-- zone 7 (first solo zone): another 40x wall. secret odds kept low on purpose so the dragon stays rare as shit
-	["Zone7"] = makeSpawner("Zone7", 650_000, DirtSpawnerDef.DinosaurPools.Zone7, { 45, 30, 15, 7, 2.5, 0.6, 0.05 }),
+	["Zone7"] = makeSpawner("Zone7", 650_000, DirtSpawnerDef.DinosaurPools.Zone7, { 54, 28, 12.5, 4, 1, 0.18, 0.02 }),
 }
 
 function DirtSpawnerDef.GetSpawnerInfo(id)
