@@ -23,18 +23,10 @@ local DIG_TRAINING_SPEED_COSTS = {
 	610_000_000,
 	2_500_000_000,
 }
-local SPEED_COSTS = {
-	50,
-	250,
-	1_000,
-	4_000,
-	15_000,
-	60_000,
-	250_000,
-	1_000_000,
-	4_000_000,
-	15_000_000,
-}
+-- speed has 50 levels now, each one is +1.5 walkspeed (BoostsDef). cost goes up 1.4x every level
+local function getSpeedCost(level: number)
+	return math.round(100 * 1.4 ^ (level - 1))
+end
 
 UpgradesDef.Table = {
 	["BearTrapUpgrade"] = {
@@ -70,10 +62,10 @@ UpgradesDef.Table = {
 		Icon = "rbxassetid://136487360980411",
 		IapId = IapsEnum.SpeedUpgrade,
 		CostFunction = function(level: number)
-			return SPEED_COSTS[level] or math.huge
+			return getSpeedCost(level)
 		end,
 		CostType = PlayerStatsEnum.Cash,
-		MaxLevel = 10,
+		MaxLevel = 50,
 		Boost = BoostsEnum.SpeedUpgradeBoost,
 	},
 }

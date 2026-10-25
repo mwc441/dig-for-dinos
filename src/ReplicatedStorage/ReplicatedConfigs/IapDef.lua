@@ -15,6 +15,8 @@ local IapDef = {}
 
 -- If an Iap is a devproduct, it requires a Rewards table, it can be an empty table
 
+-- packs are fixed amounts tuned to early/mid game. generous with cash, stingy with dig power cuz dig power never resets and its what actually gates zones
+-- robux prices arent in here btw, set those on creator hub
 IapDef.Table = {
 	-- DEV PRODUCTS
 	[IapsEnum.SkipRebirth] = {
@@ -91,10 +93,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720172717,
 		},
-		Name = "+10,000 Cash",
+		Name = "+50K Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 10_000,
+			[PlayerStatsEnum.Cash] = 50_000,
 		},
 		Giftable = true,
 	},
@@ -103,10 +105,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720173382,
 		},
-		Name = "+30,000 Cash",
+		Name = "+300K Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 30_000,
+			[PlayerStatsEnum.Cash] = 300_000,
 		},
 		Giftable = true,
 	},
@@ -115,10 +117,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720173860,
 		},
-		Name = "+100,000 Cash",
+		Name = "+2.5M Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 100_000,
+			[PlayerStatsEnum.Cash] = 2_500_000,
 		},
 		Giftable = true,
 	},
@@ -127,10 +129,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720174230,
 		},
-		Name = "+500K Cash",
+		Name = "+25M Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 500_000,
+			[PlayerStatsEnum.Cash] = 25_000_000,
 		},
 		Giftable = true,
 	},
@@ -139,10 +141,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720174614,
 		},
-		Name = "5M Cash",
+		Name = "+250M Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 5_000_000,
+			[PlayerStatsEnum.Cash] = 250_000_000,
 		},
 		Giftable = true,
 	},
@@ -151,10 +153,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720199883,
 		},
-		Name = "+10,000 Dig",
+		Name = "+1K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 10_000,
+			[PlayerStatsEnum.DigPower] = 1_000,
 		},
 		Giftable = true,
 	},
@@ -163,10 +165,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720200203,
 		},
-		Name = "+30,000 Dig",
+		Name = "+4K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 30_000,
+			[PlayerStatsEnum.DigPower] = 4_000,
 		},
 		Giftable = true,
 	},
@@ -175,10 +177,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720200499,
 		},
-		Name = "+100,000 Dig",
+		Name = "+15K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 100_000,
+			[PlayerStatsEnum.DigPower] = 15_000,
 		},
 		Giftable = true,
 	},
@@ -187,10 +189,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720200732,
 		},
-		Name = "+500K Dig",
+		Name = "+60K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 500_000,
+			[PlayerStatsEnum.DigPower] = 60_000,
 		},
 		Giftable = true,
 	},
@@ -199,10 +201,10 @@ IapDef.Table = {
 		Ids = {
 			[IapTypesEnum.DevProduct] = 3720200968,
 		},
-		Name = "+5M Dig",
+		Name = "+200K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 5_000_000,
+			[PlayerStatsEnum.DigPower] = 200_000,
 		},
 		Giftable = true,
 	},
@@ -481,8 +483,8 @@ IapDef.Table = {
 		Name = "Starter Pack",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 10_000,
-			[PlayerStatsEnum.DigPower] = 25_000,
+			[PlayerStatsEnum.Cash] = 50_000,
+			[PlayerStatsEnum.DigPower] = 1_000,
 			[IapsEnum.AutoCollect] = true
 		},
 		Giftable = true,

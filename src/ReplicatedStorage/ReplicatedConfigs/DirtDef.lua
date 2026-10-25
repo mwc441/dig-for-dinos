@@ -4,6 +4,10 @@ local Rarities = require(ReplicatedStorage:WaitForChild("Enums"):WaitForChild("R
 
 local DirtDef = {}
 
+-- bigger piles have more health than just their size. 1.5 means a 2x pile has ~2.8x health, a 2.2x pile ~3.3x
+-- set to 1 for health = size, 0 to turn it off
+DirtDef.SizeHealthExponent = 1.5
+
 DirtDef.Ids = {
 	Common = "CommonDirt",
 	Uncommon = "UncommonDirt",
@@ -15,8 +19,9 @@ DirtDef.Ids = {
 }
 
 -- Weights are relative; each dirt rolls a dinosaur rarity before selecting a dinosaur from its zone.
--- every pile rolls its own rarity or higher. each step up is way rarer: 70 / 22 / 6 / 1.5 / 0.4 / 0.09 / 0.01. gambling baby
--- top piles are capped so secrets dont get fuckin handed out: legendary piles 3% secret, mythical piles 10% secret
+-- every pile rolls its own rarity or higher. each step up is way rarer (common pile: 77 / 19 / 3.4 / 0.5 / 0.1 / 0.025 / 0.006). gambling baby
+-- top piles are capped so secrets dont get fuckin handed out: legendary piles 2% secret, mythical piles 8% secret
+-- mythicals were spawning way too much so everything above rare got nerfed hard, good shit should feel rare
 -- this health gets multiplied by the zone's HealthMultiplier in DirtSpawnerDef, so dont freak out at the small numbers
 DirtDef.Table = {
 	[DirtDef.Ids.Common] = {
@@ -24,13 +29,13 @@ DirtDef.Table = {
 		Rarity = Rarities.Common,
 		TotalHealth = 100,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Common, Weight = 70 },
-			{ Id = Rarities.Uncommon, Weight = 22 },
-			{ Id = Rarities.Rare, Weight = 6 },
-			{ Id = Rarities.Epic, Weight = 1.5 },
-			{ Id = Rarities.Legendary, Weight = 0.4 },
-			{ Id = Rarities.Mythical, Weight = 0.09 },
-			{ Id = Rarities.Secret, Weight = 0.01 },
+			{ Id = Rarities.Common, Weight = 77 },
+			{ Id = Rarities.Uncommon, Weight = 19 },
+			{ Id = Rarities.Rare, Weight = 3.4 },
+			{ Id = Rarities.Epic, Weight = 0.5 },
+			{ Id = Rarities.Legendary, Weight = 0.1 },
+			{ Id = Rarities.Mythical, Weight = 0.025 },
+			{ Id = Rarities.Secret, Weight = 0.006 },
 		},
 	},
 	[DirtDef.Ids.Uncommon] = {
@@ -38,12 +43,12 @@ DirtDef.Table = {
 		Rarity = Rarities.Uncommon,
 		TotalHealth = 150,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Uncommon, Weight = 70 },
-			{ Id = Rarities.Rare, Weight = 22 },
-			{ Id = Rarities.Epic, Weight = 6 },
-			{ Id = Rarities.Legendary, Weight = 1.5 },
-			{ Id = Rarities.Mythical, Weight = 0.4 },
-			{ Id = Rarities.Secret, Weight = 0.09 },
+			{ Id = Rarities.Uncommon, Weight = 77 },
+			{ Id = Rarities.Rare, Weight = 19 },
+			{ Id = Rarities.Epic, Weight = 3.4 },
+			{ Id = Rarities.Legendary, Weight = 0.5 },
+			{ Id = Rarities.Mythical, Weight = 0.1 },
+			{ Id = Rarities.Secret, Weight = 0.03 },
 		},
 	},
 	[DirtDef.Ids.Rare] = {
@@ -51,11 +56,11 @@ DirtDef.Table = {
 		Rarity = Rarities.Rare,
 		TotalHealth = 250,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Rare, Weight = 70 },
-			{ Id = Rarities.Epic, Weight = 22 },
-			{ Id = Rarities.Legendary, Weight = 6 },
-			{ Id = Rarities.Mythical, Weight = 1.5 },
-			{ Id = Rarities.Secret, Weight = 0.4 },
+			{ Id = Rarities.Rare, Weight = 78 },
+			{ Id = Rarities.Epic, Weight = 18 },
+			{ Id = Rarities.Legendary, Weight = 3.2 },
+			{ Id = Rarities.Mythical, Weight = 0.6 },
+			{ Id = Rarities.Secret, Weight = 0.15 },
 		},
 	},
 	[DirtDef.Ids.Epic] = {
@@ -63,10 +68,10 @@ DirtDef.Table = {
 		Rarity = Rarities.Epic,
 		TotalHealth = 400,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Epic, Weight = 70.5 },
-			{ Id = Rarities.Legendary, Weight = 22 },
-			{ Id = Rarities.Mythical, Weight = 6 },
-			{ Id = Rarities.Secret, Weight = 1.5 },
+			{ Id = Rarities.Epic, Weight = 80 },
+			{ Id = Rarities.Legendary, Weight = 16.5 },
+			{ Id = Rarities.Mythical, Weight = 2.8 },
+			{ Id = Rarities.Secret, Weight = 0.7 },
 		},
 	},
 	[DirtDef.Ids.Legendary] = {
@@ -74,9 +79,9 @@ DirtDef.Table = {
 		Rarity = Rarities.Legendary,
 		TotalHealth = 650,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Legendary, Weight = 75 },
-			{ Id = Rarities.Mythical, Weight = 22 },
-			{ Id = Rarities.Secret, Weight = 3 },
+			{ Id = Rarities.Legendary, Weight = 86.5 },
+			{ Id = Rarities.Mythical, Weight = 11.5 },
+			{ Id = Rarities.Secret, Weight = 2 },
 		},
 	},
 	[DirtDef.Ids.Mythical] = {
@@ -84,8 +89,8 @@ DirtDef.Table = {
 		Rarity = Rarities.Mythical,
 		TotalHealth = 1_100,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Mythical, Weight = 90 },
-			{ Id = Rarities.Secret, Weight = 10 },
+			{ Id = Rarities.Mythical, Weight = 92 },
+			{ Id = Rarities.Secret, Weight = 8 },
 		},
 	},
 	[DirtDef.Ids.SecretDirt] = {

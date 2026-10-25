@@ -262,24 +262,24 @@ DinosaurDef.MutationIncomeMultipliers = {
 DinosaurDef.MutationLootTable = {
 	{
 		Id = MutationsEnum.Normal,
-		Weight = 90,
+		Weight = 89.5,
 	},
 
 	{
 		Id = MutationsEnum.Gold,
-		Weight = 5,
+		Weight = 7.5,
 		BoostType = BoostTypesEnum.GoldMutationChanceBoost,
 	},
 
 	{
 		Id = MutationsEnum.Void,
-		Weight = 4,
+		Weight = 2.5,
 		BoostType = BoostTypesEnum.VoidMutationChanceBoost,
 	},
 
 	{
 		Id = MutationsEnum.Flame,
-		Weight = 1,
+		Weight = 0.5,
 		BoostType = BoostTypesEnum.FlameMutationChanceBoost,
 	},
 

@@ -233,7 +233,7 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Adding,
 		Name = "Speed",
 		AmountFunction = function(level: number)
-			return level
+			return level * 1.5 -- +1.5 walkspeed per level, 50 levels = +75
 		end,
 	},
 }
