@@ -9,7 +9,6 @@ local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
-local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local BonePileUtils = require(Utils:WaitForChild("BonePileUtils"))
 local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
@@ -26,12 +25,6 @@ local PICKUP_HOLD_DURATION = 1.5
 local DROP_LIFETIME = 2 * 60
 local REVEAL_ROLL_DURATION = 2.8
 local REVEAL_DURATION = 3.6
-local MUTATION_BOOST_TYPES = {
-	[MutationsEnum.Gold] = BoostTypesEnum.GoldMutationChanceBoost,
-	[MutationsEnum.Void] = BoostTypesEnum.VoidMutationChanceBoost,
-	[MutationsEnum.Flame] = BoostTypesEnum.FlameMutationChanceBoost
-}
-
 local BonePileService = {
 	Name = "BonePileService",
 	Client = {
@@ -458,12 +451,17 @@ function BonePileService:AwardForDirt(player, zoneId, dirtId, dirtCFrame, dirtSc
 	local dinosaurId = RarityUtils.GetLootTableResults(dinosaursByRarity[rolledRarity]).Id
 	local mutationLootTable = {}
 	for _, entry in ipairs(DinosaurDef.MutationLootTable) do
-		local boostType = MUTATION_BOOST_TYPES[entry.Id]
-		local multiplier = boostType and self._BoostsService:GetTotalBoostAmountForType(player, boostType) or 1
-		table.insert(mutationLootTable, {
-			Id = entry.Id,
-			Weight = entry.Weight * multiplier
-		})
+		local weight = entry.Weight
+		if entry.BoostType then
+			local adding = self._BoostsService:GetAddingBoostAmountOfType(player, entry.BoostType)
+			local multiplying = self._BoostsService:GetMultiplyingBoostAmountOfType(player, entry.BoostType)
+			-- Adding boosts are fractions of the unboosted mutation pool.
+			weight = (weight + adding) * multiplying
+		end
+
+		if weight > 0 then
+			table.insert(mutationLootTable, { Id = entry.Id, Weight = weight })
+		end
 	end
 	local mutation = RarityUtils.GetLootTableResults(mutationLootTable).Id
 	local pile = self:_CreatePile(dinosaurId, dirtScale, mutation, zoneId)
