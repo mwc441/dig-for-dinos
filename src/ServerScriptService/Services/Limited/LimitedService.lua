@@ -2,6 +2,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MemoryStoreService = game:GetService("MemoryStoreService")
 local DataStoreService = game:GetService("DataStoreService")
 local MessagingService = game:GetService("MessagingService")
+local RunService = game:GetService("RunService")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local External = ReplicatedStorage:WaitForChild("External")
@@ -29,28 +30,28 @@ function LimitedService:KnitStart()
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
 	self._DebugService = require(ServerScriptService.Services.Debug.DebugService)
 
-	-- for limitedId in pairs(LimitedDef.GetAllLimiteds()) do
-	-- 	task.spawn(function()
-	-- 		if RunService:IsStudio() and self._DebugService:IsDevPlace() then
-	-- 			pcall(function()
-	-- 				LimitedMemoryStoreMap:RemoveAsync(limitedId)
-	-- 				LimitedDataStore:RemoveAsync(limitedId)
-	-- 			end)
-	-- 		end
+	for limitedId in pairs(LimitedDef.GetAllLimiteds()) do
+		task.spawn(function()
+			if RunService:IsStudio() and self._DebugService:IsDevPlace() then
+				pcall(function()
+					LimitedMemoryStoreMap:RemoveAsync(limitedId)
+					LimitedDataStore:RemoveAsync(limitedId)
+				end)
+			end
 
-	-- 		self:_ForceUpdateLimited(limitedId)
-	-- 	end)
-	-- end
+			self:_ForceUpdateLimited(limitedId)
+		end)
+	end
 
-	-- MessagingService:SubscribeAsync("LimitedUpdated", function(message)
-	-- 	local limitedId = message.Data.Limited
-	-- 	local jobId = message.Data.JobId
-	-- 	if jobId == game.JobId then
-	-- 		return
-	-- 	end
+	MessagingService:SubscribeAsync("LimitedUpdated", function(message)
+		local limitedId = message.Data.Limited
+		local jobId = message.Data.JobId
+		if jobId == game.JobId then
+			return
+		end
 
-	-- 	self:_ForceUpdateLimited(limitedId)
-	-- end)
+		self:_ForceUpdateLimited(limitedId)
+	end)
 end
 
 function LimitedService:IsLimitedAvailable(limitedId, announce, player)
