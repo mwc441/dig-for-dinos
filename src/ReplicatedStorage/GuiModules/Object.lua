@@ -873,32 +873,38 @@ function GuiObject:GrowAndFade(scaleMultiplier: number, tweenInfo : TweenInfo, z
 		{ Scale = scaleMultiplier }
 	)
 
-	local transparencyTween
-	if clone:IsA("Frame") then
-		transparencyTween = TweenService:Create(
-			clone,
-			tweenInfo,
-			{
-				BackgroundTransparency = 1
-			}
-		)
-	elseif clone:IsA("ImageLabel") or clone:IsA("ImageButton") then
-		transparencyTween = TweenService:Create(
-			clone,
-			tweenInfo,
-			{
-				BackgroundTransparency = 1,
-				ImageTransparency = 1
-			}
-		)
+	local function fadeTransparency(instance)
+		local goals
+		if instance:IsA("GuiObject") then
+			goals = { BackgroundTransparency = 1 }
+			if instance:IsA("ImageLabel") or instance:IsA("ImageButton") or instance:IsA("ViewportFrame") then
+				goals.ImageTransparency = 1
+			elseif instance:IsA("TextLabel") or instance:IsA("TextButton") or instance:IsA("TextBox") then
+				goals.TextTransparency = 1
+				goals.TextStrokeTransparency = 1
+			elseif instance:IsA("ScrollingFrame") then
+				goals.ScrollBarImageTransparency = 1
+			elseif instance:IsA("CanvasGroup") then
+				goals.GroupTransparency = 1
+			end
+		elseif instance:IsA("UIStroke") then
+			goals = { Transparency = 1 }
+		end
+
+		if goals then
+			TweenService:Create(instance, tweenInfo, goals):Play()
+		end
 	end
 
-	scaleTween:Play()
-	transparencyTween:Play()
+	fadeTransparency(clone)
+	for _, descendant in ipairs(clone:GetDescendants()) do
+		fadeTransparency(descendant)
+	end
 
-	transparencyTween.Completed:Once(function()
+	scaleTween.Completed:Once(function()
 		clone:Destroy()
 	end)
+	scaleTween:Play()
 end
 
 function GuiObject:GrowFrameOutlineAndFade(scaleMultiplier: number?, tweenInfo: TweenInfo?, zIndex: number?)
