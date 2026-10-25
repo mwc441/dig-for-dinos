@@ -20,6 +20,18 @@ local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local BoostsDef = {}
 
 BoostsDef.Table = {
+	[BoostsEnum.ServerLuckBoost] = {
+		Type = BoostTypesEnum.SpawnLuckBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Name = "Server Luck",
+		Icon = "rbxassetid://107979366586377",
+		Description = "Dirt spawn luck<br/><br/><font color=\"#55ff00\">%dx</font>",
+		AmountFunction = function(level: number)
+			return 2 ^ level
+		end,
+		MaxLevel = #Constants.ServerLuckOrder
+	},
+
 	[BoostsEnum.FriendBoost] = {
 		Type = BoostTypesEnum.CashBoost,
 		NumberType = NumberTypesEnum.Multiplying,
@@ -263,8 +275,13 @@ function BoostsDef.GetDescriptionOfBoostAtLevel(boostId, level)
 	local amount = BoostsDef.GetTotalAmountForBoostForLevel(boostId, level)
 
 	if boostInfo.NumberType == NumberTypesEnum.Adding then
-		local filledInDescription = string.format(boostInfo.Description, amount * 100)
-		return filledInDescription
+		if boostInfo.DisplayType == "Percentage" then
+			local filledInDescription = string.format(boostInfo.Description, amount * 100)
+			return filledInDescription
+		else
+			local filledInDescription = string.format(boostInfo.Description, amount)
+			return filledInDescription
+		end
 	else
 		local filledInDescription = string.format(boostInfo.Description, amount)
 		return filledInDescription

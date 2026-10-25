@@ -207,6 +207,149 @@ IapDef.Table = {
 		Giftable = true,
 	},
 
+	[IapsEnum.ServerLuck1] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722351970
+		},
+		Name = "Server Luck 1",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 1
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck2] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352081
+		},
+		Name = "Server Luck 2",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 2
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck3] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352174
+		},
+		Name = "Server Luck 3",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 3
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck4] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352301
+		},
+		Name = "Server Luck 4",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 4
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck5] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352419
+		},
+		Name = "Server Luck 5",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 5
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck6] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352505
+		},
+		Name = "Server Luck 6",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 6
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck7] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352604
+		},
+		Name = "Server Luck 7",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 7
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck8] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352718
+		},
+		Name = "Server Luck 8",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 8
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck9] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352823
+		},
+		Name = "Server Luck 9",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 9
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck10] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352909
+		},
+		Name = "Server Luck 10",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 10
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
+	[IapsEnum.ServerLuck11] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722352979
+		},
+		Name = "Server Luck 11",
+		Description = "",
+		Rewards = {
+			["ServerLuck"] = 11
+		},
+		Giftable = false,
+		PaidRandom = true
+	},
+
 	-- GAMEPASSES
 	[IapsEnum.VIP] = {
 		Ids = {

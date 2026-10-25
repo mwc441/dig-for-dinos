@@ -40,6 +40,7 @@ local DigService = {
 	_PlotService = nil,
 	_PlayerStatsService = nil,
 	_BoostsService = nil,
+	_ServerBoostsService = nil,
 	_UpgradeService = nil,
 	_ReplicationService = nil,
 	_LifecycleService = nil,
@@ -63,12 +64,14 @@ function DigService:KnitStart()
 	self._PlotService = require(ServerScriptService.Services.Plots.PlotService)
 	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
+	self._ServerBoostsService = require(ServerScriptService.Services.Boosts.ServerBoostsService)
 	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
 	self._ReplicationService = require(ServerScriptService.Services.Replication.ReplicationService)
 	self._LifecycleService = require(ServerScriptService.Services.LifeCycle.LifecycleService)
 	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
 	self._TimeService = require(ServerScriptService.Services.Time.TimeService)
 	self._BonePileService = require(script.Parent:WaitForChild("BonePileService"))
+	self._ServerBoostsService:WaitForBoostsLoaded()
 
 	CollectionService:GetInstanceAddedSignal("DirtSpawner"):Connect(function(instance)
 		self:_AddDirtSpawner(instance)
@@ -150,6 +153,7 @@ function DigService:_AddDirtSpawner(instance)
 		self._ReplicationService,
 		config,
 		self._LifecycleService,
+		self._ServerBoostsService,
 		function(dirt)
 			self:_AnnounceRareDirt(dirt)
 		end

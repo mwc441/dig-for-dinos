@@ -5,5 +5,6 @@ return {
 	VoidMutationChanceBoost = "VoidMutationChanceBoost",
 	FlameMutationChanceBoost = "FlameMutationChanceBoost",
 	AdminMutationChanceBoost = "AdminMutationChanceBoost",
-	DigPowerTrainingBoost = "DigPowerTrainingBoost"
+	DigPowerTrainingBoost = "DigPowerTrainingBoost",
+	SpawnLuckBoost = "SpawnLuckBoost"
 }

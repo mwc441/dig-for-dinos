@@ -1,4 +1,5 @@
 return {
+	ServerLuckBoost = "ServerLuckBoost",
 	FriendBoost = "FriendBoost",
 	RobloxPlusBoost = "RobloxPlusBoost",
 	RebirthCashBoost = "RebirthCashBoost",

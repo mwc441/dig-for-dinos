@@ -17,6 +17,18 @@ return {
 	GiantDigPack = "GiantDigPackIap",
 	MassiveDigPack = "MassiveDigPackIap",
 
+	ServerLuck1 = "ServerLuck1Iap",
+	ServerLuck2 = "ServerLuck2Iap",
+	ServerLuck3 = "ServerLuck3Iap",
+	ServerLuck4 = "ServerLuck4Iap",
+	ServerLuck5 = "ServerLuck5Iap",
+	ServerLuck6 = "ServerLuck6Iap",
+	ServerLuck7 = "ServerLuck7Iap",
+	ServerLuck8 = "ServerLuck8Iap",
+	ServerLuck9 = "ServerLuck9Iap",
+	ServerLuck10 = "ServerLuck10Iap",
+	ServerLuck11 = "ServerLuck11Iap",
+
 	-- Gamepasses
 	VIP = "VIPIap",
 	Cash2x = "Cash2xIap",

@@ -3,7 +3,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 
 local External = ReplicatedStorage:WaitForChild("External")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
 local BoostsDef = require(ReplicatedConfigs:WaitForChild("BoostsDef"))
+local BoostUtils = require(Utils:WaitForChild("BoostUtils"))
 local Knit = require(External:WaitForChild("Knit"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
@@ -28,7 +30,9 @@ local ServerBoostsService = {
 	_LifecycleService = nil,
 	_ServerDataService = nil,
 	_ServerBoosts = {},
-	ServerBoostsUpdated = Signal.new()
+	_BoostsLoaded = false,
+	ServerBoostsUpdated = Signal.new(),
+	BoostsLoaded = Signal.new()
 }
 
 function ServerBoostsService:KnitStart()
@@ -46,6 +50,14 @@ function ServerBoostsService:KnitStart()
 	end)
 
 	self:_LoadServerBoosts()
+	self._BoostsLoaded = true
+	self.BoostsLoaded:Fire()
+end
+
+function ServerBoostsService:WaitForBoostsLoaded()
+	if not self._BoostsLoaded then
+		self.BoostsLoaded:Wait()
+	end
 end
 
 function ServerBoostsService:OnPlayerAdded(player)
@@ -122,6 +134,14 @@ function ServerBoostsService:GetServerBoostsOfType(boostType)
 	end
 
 	return boosts
+end
+
+function ServerBoostsService:GetAddingBoostAmountOfType(boostType)
+	return BoostUtils.GetAddingBoostAmountOfType(self._ServerBoosts, boostType)
+end
+
+function ServerBoostsService:GetMultiplyingBoostAmountOfType(boostType)
+	return BoostUtils.GetMultiplyingBoostAmountOfType(self._ServerBoosts, boostType)
 end
 
 function ServerBoostsService:CreateNewServerBoost(serverBoost)

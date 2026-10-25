@@ -34,6 +34,7 @@ local RewardsService = {
 	_InventoryService = nil,
 	_UpgradeService = nil,
 	_OfflineRewardsService = nil,
+	_PremiumService = nil,
 	CrossServerMessageReceived = Signal.new()
 }
 
@@ -71,6 +72,7 @@ function RewardsService:KnitStart()
 	self._InventoryService = require(ServerScriptService.Services.Inventory.InventoryService)
 	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
 	self._OfflineRewardsService = require(ServerScriptService.Services.OfflineRewards.OfflineRewardsService)
+	self._PremiumService = require(ServerScriptService.Services.Premium.PremiumService)
 
 	MessagingService:SubscribeAsync("CrossServerMessage", function(message)
 		local text = message.Data.Message
@@ -178,6 +180,8 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 		self._RebirthService:GiveRebirthToPlayer(player)
 	elseif rewardType == "OfflineRewards" then
 		self._OfflineRewardsService:GiveOfflineRewards(player, reward)
+	elseif rewardType == "ServerLuck" then
+		self._PremiumService:GiveServerLuck(reward)
 	end
 
 	if showReward then

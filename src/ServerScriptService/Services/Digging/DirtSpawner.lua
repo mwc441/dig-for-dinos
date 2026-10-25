@@ -3,8 +3,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local StageOneModel = Assets:WaitForChild("Dirt"):WaitForChild("1")
+local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local RarityUtils = require(Utils:WaitForChild("RarityUtils"))
 local Dirt = require(script.Parent:WaitForChild("Dirt"))
 
@@ -31,7 +33,7 @@ local function getStageOneRadius()
 	return radius
 end
 
-function DirtSpawner.new(instance, replicationService, config, lifecycleService, onDirtSpawned)
+function DirtSpawner.new(instance, replicationService, config, lifecycleService, serverBoostsService, onDirtSpawned)
 	assert(instance:IsA("BasePart"), "DirtSpawner must be a BasePart")
 
 	local self = setmetatable({}, DirtSpawner)
@@ -39,6 +41,7 @@ function DirtSpawner.new(instance, replicationService, config, lifecycleService,
 	self._Config = config
 	self._ReplicationService = replicationService
 	self._LifecycleService = lifecycleService
+	self._ServerBoostsService = serverBoostsService
 	self._OnDirtSpawned = onDirtSpawned
 	self._Dirts = {}
 	self._DirtCount = 0
@@ -167,7 +170,13 @@ function DirtSpawner:SpawnDirt(guaranteedDirtId)
 		return
 	end
 
-	local dirtId = guaranteedDirtId or RarityUtils.GetLootTableResults(self._Config.DirtLootTable).Id
+	local dirtId = guaranteedDirtId
+	if not dirtId then
+		local totalRolls = self._ServerBoostsService:GetAddingBoostAmountOfType(BoostTypesEnum.SpawnLuckBoost)
+		-- RarityUtils expects rolls beyond the first.
+		local bonusRolls = math.max(0, totalRolls - 1)
+		dirtId = RarityUtils.GetLootTableResults(self._Config.DirtLootTable, bonusRolls).Id
+	end
 	local dirt = Dirt.new(self._ReplicationService, spawnCFrame, dirtId, scale, self._Config.Zone, self._Config.HealthMultiplier)
 	local guid = dirt:GetGuid()
 

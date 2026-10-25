@@ -6,12 +6,22 @@ local SocialService = game:GetService("SocialService")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 
+local Assets = ReplicatedStorage:WaitForChild("Assets")
+local Sounds = Assets:WaitForChild("Sounds")
+local ServerLuckBuildUpSound = Sounds:WaitForChild("ServerLuckBuildUp")
+local ServerLuckSmashSound = Sounds:WaitForChild("ServerLuckSmash")
 local External = ReplicatedStorage:WaitForChild("External")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
+local Utils = ReplicatedStorage:WaitForChild("Utils")
+local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
+local BoostsEnum = require(Enums:WaitForChild("Boosts"))
+local BoostsDef = require(ReplicatedConfigs:WaitForChild("BoostsDef"))
+local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
+local IapTypesEnum = require(Enums:WaitForChild("IapTypes"))
 local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
@@ -26,6 +36,8 @@ local PremiumController = {
 	_IapSignComponent = nil,
 	_IapVendorComponent = nil,
 	_HudController = nil,
+	_BoostController = nil,
+	_PendingServerLuckPurchase = nil
 }
 
 function PremiumController:KnitInit()
@@ -87,9 +99,25 @@ function PremiumController:KnitStart()
 	self._IapSignComponent = require(Components.IapSign)
 	self._IapVendorComponent = require(Components.IapVendor)
 	self._HudController = require(ReplicatedStorage.Controllers.Hud.HudController)
+	self._BoostController = require(ReplicatedStorage.Controllers.Boosts.BoostController)
 
 	self._IapController.IapCacheChanged:Connect(function()
 		self:_UpdateIaps()
+		self:_UpdateServerLuck()
+	end)
+
+	self._BoostController.BoostsUpdatedSignal:Connect(function()
+		self:_UpdateServerLuck()
+	end)
+
+	self._IapController.IapPurchasedSignal:Connect(function(iapId)
+		if table.find(Constants.ServerLuckOrder, iapId) then
+			while self._IapController:IsPurchasePromptOpen() do
+				task.wait()
+			end
+
+			self:_AnimateServerLuckAmount()
+		end
 	end)
 
 	self._IapController.IapsUpdatedSignal:Connect(function()
@@ -100,6 +128,8 @@ function PremiumController:KnitStart()
 	self:_SetupIapSigns()
 	self:_SetupIapVendors()
 	self:_UpdateIaps()
+
+	self:_SetupServerLuck()
 end
 
 function PremiumController:PromptToPurchaseRobloxPlus()
@@ -547,6 +577,113 @@ function PremiumController:_PromptCurrentEvent()
 			end
 		end)
 	end
+end
+
+-- SERVER LUCK IAP FRAME
+function PremiumController:_SetupServerLuck()
+	local serverLuck = self._Gui.ScrollFrame.ServerLuck
+	self._ServerLuckAmountObject = GuiObject.new(serverLuck.AmountFrame)
+
+	local robuxButton = GuiButton.new(serverLuck.Robux)
+	robuxButton:SetCallback(function()
+		if self._IsAnimatingServerLuck then return end
+
+		local boost = self._BoostController:GetBoostFromId(BoostsEnum.ServerLuckBoost) or {}
+		local currentLevel = boost.Level or 0
+		local nextLevel = currentLevel + 1
+		local iapId = Constants.ServerLuckOrder[math.min(nextLevel, #Constants.ServerLuckOrder)]
+		local iapInfo = IapDef.GetIapInfo(iapId)
+		if not iapInfo then return end
+
+		if iapInfo.Prices then
+			self:_OpenCurrencyFrame(iapId, nil, function(currency)
+				if currency then
+					self._IapController:PurchaseIap(iapId, currency, nil)
+				else
+					self._IapController:PurchaseIap(iapId)
+				end
+			end)
+		else
+			self._IapController:PurchaseIap(iapId)
+		end
+	end)
+	robuxButton:SetButtonScaleSize(1.025)
+	robuxButton:SetButtonBounceScaleSize(0.975)
+	robuxButton:SetMakeIconRotateLeftRightWhenHovered(true)
+	robuxButton:SetMakeIconScaleWhenHovered(true)
+	robuxButton:SetIconHoverScale(1.05)
+	robuxButton:SetMakeShineWhenHovered(true)
+
+	MarketplaceService.PromptProductPurchaseFinished:Connect(function()
+		self:_UpdateServerLuck()
+	end)
+
+	self:_UpdateServerLuck()
+end
+
+function PremiumController:_AnimateServerLuckAmount()
+	self._IsAnimatingServerLuck = true
+
+	local amountFrame = self._Gui.ScrollFrame.ServerLuck.AmountFrame
+	local originalSize = amountFrame.Size
+	local originalPosition = amountFrame.Position
+
+	local multiplier = 2.5
+	local expandedSize = UDim2.new(
+		originalSize.X.Scale * multiplier, originalSize.X.Offset * multiplier,
+		originalSize.Y.Scale * multiplier, originalSize.Y.Offset * multiplier
+	)
+
+	local growTween = TweenService:Create(amountFrame, TweenInfo.new(ServerLuckBuildUpSound.TimeLength, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = expandedSize,
+		Position = originalPosition + UDim2.fromOffset(0, -12)
+	})
+	local slamTween = TweenService:Create(amountFrame, TweenInfo.new(0.13, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+		Size = originalSize,
+		Position = originalPosition
+	})
+
+	UtilFunctions.PlayCopyOfSound(ServerLuckBuildUpSound)
+	growTween:Play()
+	growTween.Completed:Wait()
+
+	UtilFunctions.PlayCopyOfSound(ServerLuckSmashSound)
+	slamTween:Play()
+	slamTween.Completed:Wait()
+
+	self._IsAnimatingServerLuck = false
+	self:_UpdateServerLuck()
+	self._ServerLuckAmountObject:MakeShake(0.025, 0.5)
+	self._ServerLuckAmountObject:GrowAndFade(2, TweenInfo.new(1))
+end
+
+function PremiumController:_UpdateServerLuck()
+	local serverLuck = self._Gui.ScrollFrame.ServerLuck
+
+	local boost = self._BoostController:GetBoostFromId(BoostsEnum.ServerLuckBoost) or {}
+	local currentLevel = boost.Level or 0
+	local nextLevel = currentLevel + 1
+	local maxLevel = math.min(BoostsDef.GetMaxLevelForBoost(BoostsEnum.ServerLuckBoost), #Constants.ServerLuckOrder)
+	local iapToBuy = Constants.ServerLuckOrder[math.min(nextLevel, #Constants.ServerLuckOrder)]
+
+	local currentAmount = BoostsDef.GetTotalAmountForBoostForLevel(BoostsEnum.ServerLuckBoost, currentLevel)
+	local nextAmount = BoostsDef.GetTotalAmountForBoostForLevel(BoostsEnum.ServerLuckBoost, nextLevel)
+
+	local amountText = ""
+	local darkAmountText = ""
+	if nextLevel <= maxLevel then
+		amountText = string.format("%dx -> <font color=\"#FFF582\">%dx</font>", currentAmount, nextAmount)
+		darkAmountText = string.format("%dx -> %dx", currentAmount, nextAmount)
+	else
+		amountText = string.format("<font color=\"#FFF582\">%dx</font>", currentAmount)
+		darkAmountText = amountText
+	end
+
+	if not self._IapController:IsPurchasePromptOpen() and not self._IsAnimatingServerLuck then
+		serverLuck.AmountFrame.AmountText.Text = amountText
+		serverLuck.AmountFrame.DarkAmountText.Text = darkAmountText
+	end
+	serverLuck.Robux.AmountText.Text = self._IapController:GetPriceOfIap(iapToBuy) or 0
 end
 
 return PremiumController

@@ -74,12 +74,12 @@ return {
 
 	MutationGradients = {
 		[MutationsEnum.Admin] = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromHex("#050508")),
-			ColorSequenceKeypoint.new(0.2, Color3.fromHex("#e600ff")),
-			ColorSequenceKeypoint.new(0.28, Color3.fromHex("#09050d")),
-			ColorSequenceKeypoint.new(0.55, Color3.fromHex("#00f5ff")),
-			ColorSequenceKeypoint.new(0.62, Color3.fromHex("#050508")),
-			ColorSequenceKeypoint.new(1, Color3.fromHex("#a400ff")),
+			ColorSequenceKeypoint.new(0, Color3.fromHex("#000000")),
+			ColorSequenceKeypoint.new(0.2, Color3.fromHex("#ffffff")),
+			ColorSequenceKeypoint.new(0.28, Color3.fromHex("#000000")),
+			ColorSequenceKeypoint.new(0.55, Color3.fromHex("#ffffff")),
+			ColorSequenceKeypoint.new(0.62, Color3.fromHex("#000000")),
+			ColorSequenceKeypoint.new(1, Color3.fromHex("#ffffff")),
 		}),
 
 		[MutationsEnum.Flame] = ColorSequence.new(Color3.fromHex("#ffb35d"), Color3.fromHex("#ff0202")),
@@ -115,6 +115,20 @@ return {
 			Tiles = 16,
 			Color = ColorSequence.new(Color3.fromRGB(178, 11, 255)),
 		},
+	},
+
+	ServerLuckOrder = {
+		IapsEnum.ServerLuck1,
+		IapsEnum.ServerLuck2,
+		IapsEnum.ServerLuck3,
+		IapsEnum.ServerLuck4,
+		IapsEnum.ServerLuck5,
+		IapsEnum.ServerLuck6,
+		IapsEnum.ServerLuck7,
+		IapsEnum.ServerLuck8,
+		IapsEnum.ServerLuck9,
+		IapsEnum.ServerLuck10,
+		IapsEnum.ServerLuck11
 	},
 
 	GamepadIcons = {

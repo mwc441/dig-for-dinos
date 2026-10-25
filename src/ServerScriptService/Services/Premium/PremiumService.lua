@@ -230,4 +230,27 @@ function PremiumService:_RemoveGamepassBoostsForPlayer(player)
 	end
 end
 
+function PremiumService:GiveServerLuck(serverLuckLevel)
+	local totalTime = 30 * 60
+
+	local serverBoost = self._ServerBoostsService:GetPersistentServerBoost(BoostsEnum.ServerLuckBoost)
+	if serverBoost then
+		local currentLevel = serverBoost.Level
+		if serverLuckLevel < currentLevel then return end
+
+		local currentExpiryTime = serverBoost.ExpiryTime
+
+		self._ServerBoostsService:UpdatePersistentServerBoost(BoostsEnum.ServerLuckBoost, {
+			Level = serverLuckLevel,
+			ExpiryTime = currentExpiryTime + totalTime
+		})
+	else
+		self._ServerBoostsService:CreatePersistentServerBoost({
+			Id = BoostsEnum.ServerLuckBoost,
+			Level = serverLuckLevel,
+			Time = totalTime
+		})
+	end
+end
+
 return PremiumService
