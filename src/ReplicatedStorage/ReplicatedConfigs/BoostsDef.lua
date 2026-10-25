@@ -61,8 +61,7 @@ BoostsDef.Table = {
 		end,
 	},
 
-	-- just a string id until "RebirthDigPowerBoost" gets added to Enums/Boosts, idk why i did it like this. Level = how many rebirths u got
-	["RebirthDigPowerBoost"] = {
+	[BoostsEnum.RebirthDigPowerBoost] = {
 		Type = BoostTypesEnum.DigPowerTrainingBoost,
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Rebirth Dig Power",

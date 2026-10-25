@@ -42,6 +42,7 @@ function RebirthController:KnitInit()
 		SkipCostText = rebirthFrame:WaitForChild("SkipCostText"),
 		RebirthsText = rebirthFrame:WaitForChild("RebirthsText"),
 		ProgressBar = rebirthFrame:WaitForChild("ProgressBar"),
+		RebirthTexts = rebirthFrame:WaitForChild("RebirthTexts"),
 
 		OpenRebirthButton = mainButtons:WaitForChild("RebirthButton"):WaitForChild("RebirthButton"),
 		RebirthButton = rebirthFrame:WaitForChild("RebirthButton"),
@@ -187,21 +188,28 @@ function RebirthController:_UpdateUi()
 	self._Gui.SkipCostText.Text = string.format("%d", self._IapController:GetPriceOfIap(IapsEnum.SkipRebirth) or 0)
 	self._Gui.RebirthsText.Text = string.format("You have %d rebirths!", currentRebirths)
 
-	local leftContainer = self._Gui.RebirthInfo.LeftContainer
-	local rightContainer = self._Gui.RebirthInfo.RightContainer
+	local cashInfo = self._Gui.RebirthInfo.Cash
+	local digPowerInfo = self._Gui.RebirthInfo.DigPower
+	local rebirthTexts = self._Gui.RebirthTexts
 
-	local currentAmount = RebirthDef.GetAmountForRebirth(currentRebirths)
-	local nextAmount = RebirthDef.GetAmountForRebirth(nextRebirth)
+	local currentCashAmount = RebirthDef.GetAmountForRebirth(currentRebirths, "Cash")
+	local currentDigPowerAmount = RebirthDef.GetAmountForRebirth(currentRebirths, "DigPower")
 
-	leftContainer.RebirthText.Text = string.format("Rebirth %d", currentRebirths)
-	leftContainer.AmountText.Text = string.format("x%s", BigNumbers.GetNumberDisplay(currentAmount))
+	rebirthTexts.CurrentRebirth.Text = string.format("Rebirth %d", currentRebirths)
+	cashInfo.LeftContainer.AmountText.Text = string.format("x%s", BigNumbers.GetNumberDisplay(currentCashAmount))
+	digPowerInfo.LeftContainer.AmountText.Text = string.format("x%.2f", currentDigPowerAmount)
 
 	if nextRebirthInfo then
-		rightContainer.RebirthText.Text = string.format("Rebirth %d", nextRebirth)
-		rightContainer.AmountText.Text = string.format("x%s", BigNumbers.GetNumberDisplay(nextAmount))
+		local nextCashAmount = RebirthDef.GetAmountForRebirth(nextRebirth, "Cash")
+		local nextDigPowerAmount = RebirthDef.GetAmountForRebirth(nextRebirth, "DigPower")
+
+		rebirthTexts.NextRebirth.Text = string.format("Rebirth %d", nextRebirth)
+		cashInfo.RightContainer.AmountText.Text = string.format("x%s", BigNumbers.GetNumberDisplay(nextCashAmount))
+		digPowerInfo.RightContainer.AmountText.Text = string.format("x%.2f", nextDigPowerAmount)
 	else
-		rightContainer.RebirthText.Text = "MAX"
-		rightContainer.AmountText.Text = "MAX"
+		rebirthTexts.NextRebirth.Text = "MAX"
+		cashInfo.RightContainer.AmountText.Text = "MAX"
+		digPowerInfo.RightContainer.AmountText.Text = "MAX"
 	end
 
 	local progressBar = self._Gui.ProgressBar
@@ -210,7 +218,7 @@ function RebirthController:_UpdateUi()
 	local progress
 	if nextRebirthInfo then
 		progress = math.clamp(cash / nextRebirthInfo.Cost, 0, 1)
-		progressBar.AmountText.Text = string.format("%s / %s", BigNumbers.GetNumberDisplay(cash), nextRebirthInfo.Cost)
+		progressBar.AmountText.Text = string.format("%s / %s", BigNumbers.GetNumberDisplay(cash), BigNumbers.GetNumberDisplay(nextRebirthInfo.Cost))
 	else
 		progress = 1
 		progressBar.AmountText.Text = "MAX"

@@ -26,10 +26,9 @@ RebirthDef.Table = {
 	[15] = { Cost = 2_000_000_000_000 },
 }
 
--- "RebirthDigPowerBoost" is just a string rn cuz its not in Enums/Boosts yet. lollypop fix ts, i think dig power would be a good help
 RebirthDef.Boosts = {
-	BoostsEnum.RebirthCashBoost,
-	"RebirthDigPowerBoost",
+	Cash = BoostsEnum.RebirthCashBoost,
+	DigPower = BoostsEnum.RebirthDigPowerBoost,
 }
 
 function RebirthDef.GetRebirthInfo(id)
@@ -40,8 +39,8 @@ function RebirthDef.GetMaxRebirth()
 	return #RebirthDef.Table
 end
 
-function RebirthDef.GetAmountForRebirth(rebirth)
-	local boostId = RebirthDef.Boosts[1]
+function RebirthDef.GetAmountForRebirth(rebirth, boostType)
+	local boostId = RebirthDef.Boosts[boostType or "Cash"]
 	if not boostId then
 		return 0
 	end

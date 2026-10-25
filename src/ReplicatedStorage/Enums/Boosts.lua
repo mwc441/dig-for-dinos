@@ -2,6 +2,7 @@ return {
 	FriendBoost = "FriendBoost",
 	RobloxPlusBoost = "RobloxPlusBoost",
 	RebirthCashBoost = "RebirthCashBoost",
+	RebirthDigPowerBoost = "RebirthDigPowerBoost",
 	NormalIndexCashBoost = "NormalIndexCashBoost",
 	GoldIndexCashBoost = "GoldIndexCashBoost",
 	VoidIndexCashBoost = "VoidIndexCashBoost",

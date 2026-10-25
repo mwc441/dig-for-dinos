@@ -67,6 +67,7 @@ return {
 	Icons = {
 		[CostTypesEnum.Robux] = "rbxassetid://124188591047007",
 		[PlayerStatsEnum.Cash] = "rbxassetid://107540056404677",
+		[PlayerStatsEnum.DigPower] = "rbxassetid://87407472042343"
 	},
 
 	LogAnalyticsOutgoingEvents = true,
