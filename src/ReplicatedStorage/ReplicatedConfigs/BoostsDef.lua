@@ -125,6 +125,17 @@ BoostsDef.Table = {
 			return 1 + level
 		end
 	},
+	[BoostsEnum.AdminWeatherBoost] = {
+		Type = BoostTypesEnum.AdminMutationChanceBoost,
+		NumberType = NumberTypesEnum.Adding,
+		Name = "Admin Weather",
+		Icon = "rbxassetid://100006374045000",
+		Description = "Admin Dinosaur Chance<br/><br/>+%g%%",
+		AmountFunction = function(level: number)
+			return level * 0.05
+		end,
+		MaxLevel = 1
+	},
 
 	[BoostsEnum.CashWeatherBoost] = {
 		Type = BoostTypesEnum.CashBoost,

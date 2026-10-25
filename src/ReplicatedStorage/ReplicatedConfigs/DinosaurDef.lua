@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Constants = require(script.Parent:WaitForChild("Constants"))
 local ZoneDef = require(script.Parent:WaitForChild("ZoneDef"))
+local BoostTypesEnum = require(Enums:WaitForChild("BoostTypes"))
 local RaritiesEnum = require(Enums:WaitForChild("Rarities"))
 local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 
@@ -250,7 +251,8 @@ DinosaurDef.MutationIncomeMultipliers = {
 	[MutationsEnum.Normal] = 1,
 	[MutationsEnum.Gold] = 2,
 	[MutationsEnum.Void] = 5,
-	[MutationsEnum.Flame] = 10
+	[MutationsEnum.Flame] = 10,
+	[MutationsEnum.Admin] = 25
 }
 
 DinosaurDef.MutationLootTable = {
@@ -261,17 +263,26 @@ DinosaurDef.MutationLootTable = {
 
 	{
 		Id = MutationsEnum.Gold,
-		Weight = 5
+		Weight = 5,
+		BoostType = BoostTypesEnum.GoldMutationChanceBoost
 	},
 
 	{
 		Id = MutationsEnum.Void,
-		Weight = 4
+		Weight = 4,
+		BoostType = BoostTypesEnum.VoidMutationChanceBoost
 	},
 
 	{
 		Id = MutationsEnum.Flame,
-		Weight = 1
+		Weight = 1,
+		BoostType = BoostTypesEnum.FlameMutationChanceBoost
+	},
+
+	{
+		Id = MutationsEnum.Admin,
+		Weight = 0,
+		BoostType = BoostTypesEnum.AdminMutationChanceBoost
 	}
 }
 

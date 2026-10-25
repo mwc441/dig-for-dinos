@@ -11,6 +11,13 @@ WeatherDef.OffsetSeconds = 15 * 60 -- 00:15 UTC, then every 45 minutes
 -- Boosts entries use { Id = "WeatherBoostId", Level = 1 }.
 -- Give weather boosts their own IDs in BoostsDef so they do not replace other server boosts.
 WeatherDef.Table = {
+	["Admin"] = {
+		ManualOnly = true,
+		Announcement = "[//] ADMIN WEATHER ACTIVE [//]",
+		AnnouncementColor = "Zebra",
+		Boosts = { { Id = BoostsEnum.AdminWeatherBoost, Level = 1 } }
+	},
+
 	["Gold"] = {
 		Announcement = "✨ Gold weather has begun! ✨",
 		AnnouncementColor = Color3.fromRGB(255, 205, 52),
@@ -43,8 +50,10 @@ WeatherDef.Table = {
 }
 
 local weatherIds = {}
-for weatherId in pairs(WeatherDef.Table) do
-	table.insert(weatherIds, weatherId)
+for weatherId, info in pairs(WeatherDef.Table) do
+	if not info.ManualOnly then
+		table.insert(weatherIds, weatherId)
+	end
 end
 table.sort(weatherIds)
 assert(#weatherIds > 0, "WeatherDef must contain at least one weather")

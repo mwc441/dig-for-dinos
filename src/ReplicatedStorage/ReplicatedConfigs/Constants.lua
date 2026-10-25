@@ -72,6 +72,15 @@ return {
 	LogAnalyticsOutgoingEvents = true,
 
 	MutationGradients = {
+		[MutationsEnum.Admin] = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromHex("#050508")),
+			ColorSequenceKeypoint.new(0.2, Color3.fromHex("#e600ff")),
+			ColorSequenceKeypoint.new(0.28, Color3.fromHex("#09050d")),
+			ColorSequenceKeypoint.new(0.55, Color3.fromHex("#00f5ff")),
+			ColorSequenceKeypoint.new(0.62, Color3.fromHex("#050508")),
+			ColorSequenceKeypoint.new(1, Color3.fromHex("#a400ff"))
+		}),
+
 		[MutationsEnum.Flame] = ColorSequence.new(
 			Color3.fromHex("#ffb35d"),
 			Color3.fromHex("#ff0202")

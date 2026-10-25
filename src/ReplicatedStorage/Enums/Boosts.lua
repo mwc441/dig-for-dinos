@@ -9,6 +9,7 @@ return {
 	GoldWeatherBoost = "GoldWeatherBoost",
 	VoidWeatherBoost = "VoidWeatherBoost",
 	FlameWeatherBoost = "FlameWeatherBoost",
+	AdminWeatherBoost = "AdminWeatherBoost",
 	CashWeatherBoost = "CashWeatherBoost",
 	RadioactiveWeatherBoost = "RadioactiveWeatherBoost",
 
