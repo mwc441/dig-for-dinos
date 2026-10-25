@@ -109,12 +109,15 @@ end
 function UpgradeService:_UpdateBoostsForPlayer(player)
 	local upgradeData = self._DataService:GetPlayerData(player, UPGRADES_KEY, UPGRADES_DEFAULT_DATA)
 
-	for upgradeId, level in pairs(upgradeData.Upgrades) do
-		local info = UpgradesDef.GetUpgradeInfo(upgradeId)
-		if not info then continue end
-
+	for upgradeId, info in pairs(UpgradesDef.GetAllUpgrades()) do
 		local boostId = info.Boost
 		if not boostId then continue end
+
+		local level = upgradeData.Upgrades[upgradeId]
+		if not level or level <= 0 then
+			self._BoostsService:RemoveBoostForPlayer(player, boostId)
+			continue
+		end
 
 		local boost = self._BoostsService:GetBoostOfIdForPlayer(player, boostId)
 		if not boost then
