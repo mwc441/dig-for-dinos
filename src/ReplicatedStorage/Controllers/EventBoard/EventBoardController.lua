@@ -3,6 +3,8 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local External = ReplicatedStorage:WaitForChild("External")
+local EasyVisuals = require(External:WaitForChild("EasyVisuals"))
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local EventBoardGui = ClientAssets:WaitForChild("EventBoardGui")
@@ -99,7 +101,7 @@ function EventBoardController:KnitStart()
 end
 
 -- Schedule or replace an event by ID. Times are Unix seconds.
--- eventInfo = { StartsAt = number, EndsAt = number, Text = string, Icon = string? }
+-- eventInfo = { StartsAt = number, EndsAt = number, Text = string, Icon = string?, Color = Color3 | string? }
 function EventBoardController:ScheduleEvent(eventId, eventInfo)
 	if type(eventId) ~= "string" or eventId == "" or type(eventInfo) ~= "table" then
 		return false
@@ -292,18 +294,33 @@ function EventBoardController:_RenderBoard(boardState)
 
 		local eventInfo = template.EventInfo
 		local eventFrame = eventInfo.EventFrame
+		local eventText = eventFrame.EventText
+		local effectName
 		if row.Event then
-			eventFrame.EventText.Text = row.Event.Text
-			eventFrame.EventText.TextColor3 = row.Event.Color or eventFrame.EventText.TextColor3
+			eventText.Text = row.Event.Text
+			if typeof(row.Event.Color) == "Color3" then
+				eventText.TextColor3 = row.Event.Color
+			elseif typeof(row.Event.Color) == "string" then
+				eventText.TextColor3 = Color3.new(1, 1, 1)
+				effectName = row.Event.Color
+			end
 			eventInfo.Icon.Image = row.Event.Icon or ""
 			eventInfo.Icon.Visible = row.Event.Icon ~= nil and row.Event.Icon ~= ""
 		else
 			eventInfo.Icon.Image = ""
 			eventInfo.Icon.Visible = false
-			eventFrame.EventText.Text = "No Event"
+			eventText.Text = "No Event"
 		end
 
 		template.Parent = list
+		if effectName then
+			local uiStroke = eventText:FindFirstChildWhichIsA("UIStroke")
+			local strokeThickness = uiStroke and uiStroke.Thickness or 1
+			local success = pcall(EasyVisuals.new, eventText, effectName, 1, strokeThickness)
+			if not success then
+				warn("[EventBoardController] Invalid event effect: " .. effectName)
+			end
+		end
 		table.insert(boardState.Templates, template)
 	end
 end

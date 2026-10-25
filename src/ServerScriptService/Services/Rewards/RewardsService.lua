@@ -197,6 +197,7 @@ function RewardsService:FinalizeCrossServerMessage(message, color)
 	self.Client.GlobalMessageAnnounced:FireAll(globalMessage, color)
 end
 
+-- color can be a Color3 or an EasyVisuals preset name such as "Zebra" or "Rainbow".
 function RewardsService:MakeAnnouncement(message, color)
 	self.Client.AnnouncementMade:FireAll(message, color)
 end

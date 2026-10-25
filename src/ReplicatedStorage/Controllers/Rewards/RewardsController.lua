@@ -14,6 +14,7 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
+local EasyVisuals = require(External:WaitForChild("EasyVisuals"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
 local Knit = require(External:WaitForChild("Knit"))
@@ -372,7 +373,7 @@ function RewardsController:MakeAnnouncement(message, color)
 	task.spawn(function()
 		local newAnnouncementTemplate = self._Gui.AnnouncementTemplate:Clone()
 		newAnnouncementTemplate.MessageText.Text = message
-		newAnnouncementTemplate.MessageText.TextColor3 = color or Color3.fromRGB(255, 255, 255)
+		newAnnouncementTemplate.MessageText.TextColor3 = typeof(color) == "Color3" and color or Color3.fromRGB(255, 255, 255)
 
 		local oldSize = newAnnouncementTemplate.Size :: UDim2
 		newAnnouncementTemplate.Size = UDim2.fromScale(0, 0)
@@ -396,6 +397,12 @@ function RewardsController:MakeAnnouncement(message, color)
 		newAnnouncementTemplate.LayoutOrder = lowestLayoutOrder - 1
 		newAnnouncementTemplate.Visible = true
 		newAnnouncementTemplate.Parent = self._Gui.AnnouncementsFrame
+		if typeof(color) == "string" then
+			local success = pcall(EasyVisuals.new, newAnnouncementTemplate.MessageText, color, 1, newAnnouncementTemplate.MessageText.UIStroke.Thickness)
+			if not success then
+				warn("[RewardsController] Invalid announcement effect: " .. tostring(color))
+			end
+		end
 
 		UtilFunctions.PlayCopyOfSound(AnnouncementSound)
 
