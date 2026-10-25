@@ -28,5 +28,6 @@ return {
 	AutoCollect = "AutoCollectIap",
 	OfflineCash2x = "OfflineCash2xIap",
 	GiantBearTraps = "GiantBearTrapsIap",
-	OmegaShovel = "OmegaShovelIap"
+	OmegaShovel = "OmegaShovelIap",
+	StarterPack = "StarterPackIap"
 }

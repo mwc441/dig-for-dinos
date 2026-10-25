@@ -329,6 +329,21 @@ IapDef.Table = {
 		},
 		Giftable = true,
 		MaxPurchases = 1
+	},
+
+	[IapsEnum.StarterPack] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722083712
+		},
+		Name = "Starter Pack",
+		Description = "",
+		Rewards = {
+			[PlayerStatsEnum.Cash] = 10_000,
+			[PlayerStatsEnum.DigPower] = 25_000,
+			[IapsEnum.AutoCollect] = true
+		},
+		Giftable = true,
+		MaxPurchases = 1
 	}
 	-- [IapsEnum.Bricks2xGamepass] = {
 	-- 	Ids = {
