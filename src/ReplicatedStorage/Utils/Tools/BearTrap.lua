@@ -115,7 +115,7 @@ local function getClientTargetPosition()
 
 	local screenPosition
 	local deviceType = Device.GetUserDevice()
-	if deviceType == "Mobile" or deviceType == "Controller" then
+	if deviceType == "Mobile" then
 		local viewportSize = camera.ViewportSize
 		screenPosition = Vector2.new(viewportSize.X * 0.5, viewportSize.Y * 0.4)
 	else
