@@ -17,7 +17,7 @@ local function scaleEmitterSize(emitter: ParticleEmitter, scale: number)
 	emitter.Size = NumberSequence.new(keypoints)
 end
 
-function MutationUtils.Apply(model: Model, mutation: string, cloneParticles: boolean)
+function MutationUtils.Apply(model: Model, mutation: string, isViewport: boolean)
 	local mutationPart = mutation and MutationParticles:FindFirstChild(mutation)
 	if not mutationPart or not mutationPart:IsA("BasePart") then return end
 
@@ -27,13 +27,15 @@ function MutationUtils.Apply(model: Model, mutation: string, cloneParticles: boo
 		if not basePart:IsA("BasePart") then continue end
 		if basePart.Transparency >= 1 then continue end
 
+		basePart.Transparency = mutationPart.Transparency
 		basePart.Color = mutationPart.Color
 		basePart.Material = mutationPart.Material
 		basePart.MaterialVariant = mutationPart.MaterialVariant
 
 		local sizeScale = basePart.Size.Magnitude / mutationPart.Size.Magnitude
 		for _, child in mutationChildren do
-			if child:IsA("ParticleEmitter") and (not cloneParticles) then continue end
+			if child:IsA("ParticleEmitter") and isViewport then continue end
+			if child:IsA("Highlight") then continue end
 
 			local newChild = child:Clone()
 			if newChild:IsA("ParticleEmitter") then
@@ -45,6 +47,15 @@ function MutationUtils.Apply(model: Model, mutation: string, cloneParticles: boo
 				end
 			end
 			newChild.Parent = basePart
+		end
+	end
+
+	if not isViewport then
+		local highlights = mutationPart:QueryDescendants("Highlight") :: { Highlight }
+		for _, highlight in pairs(highlights) do
+			local newHighlight = highlight:Clone()
+			newHighlight.Adornee = model
+			newHighlight.Parent = model
 		end
 	end
 end

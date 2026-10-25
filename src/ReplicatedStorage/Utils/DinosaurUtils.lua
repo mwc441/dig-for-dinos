@@ -41,7 +41,7 @@ function DinosaurUtils.CreateModel(dinosaurId, scale, mutation, isViewport: bool
 	if not cachedModel then
 		cachedModel = template:Clone()
 		if mutation then
-			MutationUtils.Apply(cachedModel, mutation, not isViewport)
+			MutationUtils.Apply(cachedModel, mutation, isViewport)
 		end
 		UtilFunctions.AnchorAllDescendants(cachedModel, false)
 		cachedModel.PrimaryPart.Anchored = true
