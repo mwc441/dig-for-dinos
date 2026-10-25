@@ -10,8 +10,8 @@ local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 return {
 	Places = {
 		[93414274508946] = {
-			IsDevPlace = true
-		}
+			IsDevPlace = true,
+		},
 	},
 
 	GroupId = 10353739,
@@ -19,29 +19,29 @@ return {
 		[255] = {
 			Rank = "Owner",
 			Color = "51FF00",
-			IsAdmin = true
+			IsAdmin = true,
 		},
 
 		[254] = {
 			Rank = "Owner",
 			Color = "51FF00",
-			IsAdmin = true
+			IsAdmin = true,
 		},
 
 		[253] = {
 			Rank = "Co-Owner", -- Celeste
 			Color = "51FF00",
-			IsAdmin = true
+			IsAdmin = true,
 		},
 
 		[250] = {
 			Rank = "Developer",
 			Color = "51FF00",
-			IsAdmin = true
-		}
+			IsAdmin = true,
+		},
 	},
 	GroupReward = {
-		[PlayerStatsEnum.Cash] = 5000 -- TODO: BALANCE
+		[PlayerStatsEnum.Cash] = 500,
 	},
 
 	MaxFriends = 5,
@@ -51,7 +51,7 @@ return {
 		IapsEnum.MediumCashPack,
 		IapsEnum.LargeCashPack,
 		IapsEnum.GiantCashPack,
-		IapsEnum.MassiveCashPack
+		IapsEnum.MassiveCashPack,
 	},
 
 	RarityOrder = {
@@ -61,12 +61,12 @@ return {
 		RaritiesEnum.Epic,
 		RaritiesEnum.Legendary,
 		RaritiesEnum.Mythical,
-		RaritiesEnum.Secret
+		RaritiesEnum.Secret,
 	},
 
 	Icons = {
 		[CostTypesEnum.Robux] = "rbxassetid://124188591047007",
-		[PlayerStatsEnum.Cash] = "rbxassetid://107540056404677"
+		[PlayerStatsEnum.Cash] = "rbxassetid://107540056404677",
 	},
 
 	LogAnalyticsOutgoingEvents = true,
@@ -78,23 +78,14 @@ return {
 			ColorSequenceKeypoint.new(0.28, Color3.fromHex("#09050d")),
 			ColorSequenceKeypoint.new(0.55, Color3.fromHex("#00f5ff")),
 			ColorSequenceKeypoint.new(0.62, Color3.fromHex("#050508")),
-			ColorSequenceKeypoint.new(1, Color3.fromHex("#a400ff"))
+			ColorSequenceKeypoint.new(1, Color3.fromHex("#a400ff")),
 		}),
 
-		[MutationsEnum.Flame] = ColorSequence.new(
-			Color3.fromHex("#ffb35d"),
-			Color3.fromHex("#ff0202")
-		),
+		[MutationsEnum.Flame] = ColorSequence.new(Color3.fromHex("#ffb35d"), Color3.fromHex("#ff0202")),
 
-		[MutationsEnum.Gold] = ColorSequence.new(
-			Color3.fromHex("#fdff81"),
-			Color3.fromHex("#ff7f0f")
-		),
+		[MutationsEnum.Gold] = ColorSequence.new(Color3.fromHex("#fdff81"), Color3.fromHex("#ff7f0f")),
 
-		[MutationsEnum.Void] = ColorSequence.new(
-			Color3.fromHex("#d29eff"),
-			Color3.fromHex("#7e15ff")
-		)
+		[MutationsEnum.Void] = ColorSequence.new(Color3.fromHex("#d29eff"), Color3.fromHex("#7e15ff")),
 	},
 
 	MutationFlipbooks = {
@@ -103,7 +94,7 @@ return {
 			FPS = 15,
 			Row = 4,
 			Size = Vector2.new(256, 256),
-			Tiles = 16
+			Tiles = 16,
 		},
 
 		[MutationsEnum.Gold] = {
@@ -112,7 +103,7 @@ return {
 			Row = 4,
 			Size = Vector2.new(1024, 1024),
 			Tiles = 16,
-			Color = ColorSequence.new(Color3.fromRGB(255, 186, 25))
+			Color = ColorSequence.new(Color3.fromRGB(255, 186, 25)),
 		},
 
 		[MutationsEnum.Void] = {
@@ -121,8 +112,8 @@ return {
 			Row = 4,
 			Size = Vector2.new(512, 512),
 			Tiles = 16,
-			Color = ColorSequence.new(Color3.fromRGB(178, 11, 255))
-		}
+			Color = ColorSequence.new(Color3.fromRGB(178, 11, 255)),
+		},
 	},
 
 	GamepadIcons = {
@@ -158,6 +149,6 @@ return {
 		DPadLeft = "rbxassetid://137795295394409",
 		DPadUp = "rbxassetid://137054719003268",
 		DPadRight = "rbxassetid://109554125028012",
-		DPadDown = "rbxassetid://91964245838690"
-	}
+		DPadDown = "rbxassetid://91964245838690",
+	},
 }

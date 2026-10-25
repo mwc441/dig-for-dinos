@@ -25,13 +25,15 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Friends Boost",
 		Icon = "rbxassetid://117403910373763",
-		Description = "Invite friends for <font color=\"#55ff00\">+10%% cash</font> each!<br/><font color=\"#55ff00\">(Click to invite)</font><br/>x%0.2f",
+		Description = 'Invite friends for <font color="#55ff00">+10%% cash</font> each!<br/><font color="#55ff00">(Click to invite)</font><br/>x%0.2f',
 		AmountFunction = function(level: number)
-			if level <= 0 then return 1 end
+			if level <= 0 then
+				return 1
+			end
 
 			return 1 + (level * Constants.CashPerFriend)
 		end,
-		MaxLevel = Constants.MaxFriends
+		MaxLevel = Constants.MaxFriends,
 	},
 
 	[BoostsEnum.RobloxPlusBoost] = {
@@ -41,11 +43,13 @@ BoostsDef.Table = {
 		Icon = "rbxassetid://75220652271430",
 		Description = "Roblox Plus users get more cash!<br/><br/>x%0.2f",
 		AmountFunction = function(level: number)
-			if level <= 0 then return 1 end
+			if level <= 0 then
+				return 1
+			end
 
 			return 1.20 + ((level - 1) * 0.20)
 		end,
-		MaxLevel = 4
+		MaxLevel = 4,
 	},
 
 	[BoostsEnum.RebirthCashBoost] = {
@@ -54,7 +58,17 @@ BoostsDef.Table = {
 		Name = "Rebirth Cash",
 		AmountFunction = function(level: number)
 			return 1 + (level * 0.5)
-		end
+		end,
+	},
+
+	-- just a string id until "RebirthDigPowerBoost" gets added to Enums/Boosts, idk why i did it like this. Level = how many rebirths u got
+	["RebirthDigPowerBoost"] = {
+		Type = BoostTypesEnum.DigPowerTrainingBoost,
+		NumberType = NumberTypesEnum.Multiplying,
+		Name = "Rebirth Dig Power",
+		AmountFunction = function(level: number)
+			return 1.25 ^ level
+		end,
 	},
 
 	[BoostsEnum.NormalIndexCashBoost] = {
@@ -63,7 +77,7 @@ BoostsDef.Table = {
 		Icon = Constants.Icons[PlayerStatsEnum.Cash],
 		AmountFunction = function(level: number)
 			return level * 0.05
-		end
+		end,
 	},
 
 	[BoostsEnum.GoldIndexCashBoost] = {
@@ -72,7 +86,7 @@ BoostsDef.Table = {
 		Icon = Constants.Icons[PlayerStatsEnum.Cash],
 		AmountFunction = function(level: number)
 			return level * 0.05
-		end
+		end,
 	},
 
 	[BoostsEnum.VoidIndexCashBoost] = {
@@ -81,7 +95,7 @@ BoostsDef.Table = {
 		Icon = Constants.Icons[PlayerStatsEnum.Cash],
 		AmountFunction = function(level: number)
 			return level * 0.05
-		end
+		end,
 	},
 
 	[BoostsEnum.FlameIndexCashBoost] = {
@@ -90,7 +104,7 @@ BoostsDef.Table = {
 		Icon = Constants.Icons[PlayerStatsEnum.Cash],
 		AmountFunction = function(level: number)
 			return level * 0.05
-		end
+		end,
 	},
 
 	[BoostsEnum.GoldWeatherBoost] = {
@@ -101,7 +115,7 @@ BoostsDef.Table = {
 		Description = "Gold Dinosaur Luck<br/><br/>x%d",
 		AmountFunction = function(level: number)
 			return 1 + level
-		end
+		end,
 	},
 
 	[BoostsEnum.VoidWeatherBoost] = {
@@ -112,7 +126,7 @@ BoostsDef.Table = {
 		Description = "Void Dinosaur Luck<br/><br/>x%d",
 		AmountFunction = function(level: number)
 			return 1 + level
-		end
+		end,
 	},
 
 	[BoostsEnum.FlameWeatherBoost] = {
@@ -123,7 +137,7 @@ BoostsDef.Table = {
 		Description = "Flame Dinosaur Luck<br/><br/>x%d",
 		AmountFunction = function(level: number)
 			return 1 + level
-		end
+		end,
 	},
 	[BoostsEnum.AdminWeatherBoost] = {
 		Type = BoostTypesEnum.AdminMutationChanceBoost,
@@ -134,7 +148,7 @@ BoostsDef.Table = {
 		AmountFunction = function(level: number)
 			return level * 0.05
 		end,
-		MaxLevel = 1
+		MaxLevel = 1,
 	},
 
 	[BoostsEnum.CashWeatherBoost] = {
@@ -145,7 +159,7 @@ BoostsDef.Table = {
 		Description = "Cash x%d",
 		AmountFunction = function(level: number)
 			return 1 + level
-		end
+		end,
 	},
 
 	[BoostsEnum.RadioactiveWeatherBoost] = {
@@ -156,7 +170,7 @@ BoostsDef.Table = {
 		Description = "Dig Power Training<br/><br/>x%d",
 		AmountFunction = function(level: number)
 			return 1 + level
-		end
+		end,
 	},
 
 	-- GAMEPASSES
@@ -168,7 +182,7 @@ BoostsDef.Table = {
 		Description = "2x Cash<br/><br/>2x Dig Power Training",
 		AmountFunction = function()
 			return 2
-		end
+		end,
 	},
 
 	[BoostsEnum.VIPDigPowerBoost] = {
@@ -177,7 +191,7 @@ BoostsDef.Table = {
 		Name = "VIP",
 		AmountFunction = function()
 			return 2
-		end
+		end,
 	},
 
 	[BoostsEnum.Cash2xBoost] = {
@@ -188,7 +202,7 @@ BoostsDef.Table = {
 		Icon = "rbxassetid://107540056404677",
 		AmountFunction = function(level: number)
 			return 2 ^ level
-		end
+		end,
 	},
 
 	[BoostsEnum.DigPower2xBoost] = {
@@ -199,7 +213,7 @@ BoostsDef.Table = {
 		Icon = "rbxassetid://87407472042343",
 		AmountFunction = function()
 			return 2
-		end
+		end,
 	},
 
 	-- UGPRADES
@@ -209,8 +223,8 @@ BoostsDef.Table = {
 		Name = "Speed",
 		AmountFunction = function(level: number)
 			return level
-		end
-	}
+		end,
+	},
 }
 
 function BoostsDef.GetMaxLevelForBoost(boostId)
@@ -262,7 +276,7 @@ function BoostsDef.GetAmountForBoostAtLevel(boostId, level)
 	return BoostsDef.GetBoostAtLevel(boostId, level).Amount
 end
 
-function BoostsDef.GetTotalAmountForBoostForLevel(boostId, level) : number
+function BoostsDef.GetTotalAmountForBoostForLevel(boostId, level): number
 	local boostInfo = BoostsDef.GetBoostInfo(boostId)
 	if not boostInfo then
 		return 0

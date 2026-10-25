@@ -43,208 +43,212 @@ DinosaurDef.Ids = {
 	Pachyrhinosaurus = "Pachyrhinosaurus",
 	Styracosaurus = "Styracosaurus",
 	Therizinosaurus = "Therizinosaurus",
-	Dragon = "Dragon"
+	Dragon = "Dragon",
 }
 
+-- income is cash per second. what u actually make = Income * zone IncomeMultiplier (1/2/4 inside a set) * mutation * size, simple shit
+-- zone matters the most bro. every zone's dinos beat the last zone's, a volcano rare shits on a zone 1 legendary like it should
+-- rarity goes up 3x each tier (common 10 ... secret 10K) so a void or flame mythical lowk beats a plain ass secret
+-- set bonus is baked in here so the index doesnt lie to people: zones 4-6 x12, zone 7 x150. dont ask why i did it like this
 DinosaurDef.Table = {
 	[DinosaurDef.Ids.Triceratops] = {
 		Name = "Triceratops",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 10,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Ableisaurus] = {
 		Name = "Ableisaurus",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 10,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Microraptor] = {
 		Name = "Microraptor",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 10,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Brachiosaurus] = {
 		Name = "Brachiosaurus",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 30,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Utahraptor] = {
 		Name = "Utahraptor",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 30,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Troodon] = {
 		Name = "Troodon",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 30,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Tung] = {
 		Name = "Tung",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 90,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Majungasaurus] = {
 		Name = "Majungasaurus",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 90,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Gallimimus] = {
 		Name = "Gallimimus",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 90,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Velociraptor] = {
 		Name = "Velociraptor",
 		Rarity = RaritiesEnum.Epic,
-		Income = 400,
-		Weight = 100
+		Income = 270,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Dilophosaurus] = {
 		Name = "Dilophosaurus",
 		Rarity = RaritiesEnum.Legendary,
 		Income = 800,
-		Weight = 100
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Pterodactyl] = {
 		Name = "Pterodactyl",
 		Rarity = RaritiesEnum.Mythical,
-		Income = 1600,
-		Weight = 100
+		Income = 2_500,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Trex] = {
 		Name = "Trex",
 		Rarity = RaritiesEnum.Secret,
-		Income = 3200,
-		Weight = 100
+		Income = 10_000,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Carnotaurus] = {
 		Name = "Carnotaurus",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 120,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Carcharodontosaurus] = {
 		Name = "Carcharodontosaurus",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 120,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Giganotosaurus] = {
 		Name = "Giganotosaurus",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 120,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Allosaurus] = {
 		Name = "Allosaurus",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 360,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Cryolophosaurus] = {
 		Name = "Cryolophosaurus",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 360,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Monolophosaurus] = {
 		Name = "Monolophosaurus",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 360,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.BallerinaSkeletina] = {
 		Name = "BallerinaSkeletina",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 1_080,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Quetzalcoatlus] = {
 		Name = "Quetzalcoatlus",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 1_080,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.HornedGallimimus] = {
 		Name = "Horned Gallimimus",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 1_080,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Deinonychus] = {
 		Name = "Deinonychus",
 		Rarity = RaritiesEnum.Epic,
-		Income = 400,
-		Weight = 100
+		Income = 3_240,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Pachycephalosaurus] = {
 		Name = "Pachycephalosaurus",
 		Rarity = RaritiesEnum.Legendary,
-		Income = 800,
-		Weight = 100
+		Income = 9_600,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Plesiosaurus] = {
 		Name = "Plesiosaurus",
 		Rarity = RaritiesEnum.Mythical,
-		Income = 1600,
-		Weight = 100
+		Income = 30_000,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Hydra] = {
 		Name = "Hydra",
 		Rarity = RaritiesEnum.Secret,
-		Income = 3200,
-		Weight = 100
+		Income = 120_000,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Camarasaurus] = {
 		Name = "Camarasaurus",
 		Rarity = RaritiesEnum.Common,
-		Income = 50,
-		Weight = 100
+		Income = 1_500,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Ceratosaurus] = {
 		Name = "Ceratosaurus",
 		Rarity = RaritiesEnum.Uncommon,
-		Income = 100,
-		Weight = 100
+		Income = 4_500,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Protoceratops] = {
 		Name = "Protoceratops",
 		Rarity = RaritiesEnum.Rare,
-		Income = 200,
-		Weight = 100
+		Income = 13_500,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Pachyrhinosaurus] = {
 		Name = "Pachyrhinosaurus",
 		Rarity = RaritiesEnum.Epic,
-		Income = 400,
-		Weight = 100
+		Income = 40_500,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Styracosaurus] = {
 		Name = "Styracosaurus",
 		Rarity = RaritiesEnum.Legendary,
-		Income = 800,
-		Weight = 100
+		Income = 120_000,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Therizinosaurus] = {
 		Name = "Therizinosaurus",
 		Rarity = RaritiesEnum.Mythical,
-		Income = 1600,
-		Weight = 100
+		Income = 375_000,
+		Weight = 100,
 	},
 	[DinosaurDef.Ids.Dragon] = {
 		Name = "Dragon",
 		Rarity = RaritiesEnum.Secret,
-		Income = 3200,
-		Weight = 100
-	}
+		Income = 1_500_000,
+		Weight = 100,
+	},
 }
 
 DinosaurDef.MutationIncomeMultipliers = {
@@ -252,38 +256,38 @@ DinosaurDef.MutationIncomeMultipliers = {
 	[MutationsEnum.Gold] = 2,
 	[MutationsEnum.Void] = 5,
 	[MutationsEnum.Flame] = 10,
-	[MutationsEnum.Admin] = 25
+	[MutationsEnum.Admin] = 25,
 }
 
 DinosaurDef.MutationLootTable = {
 	{
 		Id = MutationsEnum.Normal,
-		Weight = 90
+		Weight = 90,
 	},
 
 	{
 		Id = MutationsEnum.Gold,
 		Weight = 5,
-		BoostType = BoostTypesEnum.GoldMutationChanceBoost
+		BoostType = BoostTypesEnum.GoldMutationChanceBoost,
 	},
 
 	{
 		Id = MutationsEnum.Void,
 		Weight = 4,
-		BoostType = BoostTypesEnum.VoidMutationChanceBoost
+		BoostType = BoostTypesEnum.VoidMutationChanceBoost,
 	},
 
 	{
 		Id = MutationsEnum.Flame,
 		Weight = 1,
-		BoostType = BoostTypesEnum.FlameMutationChanceBoost
+		BoostType = BoostTypesEnum.FlameMutationChanceBoost,
 	},
 
 	{
 		Id = MutationsEnum.Admin,
 		Weight = 0,
-		BoostType = BoostTypesEnum.AdminMutationChanceBoost
-	}
+		BoostType = BoostTypesEnum.AdminMutationChanceBoost,
+	},
 }
 
 function DinosaurDef.GetAllDinosaurs()
@@ -296,14 +300,18 @@ end
 
 function DinosaurDef.GetSellPrice(id, scale, mutation, zoneId)
 	local info = DinosaurDef.GetDinosaurInfo(id)
-	if not info then return end
+	if not info then
+		return
+	end
 
 	return DinosaurDef.GetIncome(id, scale, mutation, zoneId) * SELL_INCOME_SECONDS
 end
 
 function DinosaurDef.GetIncome(id, scale, mutation, zoneId)
 	local info = DinosaurDef.GetDinosaurInfo(id)
-	if not info then return end
+	if not info then
+		return
+	end
 
 	local mutationMultiplier = DinosaurDef.MutationIncomeMultipliers[mutation] or 1
 	local zoneInfo = ZoneDef.GetZoneInfo(zoneId)
@@ -313,10 +321,14 @@ function DinosaurDef.GetIncome(id, scale, mutation, zoneId)
 end
 
 function DinosaurDef.GetLootTableForRarity(rarity, allowedIds)
-	if not allowedIds then return {} end
+	if not allowedIds then
+		return {}
+	end
 
 	local rarityRank = table.find(Constants.RarityOrder, rarity)
-	if not rarityRank then return {} end
+	if not rarityRank then
+		return {}
+	end
 
 	local function getLootTableAtRank(rank)
 		local lootTable = {}
@@ -332,11 +344,15 @@ function DinosaurDef.GetLootTableForRarity(rarity, allowedIds)
 	-- Prefer this rarity or a lower one; otherwise use the lowest eligible higher rarity.
 	for rank = rarityRank, 1, -1 do
 		local lootTable = getLootTableAtRank(rank)
-		if #lootTable > 0 then return lootTable end
+		if #lootTable > 0 then
+			return lootTable
+		end
 	end
 	for rank = rarityRank + 1, #Constants.RarityOrder do
 		local lootTable = getLootTableAtRank(rank)
-		if #lootTable > 0 then return lootTable end
+		if #lootTable > 0 then
+			return lootTable
+		end
 	end
 	return {}
 end

@@ -7,6 +7,7 @@ local BoostsEnum = require(Enums:WaitForChild("Boosts"))
 
 local IndexDef = {}
 
+-- every level u claim gives +5% cash (BoostsDef index boosts). 33 dinos total, go catch em all or whatever
 IndexDef.Table = {
 	[MutationsEnum.Normal] = {
 		Name = "Normal",
@@ -15,12 +16,30 @@ IndexDef.Table = {
 		Boost = BoostsEnum.NormalIndexCashBoost,
 		Levels = {
 			[1] = {
-				Required = 1,
+				Required = 5,
 				Rewards = {
-					[PlayerStatsEnum.Cash] = 500
-				}
-			}
-		}
+					[PlayerStatsEnum.Cash] = 500,
+				},
+			},
+			[2] = {
+				Required = 10,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 5_000,
+				},
+			},
+			[3] = {
+				Required = 20,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 500_000,
+				},
+			},
+			[4] = {
+				Required = 33,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 50_000_000,
+				},
+			},
+		},
 	},
 
 	[MutationsEnum.Gold] = {
@@ -32,10 +51,28 @@ IndexDef.Table = {
 			[1] = {
 				Required = 1,
 				Rewards = {
-					[PlayerStatsEnum.Cash] = 1000
-				}
-			}
-		}
+					[PlayerStatsEnum.Cash] = 2_000,
+				},
+			},
+			[2] = {
+				Required = 5,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 50_000,
+				},
+			},
+			[3] = {
+				Required = 15,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 5_000_000,
+				},
+			},
+			[4] = {
+				Required = 33,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 500_000_000,
+				},
+			},
+		},
 	},
 
 	[MutationsEnum.Void] = {
@@ -47,10 +84,28 @@ IndexDef.Table = {
 			[1] = {
 				Required = 1,
 				Rewards = {
-					[PlayerStatsEnum.Cash] = 1500
-				}
-			}
-		}
+					[PlayerStatsEnum.Cash] = 4_000,
+				},
+			},
+			[2] = {
+				Required = 5,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 100_000,
+				},
+			},
+			[3] = {
+				Required = 15,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 10_000_000,
+				},
+			},
+			[4] = {
+				Required = 33,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 1_000_000_000,
+				},
+			},
+		},
 	},
 
 	[MutationsEnum.Flame] = {
@@ -62,10 +117,28 @@ IndexDef.Table = {
 			[1] = {
 				Required = 1,
 				Rewards = {
-					[PlayerStatsEnum.Cash] = 2500
-				}
-			}
-		}
+					[PlayerStatsEnum.Cash] = 10_000,
+				},
+			},
+			[2] = {
+				Required = 5,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 250_000,
+				},
+			},
+			[3] = {
+				Required = 15,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 25_000_000,
+				},
+			},
+			[4] = {
+				Required = 33,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 2_500_000_000,
+				},
+			},
+		},
 	},
 }
 
@@ -79,7 +152,9 @@ end
 
 function IndexDef.GetLevelInfoForIndex(id, level)
 	local info = IndexDef.GetIndexInfo(id)
-	if not info then return end
+	if not info then
+		return
+	end
 
 	return info.Levels[level]
 end
