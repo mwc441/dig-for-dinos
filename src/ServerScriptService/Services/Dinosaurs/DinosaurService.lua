@@ -97,7 +97,6 @@ function DinosaurService:OnPlayerAdded(player)
 	local savedData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
 
 	self._Dinosaurs[player] = {}
-	self:GiveDinosaur(player, "Trex", 1.5, MutationsEnum.Flame)
 
 	local plot = self._PlotService:GetPlotForPlayer(player)
 	local floor = plot and plot.Instance:FindFirstChild("_Floor")
