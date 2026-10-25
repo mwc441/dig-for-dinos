@@ -103,6 +103,16 @@ ItemDef.Table = {
 		CostType = PlayerStatsEnum.Cash,
 	},
 
+	["PlatinumShovel"] = {
+		Name = "Platinum Shovel",
+		Icon = "rbxassetid://78724100005419",
+		GradientColor = ColorSequence.new(Color3.fromRGB(190, 130, 255), Color3.fromRGB(45, 64, 170)),
+		Category = ItemDef.Categories.Shovel,
+		DigMultiplier = 512,
+		Cost = 100_000_000_000,
+		CostType = PlayerStatsEnum.Cash,
+	},
+
 	["OmegaShovel"] = {
 		Name = "Omega Shovel",
 		Icon = "rbxassetid://133712586068030",
