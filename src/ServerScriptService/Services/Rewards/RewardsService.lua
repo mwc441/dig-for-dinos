@@ -37,6 +37,23 @@ local RewardsService = {
 	CrossServerMessageReceived = Signal.new()
 }
 
+local DEFAULT_ANNOUNCEMENT_COLOR = Color3.fromRGB(255, 255, 255)
+
+local function getCrossServerAnnouncementColor(data)
+	if type(data.Effect) == "string" then
+		return data.Effect
+	end
+	return Color3.fromHex(data.Color or DEFAULT_ANNOUNCEMENT_COLOR:ToHex())
+end
+
+local function addCrossServerAnnouncementColor(data, color)
+	data.Color = (typeof(color) == "Color3" and color or DEFAULT_ANNOUNCEMENT_COLOR):ToHex()
+	if type(color) == "string" then
+		data.Effect = color
+	end
+	return data
+end
+
 function RewardsService:KnitInit()
 	local channels = TextChatService:WaitForChild("TextChannels")
 	local globalTextChannel = Instance.new("TextChannel")
@@ -80,11 +97,7 @@ function RewardsService:KnitStart()
 	MessagingService:SubscribeAsync("CrossServerAnnouncement", function(message)
 		local data = message.Data
 		local text = data.Message
-		local color = data.Color
-
-		color = Color3.fromHex(color)
-
-		self:MakeAnnouncement(text, color)
+		self:MakeAnnouncement(text, getCrossServerAnnouncementColor(data))
 	end)
 
 	MessagingService:SubscribeAsync("CrossServerReward", function(message)
@@ -92,12 +105,9 @@ function RewardsService:KnitStart()
 		local rewardType = data.RewardType
 		local reward = data.Reward
 		local announcement = data.Message
-		local color = data.Color
-
-		color = Color3.fromHex(color) or Color3.fromRGB(255, 255, 255)
 
 		if announcement then
-			self:MakeAnnouncement(announcement, color)
+			self:MakeAnnouncement(announcement, getCrossServerAnnouncementColor(data))
 		end
 
 		for _, player in pairs(Players:GetPlayers()) do
@@ -203,13 +213,12 @@ function RewardsService:MakeAnnouncement(message, color)
 end
 
 -- Send a global announcement (at the top of the screen)
-function RewardsService:MakeCrossServerAnnouncement(message, color: Color3)
+function RewardsService:MakeCrossServerAnnouncement(message, color)
 	task.spawn(function()
 		pcall(function()
-			MessagingService:PublishAsync("CrossServerAnnouncement", {
-				Message = message,
-				Color = color:ToHex()
-			})
+			MessagingService:PublishAsync("CrossServerAnnouncement", addCrossServerAnnouncementColor({
+				Message = message
+			}, color))
 		end)
 	end)
 end
@@ -227,15 +236,14 @@ function RewardsService:MakeCrossServerMessage(message, color, type)
 	end)
 end
 
-function RewardsService:GiveCrossServerReward(rewardType, reward, message, color: Color3)
+function RewardsService:GiveCrossServerReward(rewardType, reward, message, color)
 	task.spawn(function()
 		pcall(function()
-			MessagingService:PublishAsync("CrossServerReward", {
+			MessagingService:PublishAsync("CrossServerReward", addCrossServerAnnouncementColor({
 				RewardType = rewardType,
 				Reward = reward,
-				Message = message,
-				Color = color:ToHex()
-			})
+				Message = message
+			}, color))
 		end)
 	end)
 end

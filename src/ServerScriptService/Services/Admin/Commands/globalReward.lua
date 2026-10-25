@@ -25,9 +25,9 @@ return {
 		},
 
 		{
-			Type = "color3",
+			Type = "announcementColor",
 			Name = "Color",
-			Description = "Color of announcement",
+			Description = "RGB, #hex, or EasyVisuals effect such as Zebra or Rainbow",
 			Default = Color3.fromRGB(255, 255, 255)
 		}
 	};
