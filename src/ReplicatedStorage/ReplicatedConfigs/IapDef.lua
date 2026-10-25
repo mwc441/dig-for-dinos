@@ -19,313 +19,313 @@ IapDef.Table = {
 	-- DEV PRODUCTS
 	[IapsEnum.SkipRebirth] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3716349307
+			[IapTypesEnum.DevProduct] = 3716349307,
 		},
 		Name = "Skip Rebirth",
 		Description = "",
 		Rewards = {
-			["SkipRebirth"] = true
+			["SkipRebirth"] = true,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.SpeedUpgrade] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3716788501
+			[IapTypesEnum.DevProduct] = 3716788501,
 		},
 		Name = "+1 Speed Level",
 		Description = "",
 		Rewards = {
-			["SpeedUpgrade"] = 1
+			["SpeedUpgrade"] = 1,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.DigSpeedUpgrade] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3721998209
+			[IapTypesEnum.DevProduct] = 3721998209,
 		},
 		Name = "+1 Dig Training Speed",
 		Rewards = {
-			["DigTrainingSpeedUpgrade"] = 1
+			["DigTrainingSpeedUpgrade"] = 1,
 		},
 		Giftable = true,
 	},
 
 	[IapsEnum.BearTrapUpgrade] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3721998742
+			[IapTypesEnum.DevProduct] = 3721998742,
 		},
 		Name = "+1 Bear Trap Place",
 		Rewards = {
-			["BearTrapUpgrade"] = 1
+			["BearTrapUpgrade"] = 1,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.OfflineRewards1Hour] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3718677900
+			[IapTypesEnum.DevProduct] = 3718677900,
 		},
 		Name = "1 Hour Offline Cash",
 		Description = "",
 		Rewards = {
-			["OfflineRewards"] = 60 * 60
+			["OfflineRewards"] = 60 * 60,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.OfflineRewards24Hours] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3718677950
+			[IapTypesEnum.DevProduct] = 3718677950,
 		},
 		Name = "24 Hours Offline Cash",
 		Description = "",
 		Rewards = {
-			["OfflineRewards"] = 24 * 60 * 60
+			["OfflineRewards"] = 24 * 60 * 60,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.SmallCashPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720172717
+			[IapTypesEnum.DevProduct] = 3720172717,
 		},
 		Name = "+10,000 Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 10_000
+			[PlayerStatsEnum.Cash] = 10_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.MediumCashPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720173382
+			[IapTypesEnum.DevProduct] = 3720173382,
 		},
 		Name = "+30,000 Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 30_000
+			[PlayerStatsEnum.Cash] = 30_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.LargeCashPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720173860
+			[IapTypesEnum.DevProduct] = 3720173860,
 		},
 		Name = "+100,000 Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 100_000
+			[PlayerStatsEnum.Cash] = 100_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.GiantCashPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720174230
+			[IapTypesEnum.DevProduct] = 3720174230,
 		},
 		Name = "+500K Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 500_000
+			[PlayerStatsEnum.Cash] = 500_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.MassiveCashPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720174614
+			[IapTypesEnum.DevProduct] = 3720174614,
 		},
 		Name = "5M Cash",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.Cash] = 5_000_000
+			[PlayerStatsEnum.Cash] = 5_000_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.SmallDigPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720199883
+			[IapTypesEnum.DevProduct] = 3720199883,
 		},
 		Name = "+10,000 Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 10_000
+			[PlayerStatsEnum.DigPower] = 10_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.MediumDigPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720200203
+			[IapTypesEnum.DevProduct] = 3720200203,
 		},
 		Name = "+30,000 Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 30_000
+			[PlayerStatsEnum.DigPower] = 30_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.LargeDigPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720200499
+			[IapTypesEnum.DevProduct] = 3720200499,
 		},
 		Name = "+100,000 Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 100_000
+			[PlayerStatsEnum.DigPower] = 100_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.GiantDigPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720200732
+			[IapTypesEnum.DevProduct] = 3720200732,
 		},
 		Name = "+500K Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 500_000
+			[PlayerStatsEnum.DigPower] = 500_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	[IapsEnum.MassiveDigPack] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720200968
+			[IapTypesEnum.DevProduct] = 3720200968,
 		},
 		Name = "+5M Dig",
 		Description = "",
 		Rewards = {
-			[PlayerStatsEnum.DigPower] = 5_000_000
+			[PlayerStatsEnum.DigPower] = 5_000_000,
 		},
-		Giftable = true
+		Giftable = true,
 	},
 
 	-- GAMEPASSES
 	[IapsEnum.VIP] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720140827
+			[IapTypesEnum.DevProduct] = 3720140827,
 		},
 		Name = "VIP",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.Cash2x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720144049
+			[IapTypesEnum.DevProduct] = 3720144049,
 		},
 		Name = "Cash 2x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.Cash4x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720159982
+			[IapTypesEnum.DevProduct] = 3720159982,
 		},
 		Name = "Cash 4x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.Cash8x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720162746
+			[IapTypesEnum.DevProduct] = 3720162746,
 		},
 		Name = "Cash 8x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.Cash16x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720164032
+			[IapTypesEnum.DevProduct] = 3720164032,
 		},
 		Name = "Cash 16x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.Cash32x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720165543
+			[IapTypesEnum.DevProduct] = 3720165543,
 		},
 		Name = "Cash 32x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.DigPower2x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720145044
+			[IapTypesEnum.DevProduct] = 3720145044,
 		},
 		Name = "Dig Power 2x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.AutoCollect] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720145646
+			[IapTypesEnum.DevProduct] = 3720145646,
 		},
 		Name = "Auto Collect",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.OfflineCash2x] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720156437
+			[IapTypesEnum.DevProduct] = 3720156437,
 		},
 		Name = "Offline Cash 2x",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.GiantBearTraps] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720167428
+			[IapTypesEnum.DevProduct] = 3720167428,
 		},
 		Name = "Giant Bear Traps",
 		Description = "",
 		Rewards = {},
 		Giftable = true,
-		MaxPurchases = 1
+		MaxPurchases = 1,
 	},
 
 	[IapsEnum.OmegaShovel] = {
 		Ids = {
-			[IapTypesEnum.DevProduct] = 3720823548
+			[IapTypesEnum.DevProduct] = 3720823548,
 		},
 		Name = "Omega Shovel",
 		Description = "",
 		Rewards = {
-			["OmegaShovel"] = 1
+			["OmegaShovel"] = 1,
 		},
 		Giftable = true,
 		MaxPurchases = 1
@@ -366,8 +366,8 @@ IapDef.OrderOfPurchase = {
 		IapsEnum.Cash4x,
 		IapsEnum.Cash8x,
 		IapsEnum.Cash16x,
-		IapsEnum.Cash32x
-	}
+		IapsEnum.Cash32x,
+	},
 }
 
 function IapDef.GetAllIaps()

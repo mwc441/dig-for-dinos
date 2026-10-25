@@ -11,7 +11,7 @@ SettingsDef.Table = {
 		Name = "Music Volume",
 		Default = 1,
 		Type = "number",
-		SetType = "Slider"
+		SetType = "Slider",
 	},
 
 	[SettingsEnum.SoundEffectVolume] = {
@@ -19,36 +19,36 @@ SettingsDef.Table = {
 		Name = "Sound Effect Volume",
 		Default = 1,
 		Type = "number",
-		SetType = "Slider"
+		SetType = "Slider",
 	},
 
 	[SettingsEnum.ShowOtherPlayerDinosaurs] = {
 		Order = 3,
 		Name = "Show Other's Dinos",
 		Default = true,
-		Type = "boolean"
+		Type = "boolean",
 	},
 
 	[SettingsEnum.ShowOwnDinosaurs] = {
 		Order = 4,
 		Name = "Show Your Dinos",
 		Default = true,
-		Type = "boolean"
+		Type = "boolean",
 	},
 
 	[SettingsEnum.AutoCollect] = {
 		Order = 5,
 		Name = "Auto Collect",
 		Default = true,
-		Type = "boolean"
+		Type = "boolean",
 	},
 
 	[SettingsEnum.SpeedOn] = {
 		ShowInUi = false,
 		Name = "Speed On",
 		Default = true,
-		Type = "boolean"
-	}
+		Type = "boolean",
+	},
 }
 
 function SettingsDef.GetAllSettings()

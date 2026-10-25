@@ -15,38 +15,38 @@ WeatherDef.Table = {
 		ManualOnly = true,
 		Announcement = "[//] ADMIN WEATHER ACTIVE [//]",
 		AnnouncementColor = "Zebra",
-		Boosts = { { Id = BoostsEnum.AdminWeatherBoost, Level = 1 } }
+		Boosts = { { Id = BoostsEnum.AdminWeatherBoost, Level = 1 } },
 	},
 
 	["Gold"] = {
 		Announcement = "✨ Gold weather has begun! ✨",
 		AnnouncementColor = Color3.fromRGB(255, 205, 52),
-		Boosts = { { Id = BoostsEnum.GoldWeatherBoost, Level = 1 } }
+		Boosts = { { Id = BoostsEnum.GoldWeatherBoost, Level = 1 } },
 	},
 
 	["Void"] = {
 		Announcement = "🌀 Void weather has begun! 🌀",
 		AnnouncementColor = Color3.fromRGB(151, 88, 255),
-		Boosts = { { Id = BoostsEnum.VoidWeatherBoost, Level = 1 } }
+		Boosts = { { Id = BoostsEnum.VoidWeatherBoost, Level = 1 } },
 	},
 
 	["Flame"] = {
 		Announcement = "🔥 Flame weather has begun! 🔥",
 		AnnouncementColor = Color3.fromRGB(255, 102, 51),
-		Boosts = { { Id = BoostsEnum.FlameWeatherBoost, Level = 1 } }
+		Boosts = { { Id = BoostsEnum.FlameWeatherBoost, Level = 1 } },
 	},
 
 	["Cash"] = {
 		Announcement = "💰 Cash weather has begun! 💰",
 		AnnouncementColor = Color3.fromRGB(76, 232, 104),
-		Boosts = { { Id = BoostsEnum.CashWeatherBoost, Level = 1 } }
+		Boosts = { { Id = BoostsEnum.CashWeatherBoost, Level = 1 } },
 	},
 
 	["Radioactive"] = {
 		Announcement = "☢️ Radioactive weather has begun! ☢️",
 		AnnouncementColor = Color3.fromRGB(176, 255, 64),
-		Boosts = { { Id = BoostsEnum.RadioactiveWeatherBoost, Level = 1 } }
-	}
+		Boosts = { { Id = BoostsEnum.RadioactiveWeatherBoost, Level = 1 } },
+	},
 }
 
 local weatherIds = {}
@@ -67,7 +67,7 @@ function WeatherDef.GetWeatherAtTime(unixTime)
 	if unixTime >= endsAt then
 		return {
 			StartsAt = endsAt,
-			EndsAt = startsAt + WeatherDef.IntervalSeconds
+			EndsAt = startsAt + WeatherDef.IntervalSeconds,
 		}
 	end
 
@@ -75,7 +75,7 @@ function WeatherDef.GetWeatherAtTime(unixTime)
 	return {
 		Id = weatherIds[weatherIndex],
 		StartsAt = startsAt,
-		EndsAt = endsAt
+		EndsAt = endsAt,
 	}
 end
 

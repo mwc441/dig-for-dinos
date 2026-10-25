@@ -10,69 +10,69 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 100,
+			},
+		},
 	},
 
 	[2] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 250,
+			},
+		},
 	},
 
 	[3] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 500,
+			},
+		},
 	},
 
 	[4] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 1_000,
+			},
+		},
 	},
 
 	[5] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 2_500,
+			},
+		},
 	},
 
 	[6] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100
-			}
-		}
+				Reward = 5_000,
+			},
+		},
 	},
 
 	[7] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 200
+				Reward = 10_000,
 			},
 
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 500
-			}
-		}
-	}
+				Reward = 25_000,
+			},
+		},
+	},
 }
 
 function DailyRewardsDef.GetAllRewards()
