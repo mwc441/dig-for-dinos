@@ -95,7 +95,9 @@ function OfflineRewardsController:KnitStart()
 		self:_UpdateUi()
 	end)
 
-	self:_UpdateUi()
+	task.defer(function()
+		self:_UpdateUi()
+	end)
 
 	RunService.Heartbeat:Connect(function()
 		local isInside = self._PlotController:IsInsidePlot()
