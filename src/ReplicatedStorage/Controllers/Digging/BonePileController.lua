@@ -94,6 +94,7 @@ local BonePileController = {
 	_ToolTrove = Trove.new(),
 	_EquippedInventoryDisplays = {},
 	_ActiveInventoryTool = nil,
+	_FovThrob = nil,
 	_BuildTrove = Trove.new()
 }
 
@@ -102,8 +103,11 @@ function BonePileController:KnitInit()
 	local hud = mainGui:WaitForChild("Hud")
 
 	self._Gui = {
-		DropButton = hud:WaitForChild("DropButton")
+		DropButton = hud:WaitForChild("DropButton"),
+		Vignette = mainGui:WaitForChild("Vignette")
 	}
+	self._Gui.Vignette.ImageTransparency = 1
+	self._Gui.Vignette.Visible = false
 
 	local dropButton = GuiButton.new(self._Gui.DropButton)
 	dropButton:SetCallback(function()
@@ -138,6 +142,7 @@ function BonePileController:KnitStart()
 
 	self._BonePileService.BonesRewarded:Connect(function()
 		UtilFunctions.PlayCopyOfSound(BoneRewardedSound)
+		self:_ThrobCameraFov()
 	end)
 	self._BonePileService.RevealStarted:Connect(function(reveal)
 		self:_PlayReveal(reveal)
@@ -156,6 +161,66 @@ function BonePileController:KnitStart()
 			self:_OnInventoryToolEquipped(player, player.Character, tool)
 		end
 	end
+end
+
+function BonePileController:_ThrobCameraFov()
+	local FOV_THROB_AMOUNT = 8
+	local FOV_THROB_OUT_TIME = 0.25
+	local FOV_THROB_RETURN_TIME = 0.25
+
+	local camera = Workspace.CurrentCamera
+	if not camera then return end
+	local vignette = self._Gui.Vignette
+
+	local previousThrob = self._FovThrob
+	local baseFov = previousThrob and previousThrob.Camera == camera and previousThrob.BaseFov or camera.FieldOfView
+	local throb = { Camera = camera, BaseFov = baseFov }
+	self._FovThrob = throb
+	if previousThrob then
+		previousThrob.Tween:Cancel()
+		previousThrob.VignetteTween:Cancel()
+	end
+	vignette.Visible = true
+
+	local outTweenInfo = TweenInfo.new(FOV_THROB_OUT_TIME, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	local outTween = TweenService:Create(camera, outTweenInfo, {
+		FieldOfView = baseFov + FOV_THROB_AMOUNT
+	})
+	local vignetteInTween = TweenService:Create(vignette, outTweenInfo, {
+		ImageTransparency = 0
+	})
+	throb.Tween = outTween
+	throb.VignetteTween = vignetteInTween
+	outTween.Completed:Once(function(playbackState)
+		if self._FovThrob ~= throb then return end
+		if playbackState ~= Enum.PlaybackState.Completed then
+			vignetteInTween:Cancel()
+			vignette.ImageTransparency = 1
+			vignette.Visible = false
+			self._FovThrob = nil
+			return
+		end
+
+		local returnTweenInfo = TweenInfo.new(FOV_THROB_RETURN_TIME, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+		local returnTween = TweenService:Create(camera, returnTweenInfo, {
+			FieldOfView = baseFov
+		})
+		local vignetteOutTween = TweenService:Create(vignette, returnTweenInfo, {
+			ImageTransparency = 1
+		})
+		throb.Tween = returnTween
+		throb.VignetteTween = vignetteOutTween
+		vignetteOutTween.Completed:Once(function()
+			if self._FovThrob == throb then
+				vignette.Visible = false
+				self._FovThrob = nil
+			end
+		end)
+		returnTween:Play()
+		vignetteOutTween:Play()
+	end)
+	outTween:Play()
+	vignetteInTween:Play()
 end
 
 function BonePileController:_PlayReveal(reveal)
