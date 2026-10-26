@@ -37,7 +37,7 @@ function Dinosaur.new(replicationData)
 	self._Scale = replicationData.Scale
 	self._Mutation = replicationData.Mutation or MutationsEnum.Normal
 	self._ZoneId = replicationData.ZoneId
-	self._Income = 0
+	self._Income = replicationData.Income or 0
 
 	self:Update(replicationData)
 

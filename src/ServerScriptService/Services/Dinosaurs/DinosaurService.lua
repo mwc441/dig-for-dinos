@@ -107,7 +107,8 @@ function DinosaurService:OnPlayerAdded(player)
 				Id = entry.Id,
 				Scale = BonePileUtils.GetScale(entry.Scale),
 				Mutation = entry.Mutation or MutationsEnum.Normal,
-				ZoneId = entry.ZoneId
+				ZoneId = entry.ZoneId,
+				Income = entry.Income
 			})
 		end
 	end
@@ -120,7 +121,24 @@ function DinosaurService:OnPlayerAdded(player)
 end
 
 function DinosaurService:OnPlayerRemoving(player)
-	for _, dinosaur in ipairs(self._Dinosaurs[player] or {}) do
+	local dinosaurs = self._Dinosaurs[player] or {}
+	if #dinosaurs > 0 then
+		local savedData = self._DataService:GetPlayerData(player, DINOSAURS_KEY, DINOSAURS_DEFAULT_DATA)
+		local incomesByGuid = {}
+		for _, dinosaur in ipairs(dinosaurs) do
+			incomesByGuid[dinosaur:GetGuid()] = dinosaur:GetIncome()
+		end
+
+		for _, entry in ipairs(savedData.Placed) do
+			local income = incomesByGuid[entry.Guid]
+			if income ~= nil then
+				entry.Income = income
+			end
+		end
+		self._DataService:SetPlayerData(player, DINOSAURS_KEY, savedData)
+	end
+
+	for _, dinosaur in ipairs(dinosaurs) do
 		dinosaur:Destroy()
 	end
 

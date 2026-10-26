@@ -30,7 +30,7 @@ function Dinosaur.new(replicationService, owner, floor, savedData, spawnCFrame)
 	self._Floor = floor
 	self._Random = Random.new()
 	self._WalkSpeed = WALK_SPEED
-	self._Income = 0
+	self._Income = savedData.Income or 0
 
 	local groundCFrame = spawnCFrame or self:_GetRandomGroundCFrame()
 	if not spawnCFrame then
@@ -54,6 +54,7 @@ function Dinosaur:GetReplicationData()
 	replicationData.Scale = self._Scale
 	replicationData.Mutation = self._Mutation
 	replicationData.ZoneId = self._ZoneId
+	replicationData.Income = self._Income
 	replicationData.StartCFrame = self._StartCFrame
 	replicationData.TargetCFrame = self._TargetCFrame
 	replicationData.MoveStartTime = self._MoveStartTime
