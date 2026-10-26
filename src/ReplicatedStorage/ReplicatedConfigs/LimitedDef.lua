@@ -1,5 +1,8 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Enums = ReplicatedStorage:WaitForChild("Enums")
+local LimitedsEnum = require(Enums:WaitForChild("Limiteds"))
+
 local LimitedDef = {}
 
 LimitedDef.Table = {
@@ -7,6 +10,9 @@ LimitedDef.Table = {
 	-- 	Limit = 10_000,
 	-- 	ExpiryTime = nil
 	-- }
+	[LimitedsEnum.Serpent] = {
+		Limit = 2
+	}
 }
 
 function LimitedDef.GetAllLimiteds()

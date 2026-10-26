@@ -29,6 +29,8 @@ return {
 	ServerLuck10 = "ServerLuck10Iap",
 	ServerLuck11 = "ServerLuck11Iap",
 
+	Serpent = "SerpentIap",
+
 	-- Gamepasses
 	VIP = "VIPIap",
 	Cash2x = "Cash2xIap",

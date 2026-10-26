@@ -4,6 +4,7 @@ local Enums = ReplicatedStorage:WaitForChild("Enums")
 local IapTypesEnum = require(Enums:WaitForChild("IapTypes"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local IapsEnum = require(Enums:WaitForChild("Iaps"))
+local LimitedsEnum = require(Enums:WaitForChild("Limiteds"))
 
 local IapDef = {}
 
@@ -350,6 +351,22 @@ IapDef.Table = {
 		},
 		Giftable = false,
 		PaidRandom = true
+	},
+
+	[IapsEnum.Serpent] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3722380978
+		},
+		Name = "Serpent",
+		Description = "",
+		Rewards = {
+			["Hydra"] = {
+				Scale = 2.2,
+				Mutation = "Flame"
+			}
+		},
+		Giftable = true,
+		Limited = LimitedsEnum.Serpent
 	},
 
 	-- GAMEPASSES

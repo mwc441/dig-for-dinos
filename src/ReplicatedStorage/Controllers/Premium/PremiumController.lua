@@ -37,6 +37,7 @@ local PremiumController = {
 	_IapVendorComponent = nil,
 	_HudController = nil,
 	_BoostController = nil,
+	_LimitedController = nil,
 	_PendingServerLuckPurchase = nil
 }
 
@@ -100,6 +101,7 @@ function PremiumController:KnitStart()
 	self._IapVendorComponent = require(Components.IapVendor)
 	self._HudController = require(ReplicatedStorage.Controllers.Hud.HudController)
 	self._BoostController = require(ReplicatedStorage.Controllers.Boosts.BoostController)
+	self._LimitedController = require(ReplicatedStorage.Controllers.Limited.LimitedController)
 
 	self._IapController.IapCacheChanged:Connect(function()
 		self:_UpdateIaps()
@@ -108,6 +110,9 @@ function PremiumController:KnitStart()
 
 	self._BoostController.BoostsUpdatedSignal:Connect(function()
 		self:_UpdateServerLuck()
+	end)
+	self._LimitedController.LimitedCacheUpdatedSignal:Connect(function()
+		self:_UpdateIaps()
 	end)
 
 	self._IapController.IapPurchasedSignal:Connect(function(iapId)
@@ -371,6 +376,17 @@ function PremiumController:_UpdateIapVendor(iapVendor)
 	if not iapInfo then return end
 
 	iapVendor.NameText.Text = iapInfo.Name or ""
+
+	if iapVendor.LimitedFrame then
+		local limitedId = iapInfo.Limited
+		iapVendor.LimitedFrame.Visible = limitedId ~= nil
+		if limitedId then
+			local limit = self._LimitedController:GetLimitedLimit(limitedId)
+			local remainingCount = self._LimitedController:GetLimitedRemainingCount(limitedId)
+			local amountText = remainingCount ~= nil and tostring(remainingCount) or "..."
+			iapVendor.LimitedAmountText.Text = string.format("%s / %d Left", amountText, limit)
+		end
+	end
 
 	local price = self._IapController:GetPriceOfIap(iapId)
 	iapVendor.PriceText.Text = price and string.format("%d", price) or "..."

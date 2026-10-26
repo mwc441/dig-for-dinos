@@ -45,6 +45,12 @@ function IapVendor:_SetupGui()
 
 	self.NameText = gui:WaitForChild("NameFrame"):WaitForChild("NameText")
 	self.PriceText = gui:WaitForChild("PriceFrame"):WaitForChild("PriceText")
+
+	self.LimitedFrame = gui:FindFirstChild("LimitedFrame")
+	if self.LimitedFrame then
+		self.LimitedFrame.Visible = false
+		self.LimitedAmountText = self.LimitedFrame:WaitForChild("AmountText")
+	end
 end
 
 function IapVendor:Stop()

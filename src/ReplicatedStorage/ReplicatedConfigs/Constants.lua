@@ -12,6 +12,10 @@ return {
 		[93414274508946] = {
 			IsDevPlace = true,
 		},
+
+		[136410689868596] = {
+			IsDevPlace = false
+		}
 	},
 
 	GroupId = 10353739,

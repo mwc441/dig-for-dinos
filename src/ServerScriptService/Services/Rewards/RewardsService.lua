@@ -10,7 +10,9 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
 local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 local ItemDef = require(ReplicatedConfigs:WaitForChild("ItemDef"))
+local DinosaurDef = require(ReplicatedConfigs:WaitForChild("DinosaurDef"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
+local MutationsEnum = require(Enums:WaitForChild("Mutations"))
 local Signal = require(External:WaitForChild("Signal"))
 local Knit = require(External:WaitForChild("Knit"))
 
@@ -35,6 +37,7 @@ local RewardsService = {
 	_UpgradeService = nil,
 	_OfflineRewardsService = nil,
 	_PremiumService = nil,
+	_DinosaurService = nil,
 	CrossServerMessageReceived = Signal.new()
 }
 
@@ -73,6 +76,7 @@ function RewardsService:KnitStart()
 	self._UpgradeService = require(ServerScriptService.Services.Upgrades.UpgradeService)
 	self._OfflineRewardsService = require(ServerScriptService.Services.OfflineRewards.OfflineRewardsService)
 	self._PremiumService = require(ServerScriptService.Services.Premium.PremiumService)
+	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
 
 	MessagingService:SubscribeAsync("CrossServerMessage", function(message)
 		local text = message.Data.Message
@@ -167,6 +171,14 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 			analyticsTable.TransactionType or Enum.AnalyticsEconomyTransactionType.Gameplay.Name,
 			analyticsTable.Sku,
 			analyticsTable.CustomFields
+		)
+	elseif DinosaurDef.GetDinosaurInfo(rewardType) then
+		self._DinosaurService:GiveDinosaur(
+			player,
+			rewardType,
+			reward.Scale or 1,
+			reward.Mutation or MutationsEnum.Normal,
+			nil
 		)
 	elseif ItemDef.GetItemInfo(rewardType) then
 		self._InventoryService:AddItemsToPlayersInventory(player, {
