@@ -44,6 +44,7 @@ DinosaurDef.Ids = {
 	Styracosaurus = "Styracosaurus",
 	Therizinosaurus = "Therizinosaurus",
 	Dragon = "Dragon",
+	Serpent = "Serpent"
 }
 
 -- income is cash per second. what u actually make = Income * zone IncomeMultiplier (1/2/4 inside a set) * mutation * size, simple shit
@@ -249,6 +250,12 @@ DinosaurDef.Table = {
 		Income = 1_500_000,
 		Weight = 100,
 	},
+	[DinosaurDef.Ids.Serpent] = {
+		Name = "Serpent",
+		Rarity = RaritiesEnum.Secret,
+		Income = 2_000_000,
+		Weight = 0
+	}
 }
 
 DinosaurDef.MutationIncomeMultipliers = {

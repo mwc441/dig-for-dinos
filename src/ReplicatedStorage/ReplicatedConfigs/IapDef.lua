@@ -360,9 +360,9 @@ IapDef.Table = {
 		Name = "Serpent",
 		Description = "",
 		Rewards = {
-			["Hydra"] = {
-				Scale = 2.2,
-				Mutation = "Flame"
+			["Serpent"] = {
+				Scale = 1,
+				Mutation = "Normal"
 			}
 		},
 		Giftable = true,
