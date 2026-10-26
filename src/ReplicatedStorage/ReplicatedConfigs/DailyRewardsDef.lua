@@ -5,13 +5,14 @@ local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 
 local DailyRewardsDef = {}
 
--- mix of cash and dig power for now. day 4 and day 7 should get dinos once lollypop adds that (rare on 4, epic/legendary on 7)
+-- these are tuned to where an avg player is on each day (most kids play like 15-20 min a day). should feel worth coming back for
+-- day 4 and 7 should also give dinos once lollypop adds that (rare on 4, epic/legendary on 7). long term these should scale with progress or give timed boosts
 DailyRewardsDef.Table = {
 	[1] = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 1_000,
+				Reward = 100_000,
 			},
 		},
 	},
@@ -20,7 +21,11 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.DigPower,
-				Reward = 500,
+				Reward = 10_000,
+			},
+			{
+				RewardType = PlayerStatsEnum.Cash,
+				Reward = 250_000,
 			},
 		},
 	},
@@ -29,7 +34,7 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 5_000,
+				Reward = 1_000_000,
 			},
 		},
 	},
@@ -38,7 +43,7 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 10_000,
+				Reward = 3_000_000,
 			},
 		},
 	},
@@ -47,7 +52,11 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.DigPower,
-				Reward = 3_000,
+				Reward = 40_000,
+			},
+			{
+				RewardType = PlayerStatsEnum.Cash,
+				Reward = 8_000_000,
 			},
 		},
 	},
@@ -56,7 +65,7 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 25_000,
+				Reward = 25_000_000,
 			},
 		},
 	},
@@ -65,12 +74,11 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.DigPower,
-				Reward = 8_000,
+				Reward = 100_000,
 			},
-
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 50_000,
+				Reward = 100_000_000,
 			},
 		},
 	},
