@@ -28,6 +28,7 @@ local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local BigNumbers = require(External:WaitForChild("BigNumbers"))
+local CameraShaker = require(External:WaitForChild("CameraShaker"))
 local CountingText = require(GuiModules:WaitForChild("CountingText"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
@@ -876,6 +877,27 @@ function DigController:_DoShovelIdleAnim()
 	self._ShovelTrove:Add(track, "Stop")
 end
 
+function DigController:_ShakeCameraForDig()
+	local shake = CameraShaker.new()
+	shake.Amplitude = 0.4
+	shake.Frequency = 0.12
+	shake.FadeInTime = 0
+	shake.SustainTime = 0.25
+	shake.FadeOutTime = 0.1
+	shake.PositionInfluence = Vector3.new(0.03, 0.03, 0)
+	shake.RotationInfluence = Vector3.new(math.rad(0.6), math.rad(0.6), math.rad(0.2))
+
+	shake:Start()
+	shake:BindToRenderStep(CameraShaker.NextRenderName(), Enum.RenderPriority.Camera.Value + 1, function(position, rotation, completed)
+		if completed then return end
+
+		local camera = Workspace.CurrentCamera
+		if camera then
+			camera.CFrame *= CFrame.new(position) * CFrame.Angles(rotation.X, rotation.Y, rotation.Z)
+		end
+	end)
+end
+
 function DigController:_Dig()
 	if self:_IsOnExcavation() then return end
 
@@ -912,6 +934,7 @@ function DigController:_Dig()
 		self._NextPredictionId += 1
 		local predictionId = self._NextPredictionId
 		dirt:PredictHit(predictionId)
+		self:_ShakeCameraForDig()
 
 		self._DigService:Dig(dirtGuid, predictionId):andThen(function(succeeded)
 			if not succeeded then
