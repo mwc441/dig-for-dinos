@@ -156,6 +156,7 @@ BoostsDef.Table = {
 		Name = "Admin Weather",
 		Icon = "rbxassetid://100006374045000",
 		Description = "Admin Dinosaur Chance<br/><br/>+%g%%",
+		DisplayType = "Percentage",
 		AmountFunction = function(level: number)
 			return level * 0.05
 		end,
