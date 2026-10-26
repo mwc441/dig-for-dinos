@@ -39,6 +39,7 @@ local Derpbar = require(ReplicatedStorage:WaitForChild("Derpbar"))
 local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
 local Trove = require(External:WaitForChild("Trove"))
 local Device = require(External:WaitForChild("Device"))
+local Confetti = require(Utils:WaitForChild("Confetti"))
 
 local START_BONE_SCALE = 0.1
 local ASSEMBLY_EXPLOSION_TIME = 0.5
@@ -104,7 +105,8 @@ function BonePileController:KnitInit()
 
 	self._Gui = {
 		DropButton = hud:WaitForChild("DropButton"),
-		Vignette = mainGui:WaitForChild("Vignette")
+		Vignette = mainGui:WaitForChild("Vignette"),
+		ConfettiTopFrame = mainGui:WaitForChild("ConfettiTopFrame")
 	}
 	self._Gui.Vignette.ImageTransparency = 1
 	self._Gui.Vignette.Visible = false
@@ -143,6 +145,7 @@ function BonePileController:KnitStart()
 	self._BonePileService.BonesRewarded:Connect(function()
 		UtilFunctions.PlayCopyOfSound(BoneRewardedSound)
 		self:_ThrobCameraFov()
+		Confetti.Burst(nil, self._Gui.ConfettiTopFrame, 50, 180, 360)
 	end)
 	self._BonePileService.RevealStarted:Connect(function(reveal)
 		self:_PlayReveal(reveal)

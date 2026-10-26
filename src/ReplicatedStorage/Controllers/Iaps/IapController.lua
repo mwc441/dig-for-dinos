@@ -24,6 +24,7 @@ local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
 local Signal = require(External:WaitForChild("Signal"))
 local TableUtils = require(External:WaitForChild("TableUtils"))
 local Knit = require(External:WaitForChild("Knit"))
+local Confetti = require(Utils:WaitForChild("Confetti"))
 
 local hapticEffect = Instance.new("HapticEffect")
 hapticEffect.Type = Enum.HapticEffectType.GameplayExplosion
@@ -63,7 +64,8 @@ function IapController:KnitInit()
 
 	self._Gui = {
 		IapRainFrame = mainGui:WaitForChild("IapRainFrame"),
-		IapPromptFrame = mainGui:WaitForChild("IapPromptFrame")
+		IapPromptFrame = mainGui:WaitForChild("IapPromptFrame"),
+		ConfettiTopFrame = mainGui:WaitForChild("ConfettiTopFrame")
 	}
 
 	self._RobuxIconObject = GuiObject.new(self._Gui.IapPromptFrame.RobuxIcon)
@@ -99,8 +101,10 @@ function IapController:KnitStart()
 	self._IapService.IapPurchased:Connect(function(iapId)
 		self.IapPurchasedSignal:Fire(iapId)
 		self:_ClosePromptWindow()
+
 		Fireworks.LaunchFireworks(Player.Character:GetPivot())
 		hapticEffect:Play()
+		Confetti.Burst(nil, self._Gui.IapRainFrame, 50, 80, 110, nil, 3, 4)
 	end)
 
 	local iaps = self._DataController:GetProfileData("Iaps")
