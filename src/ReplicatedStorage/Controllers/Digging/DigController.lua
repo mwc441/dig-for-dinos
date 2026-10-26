@@ -40,7 +40,7 @@ local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
 local RarityColorUtils = require(Utils:WaitForChild("RarityColorUtils"))
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
-local Derpbar = require(ReplicatedStorage:WaitForChild("Derpbar"))
+local Derpbar = require(External:WaitForChild("Derpbar"))
 local Dirt = require(script.Parent:WaitForChild("Dirt"))
 
 local DIG_BOX_WIDTH = 6
