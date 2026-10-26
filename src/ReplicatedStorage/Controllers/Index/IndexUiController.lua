@@ -458,6 +458,8 @@ function IndexUiController:_SetupInfoFrame()
 		end
 	end
 
+	infoFrame.ZonesFrame.Visible = #zoneIds > 0
+
 	self._InfoFrameRarityText = RarityColorUtils.SetColor(infoFrame.RarityText, info.Rarity)
 
 	infoFrame.Flipbook.Image = ""
