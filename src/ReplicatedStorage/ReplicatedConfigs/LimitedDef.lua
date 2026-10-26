@@ -11,7 +11,7 @@ LimitedDef.Table = {
 	-- 	ExpiryTime = nil
 	-- }
 	[LimitedsEnum.Serpent] = {
-		Limit = 2
+		Limit = 1_000
 	}
 }
 
