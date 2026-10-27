@@ -468,6 +468,7 @@ function BonePileService:AwardForDirt(player, zoneId, dirtId, dirtCFrame, dirtSc
 	if not pile then
 		return false
 	end
+	pile.Model:SetAttribute("DugByUserId", player.UserId)
 
 	local dropCFrame = self:_GetDropCFrame(pile, dirtCFrame.Position, dirtCFrame.LookVector)
 	local startsAt = Workspace:GetServerTimeNow()

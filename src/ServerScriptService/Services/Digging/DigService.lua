@@ -30,7 +30,8 @@ local DigService = {
 	Name = "DigService",
 	Client = {
 		InitialDirtGuids = Knit.CreateProperty(nil),
-		UpcomingGuaranteedSpawns = Knit.CreateProperty({})
+		UpcomingGuaranteedSpawns = Knit.CreateProperty({}),
+		DirtCompleted = Knit.CreateSignal()
 	},
 	_EquipService = nil,
 	_InventoryService = nil,
@@ -520,7 +521,9 @@ function DigService:_DigForPlayer(player, dirtGuid, predictionId)
 	self._LastDig[player] = currentTime
 	local remainingHealth = dirt:Damage(digPower, player.UserId, predictionId)
 	if remainingHealth == 0 then
-		self._BonePileService:AwardForDirt(player, dirt:GetZoneId(), dirt:GetDirtId(), dirt:GetCFrame(), dirt:GetScale())
+		if self._BonePileService:AwardForDirt(player, dirt:GetZoneId(), dirt:GetDirtId(), dirt:GetCFrame(), dirt:GetScale()) then
+			self.Client.DirtCompleted:Fire(player, dirtGuid, dirt:GetZoneId())
+		end
 	end
 
 	return remainingHealth ~= nil

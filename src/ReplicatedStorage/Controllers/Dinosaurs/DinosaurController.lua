@@ -49,7 +49,8 @@ local DinosaurController = {
 	_LocalDinosaursHidden = false,
 	_ShowOtherPlayerDinosaurs = true,
 	_ShowOwnDinosaurs = true,
-	DinosaurDataUpdatedSignal = Signal.new()
+	DinosaurDataUpdatedSignal = Signal.new(),
+	IncomeCollectedSignal = Signal.new()
 }
 
 function DinosaurController:KnitInit()
@@ -161,6 +162,10 @@ function DinosaurController:GetDinosaurCount()
 	return #(self._DinosaurData.Placed or {})
 end
 
+function DinosaurController:GetDinosaur(guid)
+	return self._Dinosaurs[guid]
+end
+
 function DinosaurController:GetIncomePerSecond()
 	local cashBoost = self._BoostController:GetTotalAmountForBoostType(BoostTypesEnum.CashBoost)
 	local totalIncome = 0
@@ -237,7 +242,7 @@ function DinosaurController:_CreateDinosaur(replicationData)
 	local lastClaimAt = -math.huge
 
 	dinosaur.Touched:Connect(function()
-		if not self._PlotController:IsInsidePlot() then return end
+		if dinosaur:GetOwnerUserId() ~= Player.UserId or not self._PlotController:IsInsidePlot() then return end
 
 		local income = dinosaur:GetIncome()
 		if income <= 0 then return end
@@ -264,6 +269,7 @@ function DinosaurController:_CreateDinosaur(replicationData)
 
 		UtilFunctions.EmitParticles(newMoneyParticles)
 
+		self.IncomeCollectedSignal:Fire(guid, income)
 		self._DinosaurService:ClaimIncome(guid)
 	end)
 

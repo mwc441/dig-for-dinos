@@ -37,6 +37,7 @@ local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local Knit = require(External:WaitForChild("Knit"))
 local Derpbar = require(External:WaitForChild("Derpbar"))
 local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
+local Signal = require(External:WaitForChild("Signal"))
 local Trove = require(External:WaitForChild("Trove"))
 local Device = require(External:WaitForChild("Device"))
 local Confetti = require(Utils:WaitForChild("Confetti"))
@@ -96,8 +97,14 @@ local BonePileController = {
 	_EquippedInventoryDisplays = {},
 	_ActiveInventoryTool = nil,
 	_FovThrob = nil,
+	_IsAssembling = false,
+	AssemblyStateChangedSignal = Signal.new(),
 	_BuildTrove = Trove.new()
 }
+
+function BonePileController:IsAssembling()
+	return self._IsAssembling
+end
 
 function BonePileController:KnitInit()
 	local mainGui = Player:WaitForChild("PlayerGui"):WaitForChild("Main")
@@ -619,6 +626,7 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 	local oldAutoRotate = humanoid.AutoRotate
 	local oldDerpbarEnabled = Derpbar.Enabled
 	self._IsAssembling = true
+	self.AssemblyStateChangedSignal:Fire(true)
 	self._DinosaurController:HideDinosaurs()
 	self:_StopBuildMode()
 	humanoid.WalkSpeed = 0
@@ -693,8 +701,9 @@ function BonePileController:_PlayBoneAssembleAnimation(bonePileGuid, dinosaurId,
 		flightFolder:Destroy()
 		model:Destroy()
 		if pileModel then pileModel:Destroy() end
-		self._IsAssembling = false
 		showDinosaurs()
+		self._IsAssembling = false
+		self.AssemblyStateChangedSignal:Fire(false)
 	end
 
 	local function startGlow()

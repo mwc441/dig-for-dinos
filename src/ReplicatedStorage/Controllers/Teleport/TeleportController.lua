@@ -3,14 +3,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Player = Players.LocalPlayer
 
 local Components = ReplicatedStorage:WaitForChild("Components")
+local External = ReplicatedStorage:WaitForChild("External")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local GuiButton = require(GuiModules:WaitForChild("Button"))
+local Signal = require(External:WaitForChild("Signal"))
 
 local TeleportController = {
 	Name = "TeleportController",
 	_PlotController = nil,
 	_TeleportSpotComponent = nil,
-	_Zone2dComponent = nil
+	_Zone2dComponent = nil,
+	ShovelsTeleportClicked = Signal.new(),
+	UpgradesTeleportClicked = Signal.new()
 }
 
 function TeleportController:KnitInit()
@@ -29,12 +33,14 @@ function TeleportController:KnitInit()
 	local upgradesButton = GuiButton.new(teleportButtons:WaitForChild("UpgradesButton"))
 	upgradesButton:SetCallback(function()
 		self._TeleportSpotComponent.TeleportPlayer(Player, "Upgrades")
+		self.UpgradesTeleportClicked:Fire()
 	end)
 	upgradesButton:SetMakeIconRotateLeftRightWhenHovered(true)
 
 	local shovelsButton = GuiButton.new(teleportButtons:WaitForChild("ShovelsButton"))
 	shovelsButton:SetCallback(function()
 		self._TeleportSpotComponent.TeleportPlayer(Player, "Shovels")
+		self.ShovelsTeleportClicked:Fire()
 	end)
 	shovelsButton:SetMakeIconRotateLeftRightWhenHovered(true)
 end
