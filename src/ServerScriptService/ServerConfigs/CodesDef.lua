@@ -12,9 +12,11 @@ local CodesDef = {}
 CodesDef.Table = {
 	["Launch"] = {
 		Code = "Launch",
-		Rewards = {},
-		--ExpiryTime = 1782500400
-	} -- TODO: MORE CODES
+		Rewards = {
+			[PlayerStatsEnum.Cash] = 5_000,
+			[PlayerStatsEnum.DigPower] = 100
+		},
+	}
 }
 
 function CodesDef.GetCodeInfoFromCode(code)
