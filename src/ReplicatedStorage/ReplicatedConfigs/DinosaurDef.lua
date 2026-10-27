@@ -167,7 +167,7 @@ DinosaurDef.Table = {
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.BallerinaSkeletina] = {
-		Name = "BallerinaSkeletina",
+		Name = "Ballerina Skeletina",
 		Rarity = RaritiesEnum.Rare,
 		Income = 1_080,
 		Weight = 100,
