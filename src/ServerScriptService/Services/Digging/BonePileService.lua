@@ -449,6 +449,7 @@ function BonePileService:AwardForDirt(player, zoneId, dirtId, dirtCFrame, dirtSc
 
 	local rolledRarity = RarityUtils.GetLootTableResults(rarityLootTable).Id
 	local dinosaurId = RarityUtils.GetLootTableResults(dinosaursByRarity[rolledRarity]).Id
+	local totalWeight = RarityUtils.GetTotalWeightOfLootTable(DinosaurDef.MutationLootTable)
 	local mutationLootTable = {}
 	for _, entry in ipairs(DinosaurDef.MutationLootTable) do
 		local weight = entry.Weight
@@ -456,7 +457,7 @@ function BonePileService:AwardForDirt(player, zoneId, dirtId, dirtCFrame, dirtSc
 			local adding = self._BoostsService:GetAddingBoostAmountOfType(player, entry.BoostType)
 			local multiplying = self._BoostsService:GetMultiplyingBoostAmountOfType(player, entry.BoostType)
 			-- Adding boosts are fractions of the unboosted mutation pool.
-			weight = (weight + adding) * multiplying
+			weight = (weight + (adding * totalWeight)) * multiplying
 		end
 
 		if weight > 0 then
