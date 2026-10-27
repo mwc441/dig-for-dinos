@@ -86,11 +86,11 @@ function PremiumController:KnitInit()
 		self:_CloseCurrencyFrame()
 	end)
 
-	task.delay(1 * 60, function()
+	task.delay(3 * 60, function()
 		game:GetService("AvatarEditorService"):PromptSetFavorite(game.PlaceId, Enum.AvatarItemType.Asset, true)
 	end)
 
-	task.delay(30, function()
+	task.delay(3.5 * 60, function()
 		self:_PromptCurrentEvent()
 	end)
 end
