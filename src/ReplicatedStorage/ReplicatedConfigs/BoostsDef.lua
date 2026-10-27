@@ -69,7 +69,7 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Rebirth Cash",
 		AmountFunction = function(level: number)
-			return 1 + (level * 0.5)
+			return 1 + (level * 0.25)
 		end,
 	},
 
@@ -78,7 +78,7 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Rebirth Dig Power",
 		AmountFunction = function(level: number)
-			return 1.25 ^ level
+			return 1.12 ^ level
 		end,
 	},
 
