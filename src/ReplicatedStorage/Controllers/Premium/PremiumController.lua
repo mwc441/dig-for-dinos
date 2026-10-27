@@ -230,6 +230,10 @@ function PremiumController:_SetupIapVendor(iapVendor)
 	self:_UpdateIapVendor(iapVendor)
 end
 
+function PremiumController:_HasReachedMaxPurchases(iapId, iapInfo)
+	return iapInfo.MaxPurchases ~= nil and self._IapController:OwnsIap(iapId, iapInfo.MaxPurchases)
+end
+
 function PremiumController:_SetupIap(frame)
 	local iapId = frame.Name
 
@@ -251,11 +255,12 @@ function PremiumController:_SetupIap(frame)
 	end
 
 	local costInRobux = self._IapController:GetPriceOfIap(iapId)
+	local isOwned = self:_HasReachedMaxPurchases(iapId, iapInfo)
 	local robuxButton = frame:FindFirstChild("Robux", true)
 	if robuxButton then
-		if costInRobux then
+		if costInRobux or isOwned then
 			robuxButton.Visible = true
-			robuxButton.AmountText.Text = string.format("%d", costInRobux)
+			robuxButton.AmountText.Text = isOwned and "Owned" or string.format("%d", costInRobux)
 		else
 			robuxButton.Visible = false
 		end
@@ -367,7 +372,7 @@ function PremiumController:_UpdateIapSign(iapSign)
 	iapSign.Icon.Image = self._IapController:GetIconOfIap(iapId) or ""
 
 	local price = self._IapController:GetPriceOfIap(iapId)
-	iapSign.PriceText.Text = price and tostring(price) or "..."
+	iapSign.PriceText.Text = self:_HasReachedMaxPurchases(iapId, iapInfo) and "Owned" or (price and tostring(price) or "...")
 end
 
 function PremiumController:_UpdateIapVendor(iapVendor)
@@ -389,7 +394,7 @@ function PremiumController:_UpdateIapVendor(iapVendor)
 	end
 
 	local price = self._IapController:GetPriceOfIap(iapId)
-	iapVendor.PriceText.Text = price and string.format("%d", price) or "..."
+	iapVendor.PriceText.Text = self:_HasReachedMaxPurchases(iapId, iapInfo) and "Owned" or (price and string.format("%d", price) or "...")
 end
 
 function PremiumController:_UpdateCashGamepassButton()
@@ -429,11 +434,12 @@ function PremiumController:_UpdateIap(frame)
 	end
 
 	local costInRobux = self._IapController:GetPriceOfIap(iapId)
+	local isOwned = self:_HasReachedMaxPurchases(iapId, iapInfo)
 	local robuxButton = frame:FindFirstChild("Robux", true)
 	if robuxButton then
-		if costInRobux then
+		if costInRobux or isOwned then
 			robuxButton.Visible = true
-			robuxButton.AmountText.Text = string.format("%d", costInRobux)
+			robuxButton.AmountText.Text = isOwned and "Owned" or string.format("%d", costInRobux)
 		else
 			robuxButton.Visible = false
 		end
@@ -458,6 +464,7 @@ function PremiumController:_OpenCurrencyFrame(iapId, giftedUserId, callback)
 	if not iapInfo then return end
 
 	local prices = TableUtils.Copy(iapInfo.Prices or {})
+	local isOwned = not giftedUserId and self:_HasReachedMaxPurchases(iapId, iapInfo)
 	local robuxPrice = self._IapController:GetPriceOfIap(iapId)
 	if robuxPrice then
 		prices["Robux"] = robuxPrice
@@ -491,7 +498,7 @@ function PremiumController:_OpenCurrencyFrame(iapId, giftedUserId, callback)
 		currencyButton.Visible = price ~= nil
 		if not currencyButton.Visible then continue end
 
-		currencyButton.AmountText.Text = (currency == "Robux") and tostring(price) or BigNumbers.GetNumberDisplay(price)
+		currencyButton.AmountText.Text = (currency == "Robux") and (isOwned and "Owned" or tostring(price)) or BigNumbers.GetNumberDisplay(price)
 
 		local button = GuiButton.new(currencyButton)
 		button:SetCallback(function()
