@@ -12,7 +12,7 @@ DailyRewardsDef.Table = {
 		Rewards = {
 			{
 				RewardType = PlayerStatsEnum.Cash,
-				Reward = 100_000,
+				Reward = 1000,
 			},
 		},
 	},
