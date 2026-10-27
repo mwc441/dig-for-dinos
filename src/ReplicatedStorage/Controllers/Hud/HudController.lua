@@ -41,11 +41,11 @@ end
 
 -- HUD STUFF
 function HudController:_ShowClickEffect(position)
-	local guiInset = GuiService:GetGuiInset()
+	local effectPosition = Vector2.new(position.X, position.Y) - GuiService:GetInsetArea(self._ClickGui.ScreenInsets).Min
 	local circle = Instance.new("Frame")
 	circle.Name = "ClickCircle"
 	circle.AnchorPoint = Vector2.new(0.5, 0.5)
-	circle.Position = UDim2.fromOffset(position.X + guiInset.X, position.Y + guiInset.Y)
+	circle.Position = UDim2.fromOffset(effectPosition.X, effectPosition.Y)
 	circle.Size = UDim2.fromOffset(0, 0)
 	circle.BackgroundTransparency = 1
 	circle.BorderSizePixel = 0
