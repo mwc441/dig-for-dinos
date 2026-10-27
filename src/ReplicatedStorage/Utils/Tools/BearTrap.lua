@@ -22,6 +22,7 @@ local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
 local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
 
 local PLACE_COOLDOWN = 0.5
+local TRIGGERED_TRAP_COOLDOWN = 60
 local MAX_PLACE_DISTANCE = 50
 local TRAP_LIFETIME = 5 * 60
 local RAGDOLL_DURATION = 5
@@ -33,12 +34,12 @@ local GIANT_TRAP_SCALE = 3
 local LastPlaced = setmetatable({}, { __mode = "k" })
 local RagdollTokens = setmetatable({}, { __mode = "k" })
 
-local function getActiveTrapCount(player, trapFolder)
+local function getUsedTrapCount(player, trapFolder)
 	if not trapFolder then return 0 end
 
 	local count = 0
-	for _, trap in ipairs(trapFolder:GetChildren()) do
-		if trap:GetAttribute("OwnerUserId") == player.UserId then
+	for _, slot in ipairs(trapFolder:GetChildren()) do
+		if slot:GetAttribute("OwnerUserId") == player.UserId then
 			count += 1
 		end
 	end
@@ -158,7 +159,7 @@ function BearTrap:ClientEquipped(tool, toolController)
 	local function getRemainingTrapCount()
 		local level = upgradeController:GetUpgradeLevel(TRAP_UPGRADE_ID)
 		local limit = UpgradesDef.GetAmountForUpgrade(TRAP_UPGRADE_ID, level)
-		return math.max(0, limit - getActiveTrapCount(player, trapFolder))
+		return math.max(0, limit - getUsedTrapCount(player, trapFolder))
 	end
 
 	local function updateAmount()
@@ -297,7 +298,7 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	local level = upgradeService:GetUpgradeLevelForPlayer(player, TRAP_UPGRADE_ID)
 	if player.Parent ~= Players then return false end
 	local limit = UpgradesDef.GetAmountForUpgrade(TRAP_UPGRADE_ID, level)
-	if getActiveTrapCount(player, ServerTrapFolder) >= limit then return false end
+	if getUsedTrapCount(player, ServerTrapFolder) >= limit then return false end
 
 	local trapAsset = Assets:FindFirstChild("BearTrap")
 	if not trapAsset or not trapAsset:IsA("Model") then return false end
@@ -326,7 +327,7 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 	trap:SetAttribute("OwnerUserId", ownerUserId)
 	local triggered = false
 	trigger.Touched:Connect(function(part)
-		if triggered then return end
+		if triggered or trap.Parent ~= ServerTrapFolder then return end
 		local character = part.Parent
 		if not character or not character:IsA("Model") then return end
 		local victim = Players:GetPlayerFromCharacter(character)
@@ -335,6 +336,13 @@ function BearTrap:ServerActivated(player, tool, toolService, targetPosition)
 		if not humanoid or humanoid.Health <= 0 then return end
 
 		triggered = true
+		local cooldownSlot = Instance.new("Folder")
+		cooldownSlot.Name = "BearTrapCooldown"
+		cooldownSlot:SetAttribute("OwnerUserId", ownerUserId)
+		cooldownSlot.Parent = ServerTrapFolder
+		task.delay(TRIGGERED_TRAP_COOLDOWN, function()
+			cooldownSlot:Destroy()
+		end)
 		trap:Destroy()
 		ragdollVictim(victim, character, toolService)
 		UtilFunctions.PlaySoundAtLocation(BearTrapSound, trigger.CFrame)
