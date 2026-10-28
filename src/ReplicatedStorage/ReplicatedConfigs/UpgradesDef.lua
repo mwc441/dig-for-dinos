@@ -12,16 +12,16 @@ local UpgradesDef = {}
 -- costs go by the level ur buying (1 = first one). random bullshit tables but they work
 local BEAR_TRAP_COSTS = { 1_000, 50_000, 5_000_000, 500_000_000 }
 local DIG_TRAINING_SPEED_COSTS = {
-	7_500,
-	31_000,
-	130_000,
-	520_000,
-	2_100_000,
-	8_800_000,
-	36_000_000,
-	150_000_000,
-	610_000_000,
-	2_500_000_000,
+	300,
+	2_000,
+	14_000,
+	100_000,
+	750_000,
+	5_300_000,
+	37_000_000,
+	270_000_000,
+	1_900_000_000,
+	14_000_000_000,
 }
 -- speed has 50 levels now, each one is +1.5 walkspeed (BoostsDef). cost goes up 1.4x every level
 local function getSpeedCost(level: number)
