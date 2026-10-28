@@ -29,7 +29,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(190, 193, 196), Color3.fromRGB(92, 96, 101)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 2,
-		Cost = 250, -- cheap on purpose for the tutorial
+		Cost = 150, -- cheap on purpose for the tutorial
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -39,7 +39,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(219, 153, 79), Color3.fromRGB(119, 70, 35)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 4,
-		Cost = 50_000,
+		Cost = 100_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -49,7 +49,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(164, 174, 181), Color3.fromRGB(66, 74, 81)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 8,
-		Cost = 500_000,
+		Cost = 1_300_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -59,7 +59,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(207, 223, 231), Color3.fromRGB(86, 108, 120)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 16,
-		Cost = 3_000_000,
+		Cost = 3_500_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -79,7 +79,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(135, 244, 255), Color3.fromRGB(36, 120, 178)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 64,
-		Cost = 150_000_000,
+		Cost = 750_000_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -89,7 +89,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(116, 85, 158), Color3.fromRGB(35, 27, 58)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 128,
-		Cost = 1_500_000_000,
+		Cost = 2_000_000_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -99,7 +99,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(255, 147, 43), Color3.fromRGB(148, 28, 13)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 256,
-		Cost = 10_000_000_000,
+		Cost = 15_000_000_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 

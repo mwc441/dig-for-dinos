@@ -78,7 +78,9 @@ BoostsDef.Table = {
 		NumberType = NumberTypesEnum.Multiplying,
 		Name = "Rebirth Dig Power",
 		AmountFunction = function(level: number)
-			return 1.12 ^ level
+			-- only every 5th rebirth (the walls) gives dig power, 1.2x each
+			-- math.floor rounds down so rebirths 1-4 = 0 walls, 5-9 = 1 wall, 10-14 = 2 walls, etc
+			return 1.2 ^ math.floor(level / 5)
 		end,
 	},
 

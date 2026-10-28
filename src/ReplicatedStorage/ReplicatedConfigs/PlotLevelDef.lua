@@ -3,7 +3,7 @@ local PlotLevelDef = {}
 PlotLevelDef.MaxLevel = 6
 PlotLevelDef.BaseCapacity = 5
 PlotLevelDef.CostPerLevelSquared = 1_000 -- not used anymore, just keeping it in case some random shit still reads it
-PlotLevelDef.UpgradeCosts = { 7_500, 25_000, 250_000, 1_500_000, 20_000_000 }
+PlotLevelDef.UpgradeCosts = { 250_000, 5_000_000, 100_000_000, 5_000_000_000, 250_000_000_000 } -- scaled way up, max slots were too cheap and ppl had a billion dinos lagging
 
 function PlotLevelDef.GetLevel(level)
 	if type(level) ~= "number" then

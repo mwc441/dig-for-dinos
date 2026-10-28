@@ -19,8 +19,9 @@ DirtDef.Ids = {
 }
 
 -- Weights are relative; each dirt rolls a dinosaur rarity before selecting a dinosaur from its zone.
--- every pile rolls its own rarity or higher. each step up is way rarer (common pile: 77 / 19 / 3.4 / 0.5 / 0.1 / 0.025 / 0.006). gambling baby
--- top piles are capped so secrets dont get fuckin handed out: legendary piles 2% secret, mythical piles 8% secret
+-- every pile rolls its own rarity or higher. each step up is way rarer (common pile: 77 / 19 / 3.4 / 0.5 / 0.1 / 0.025 / 0.001). gambling baby
+-- top piles are capped so secrets dont get fuckin handed out: legendary piles 1.5% secret, mythical piles 6% secret
+-- every pile can drop a secret but common piles are like 1 in 100K, its a lottery ticket. zone 3 and 6 are the real secret farming spots
 -- mythicals were spawning way too much so everything above rare got nerfed hard, good shit should feel rare
 -- this health gets multiplied by the zone's HealthMultiplier in DirtSpawnerDef, so dont freak out at the small numbers
 DirtDef.Table = {
@@ -35,7 +36,7 @@ DirtDef.Table = {
 			{ Id = Rarities.Epic, Weight = 0.5 },
 			{ Id = Rarities.Legendary, Weight = 0.1 },
 			{ Id = Rarities.Mythical, Weight = 0.025 },
-			{ Id = Rarities.Secret, Weight = 0.006 },
+			{ Id = Rarities.Secret, Weight = 0.001 },
 		},
 	},
 	[DirtDef.Ids.Uncommon] = {
@@ -48,7 +49,7 @@ DirtDef.Table = {
 			{ Id = Rarities.Epic, Weight = 3.4 },
 			{ Id = Rarities.Legendary, Weight = 0.5 },
 			{ Id = Rarities.Mythical, Weight = 0.1 },
-			{ Id = Rarities.Secret, Weight = 0.03 },
+			{ Id = Rarities.Secret, Weight = 0.005 },
 		},
 	},
 	[DirtDef.Ids.Rare] = {
@@ -60,7 +61,7 @@ DirtDef.Table = {
 			{ Id = Rarities.Epic, Weight = 18 },
 			{ Id = Rarities.Legendary, Weight = 3.2 },
 			{ Id = Rarities.Mythical, Weight = 0.6 },
-			{ Id = Rarities.Secret, Weight = 0.15 },
+			{ Id = Rarities.Secret, Weight = 0.06 },
 		},
 	},
 	[DirtDef.Ids.Epic] = {
@@ -71,7 +72,7 @@ DirtDef.Table = {
 			{ Id = Rarities.Epic, Weight = 80 },
 			{ Id = Rarities.Legendary, Weight = 16.5 },
 			{ Id = Rarities.Mythical, Weight = 2.8 },
-			{ Id = Rarities.Secret, Weight = 0.7 },
+			{ Id = Rarities.Secret, Weight = 0.45 },
 		},
 	},
 	[DirtDef.Ids.Legendary] = {
@@ -81,7 +82,7 @@ DirtDef.Table = {
 		DinosaurRarityLootTable = {
 			{ Id = Rarities.Legendary, Weight = 86.5 },
 			{ Id = Rarities.Mythical, Weight = 11.5 },
-			{ Id = Rarities.Secret, Weight = 2 },
+			{ Id = Rarities.Secret, Weight = 1.5 },
 		},
 	},
 	[DirtDef.Ids.Mythical] = {
@@ -89,14 +90,14 @@ DirtDef.Table = {
 		Rarity = Rarities.Mythical,
 		TotalHealth = 1_100,
 		DinosaurRarityLootTable = {
-			{ Id = Rarities.Mythical, Weight = 92 },
-			{ Id = Rarities.Secret, Weight = 8 },
+			{ Id = Rarities.Mythical, Weight = 94 },
+			{ Id = Rarities.Secret, Weight = 6 },
 		},
 	},
 	[DirtDef.Ids.SecretDirt] = {
 		Name = "Secret Dirt",
 		Rarity = Rarities.Secret,
-		TotalHealth = 8_000,
+		TotalHealth = 3_000, -- was 8000, ppl have way less dig power now that rebirths dont snowball
 		DinosaurRarityLootTable = {
 			{ Id = Rarities.Secret, Weight = 100 },
 		},
