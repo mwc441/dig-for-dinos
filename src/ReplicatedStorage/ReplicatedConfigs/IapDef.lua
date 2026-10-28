@@ -27,9 +27,69 @@ IapDef.Table = {
 		Name = "Skip Rebirth",
 		Description = "",
 		Rewards = {
-			["SkipRebirth"] = true,
+			["SkipRebirth"] = 1,
 		},
 		Giftable = true,
+	},
+
+	[IapsEnum.SkipRebirth2] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3723161091
+		},
+		Name = "Skip Rebirth 2",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = 2
+		},
+		Giftable = true
+	},
+
+	[IapsEnum.SkipRebirth3] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3723161467
+		},
+		Name = "Skip Rebirth 3",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = 3
+		},
+		Giftable = true
+	},
+
+	[IapsEnum.SkipRebirth4] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3723161691
+		},
+		Name = "Skip Rebirth 4",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = 4
+		},
+		Giftable = true,
+	},
+
+	[IapsEnum.SkipRebirth5] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3723161887
+		},
+		Name = "Skip Rebirth 5",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = 5
+		},
+		Giftable = true
+	},
+
+	[IapsEnum.SkipRebirth6] = {
+		Ids = {
+			[IapTypesEnum.DevProduct] = 3723162116
+		},
+		Name = "Skip Rebirth 6",
+		Description = "",
+		Rewards = {
+			["SkipRebirth"] = 6
+		},
+		Giftable = true
 	},
 
 	[IapsEnum.SpeedUpgrade] = {

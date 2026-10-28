@@ -5,6 +5,7 @@ local External = ReplicatedStorage:WaitForChild("External")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local RebirthDef = require(ReplicatedConfigs:WaitForChild("RebirthDef"))
+local IapDef = require(ReplicatedConfigs:WaitForChild("IapDef"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local Knit = require(External:WaitForChild("Knit"))
 
@@ -68,6 +69,18 @@ function RebirthService:GiveRebirthToPlayer(player)
 
 	self._PlayerStatsService:AddToStatForPlayer(player, PlayerStatsEnum.Rebirths, 1)
 	self:_UpdateBoostsForPlayer(player)
+	return true
+end
+
+function RebirthService:GiveSkippedRebirthToPlayer(player, purchasedLevel)
+	local nextRebirth = self:GetRebirthsForPlayer(player) + 1
+	local requiredIapId = RebirthDef.GetIapForRebirth(nextRebirth)
+	if not requiredIapId then return end
+
+	local requiredLevel = IapDef.GetIapInfo(requiredIapId).Rewards.SkipRebirth
+	if type(purchasedLevel) ~= "number" or purchasedLevel < requiredLevel then return end
+
+	return self:GiveRebirthToPlayer(player)
 end
 
 function RebirthService:_UpdateBoostsForPlayer(player)

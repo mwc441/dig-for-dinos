@@ -1,6 +1,11 @@
 return {
 	-- Dev products
 	SkipRebirth = "SkipRebirthIap",
+	SkipRebirth2 = "SkipRebirth2Iap",
+	SkipRebirth3 = "SkipRebirth3Iap",
+	SkipRebirth4 = "SkipRebirth4Iap",
+	SkipRebirth5 = "SkipRebirth5Iap",
+	SkipRebirth6 = "SkipRebirth6Iap",
 	SpeedUpgrade = "SpeedUpgradeIap",
 	DigSpeedUpgrade = "DigSpeedUpgradeIap",
 	BearTrapUpgrade = "BearTrapUpgradeIap",

@@ -189,7 +189,7 @@ function RewardsService:RewardPlayer(player, rewardType, reward, showReward, ana
 	elseif IapDef.GetIapInfo(rewardType) then
 		self._IapService:RewardPlayer(player, rewardType)
 	elseif rewardType == "SkipRebirth" then
-		self._RebirthService:GiveRebirthToPlayer(player)
+		self._RebirthService:GiveSkippedRebirthToPlayer(player, reward)
 	elseif rewardType == "OfflineRewards" then
 		self._OfflineRewardsService:GiveOfflineRewards(player, reward)
 	elseif rewardType == "ServerLuck" then

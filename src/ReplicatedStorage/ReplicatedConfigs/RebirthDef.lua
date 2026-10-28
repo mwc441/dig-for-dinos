@@ -4,6 +4,7 @@ local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local BoostsDef = require(ReplicatedConfigs:WaitForChild("BoostsDef"))
 local BoostsEnum = require(Enums:WaitForChild("Boosts"))
+local IapsEnum = require(Enums:WaitForChild("Iaps"))
 
 local RebirthDef = {}
 
@@ -46,6 +47,30 @@ RebirthDef.Boosts = {
 	Cash = BoostsEnum.RebirthCashBoost,
 	DigPower = BoostsEnum.RebirthDigPowerBoost,
 }
+
+RebirthDef.Iaps = {
+	[1] = IapsEnum.SkipRebirth,
+	[5] = IapsEnum.SkipRebirth2,
+	[10] = IapsEnum.SkipRebirth3,
+	[15] = IapsEnum.SkipRebirth4,
+	[20] = IapsEnum.SkipRebirth5,
+	[30] = IapsEnum.SkipRebirth6
+}
+
+function RebirthDef.GetIapForRebirth(rebirth)
+	if not RebirthDef.GetRebirthInfo(rebirth) then return end
+
+	local highestMinimumRebirth = 0
+	local iapId
+	for minimumRebirth, candidateIapId in pairs(RebirthDef.Iaps) do
+		if minimumRebirth <= rebirth and minimumRebirth > highestMinimumRebirth then
+			highestMinimumRebirth = minimumRebirth
+			iapId = candidateIapId
+		end
+	end
+
+	return iapId
+end
 
 function RebirthDef.GetRebirthInfo(id)
 	return RebirthDef.Table[id]

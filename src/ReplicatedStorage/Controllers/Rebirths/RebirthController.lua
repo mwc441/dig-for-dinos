@@ -13,7 +13,6 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local RebirthDef = require(ReplicatedConfigs:WaitForChild("RebirthDef"))
-local IapsEnum = require(Enums:WaitForChild("Iaps"))
 local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
@@ -77,11 +76,10 @@ function RebirthController:KnitInit()
 
 	local skipRebirthButton = GuiButton.new(self._Gui.SkipRebirthButton)
 	skipRebirthButton:SetCallback(function()
-		local maxLevel = RebirthDef.GetMaxRebirth()
-		local currentLevel = self:GetRebirths()
-		if currentLevel >= maxLevel then return end
+		local iapId = RebirthDef.GetIapForRebirth(self:GetRebirths() + 1)
+		if not iapId then return end
 
-		self._IapController:PurchaseIap(IapsEnum.SkipRebirth)
+		self._IapController:PurchaseIap(iapId)
 	end)
 
 	self._NotificationBubbleObject = GuiObject.new(self._Gui.OpenRebirthButton.NotificationBubble)
@@ -184,8 +182,9 @@ function RebirthController:_UpdateUi()
 	local currentRebirths = self:GetRebirths()
 	local nextRebirth = currentRebirths + 1
 	local nextRebirthInfo = RebirthDef.GetRebirthInfo(nextRebirth)
+	local iapId = RebirthDef.GetIapForRebirth(nextRebirth)
 
-	self._Gui.SkipCostText.Text = string.format("%d", self._IapController:GetPriceOfIap(IapsEnum.SkipRebirth) or 0)
+	self._Gui.SkipCostText.Text = iapId and string.format("%d", self._IapController:GetPriceOfIap(iapId) or 0) or "MAX"
 	self._Gui.RebirthsText.Text = string.format("You have %d rebirths!", currentRebirths)
 
 	local cashInfo = self._Gui.RebirthInfo.Cash
