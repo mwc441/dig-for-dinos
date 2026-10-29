@@ -166,6 +166,8 @@ function ProximityController:_PromptHeldDown(prompt : ProximityPrompt)
 	if holdDuration > 0 then
 		local circle = proximityGui.Button.Circle
 
+		proximityGui.Button.ActionText.Text = string.format("%.1fs", holdDuration)
+
 		local total = 0
 		self._PromptHoldHeartbeats[prompt] = RunService.Heartbeat:Connect(function(dt)
 			total += dt
@@ -173,6 +175,7 @@ function ProximityController:_PromptHeldDown(prompt : ProximityPrompt)
 			local percentage = math.clamp(total / holdDuration, 0, 1)
 
 			UtilFunctions.SetPercentageForCircleClockwise(circle, percentage)
+			proximityGui.Button.ActionText.Text = string.format("%.1fs", math.max(holdDuration - total, 0))
 
 			circle.Visible = true
 		end)
@@ -208,6 +211,7 @@ function ProximityController:_PromptReleased(prompt)
 		local circle = proximityGui.Button.Circle
 
 		UtilFunctions.SetPercentageForCircleClockwise(circle, 0)
+		proximityGui.Button.ActionText.Text = prompt.ActionText or ""
 		circle.Visible = false
 	end
 
