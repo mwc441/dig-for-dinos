@@ -558,6 +558,27 @@ function TutorialController:_StartDigInExcavationSite()
 	if part and part:IsA("BasePart") then
 		self:_ShowBeamToPart(part)
 	end
+	if excavation and excavation:IsA("Model") and part and part:IsA("BasePart") then
+		local box = WorldTutorialBox.new(excavation)
+		box:GetObject().Active = false
+		self._StepTrove:Add(box)
+		local wasOnExcavation
+
+		local function updateBox()
+			local character = Player.Character
+			local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+			local offset = rootPart and part.CFrame:PointToObjectSpace(rootPart.Position)
+			local onExcavation = offset ~= nil
+				and math.abs(offset.X) <= part.Size.X / 2
+				and math.abs(offset.Z) <= part.Size.Z / 2
+			if onExcavation == wasOnExcavation then return end
+			wasOnExcavation = onExcavation
+			box:SetVisible(not onExcavation)
+		end
+
+		self._StepTrove:Add(RunService.Heartbeat:Connect(updateBox))
+		updateBox()
+	end
 
 	local startingPower = self._PlayerStatsController:GetStatValue(PlayerStatsEnum.DigPower)
 	local function checkPower()
@@ -786,17 +807,8 @@ function TutorialController:_AttachTutorialBeamsToCharacter(character: Model, po
 		beam.Parent = rootPart
 		self._BeamInstanceTrove:Add(beam)
 
-		if beam:IsA("Beam") then
-			beam.Attachment0 = characterAttachment
-			beam.Attachment1 = targetAttachment
-		else
-			for _, descendant in ipairs(beam:GetDescendants()) do
-				if not descendant:IsA("Beam") then continue end
-
-				descendant.Attachment0 = descendant.Attachment0 or characterAttachment
-				descendant.Attachment1 = descendant.Attachment1 or targetAttachment
-			end
-		end
+		beam.Attachment0 = targetAttachment
+		beam.Attachment1 = characterAttachment
 	end
 end
 
