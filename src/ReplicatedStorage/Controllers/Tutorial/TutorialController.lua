@@ -14,6 +14,7 @@ local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Enums = ReplicatedStorage:WaitForChild("Enums")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local TutorialBox = require(GuiModules:WaitForChild("TutorialBox"))
+local WorldTutorialBox = require(GuiModules:WaitForChild("WorldTutorialBox"))
 local Confetti = require(Utils:WaitForChild("Confetti"))
 local Fireworks = require(Utils:WaitForChild("Fireworks"))
 local Constants = require(ReplicatedConfigs:WaitForChild("Constants"))
@@ -320,6 +321,7 @@ end
 function TutorialController:_StartBringBackFirstDino()
 	local bonePiles = Workspace:WaitForChild("_BonePiles")
 	local beamTarget
+	local bonePileBox
 	local wasCarrying
 	local lookForOwnPileUntil = os.clock() + 5
 
@@ -342,10 +344,10 @@ function TutorialController:_StartBringBackFirstDino()
 			local distance = rootPart and (part.Position - rootPart.Position).Magnitude or 0
 			if model:GetAttribute("DugByUserId") == Player.UserId then
 				if distance < ownDistance then
-					ownPile, ownDistance = part, distance
+					ownPile, ownDistance = model, distance
 				end
 			elseif distance < otherDistance then
-				otherPile, otherDistance = part, distance
+				otherPile, otherDistance = model, distance
 			end
 		end
 
@@ -379,9 +381,21 @@ function TutorialController:_StartBringBackFirstDino()
 		local target = if carrying then findSafeZone() else findBonePile()
 		if target == beamTarget then return end
 		beamTarget = target
-		if target then
+		if target and target:IsA("Model") then
+			if bonePileBox then
+				bonePileBox:SetTarget(target)
+				bonePileBox:Show()
+			else
+				bonePileBox = WorldTutorialBox.new(target)
+				bonePileBox:GetObject().Active = false
+				self._StepTrove:Add(bonePileBox)
+			end
+			self:_ShowBeamToPart(target.PrimaryPart)
+		elseif target then
+			if bonePileBox then bonePileBox:Hide() end
 			self:_ShowBeamToPart(target)
 		else
+			if bonePileBox then bonePileBox:Hide() end
 			self:_HideTutorialBeam()
 		end
 	end
