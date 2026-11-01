@@ -8,12 +8,14 @@ local Sounds = Assets:WaitForChild("Sounds")
 local UpgradeSound = Sounds:WaitForChild("Upgrade")
 local ErrorSound = Sounds:WaitForChild("Error")
 local External = ReplicatedStorage:WaitForChild("External")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local Components = ReplicatedStorage:WaitForChild("Components")
 local Utils = ReplicatedStorage:WaitForChild("Utils")
 local UtilFunctions = require(Utils:WaitForChild("UtilFunctions"))
 local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
+local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local GuiButton = require(GuiModules:WaitForChild("Button"))
 local GuiObject = require(GuiModules:WaitForChild("Object"))
 local Device = require(External:WaitForChild("Device"))
@@ -24,6 +26,7 @@ local UpgradesUiController = {
 	Name = "UpgradesUiController",
 	_HudController = nil,
 	_UpgradeController = nil,
+	_PlayerStatsController = nil,
 	_RewardsController = nil,
 	_UpgradeService = nil,
 	_IapController = nil,
@@ -49,6 +52,7 @@ end
 function UpgradesUiController:KnitStart()
 	self._HudController = require(ReplicatedStorage.Controllers.Hud.HudController)
 	self._UpgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
+	self._PlayerStatsController = require(ReplicatedStorage.Controllers.PlayerStats.PlayerStatsController)
 	self._IapController = require(ReplicatedStorage.Controllers.Iaps.IapController)
 	self._RewardsController = require(ReplicatedStorage.Controllers.Rewards.RewardsController)
 	self._UpgradeStoreComponent = require(Components.UpgradeStore)
@@ -57,6 +61,10 @@ function UpgradesUiController:KnitStart()
 	self:_SetupUi()
 
 	self._UpgradeController.UpgradesUpdated:Connect(function()
+		self:_UpdateUi()
+	end)
+
+	self._PlayerStatsController.StatsUpdatedSignal:Connect(function()
 		self:_UpdateUi()
 	end)
 
@@ -125,6 +133,15 @@ function UpgradesUiController:_SetupUi()
 		newUpgradeTemplate.Icon.Image = info.Icon or ""
 
 		local amountsFrameObject = GuiObject.new(newUpgradeTemplate.AmountsFrame)
+		local function handlePurchaseResult(success)
+			if success then
+				UtilFunctions.PlayCopyOfSound(UpgradeSound)
+				amountsFrameObject:MakeThrob(1.25, 0.25)
+			elseif success == false then
+				UtilFunctions.PlayCopyOfSound(ErrorSound)
+				self._RewardsController:AnnounceMessage("❌ Can't Afford", Color3.fromRGB(255, 0, 0))
+			end
+		end
 
 		local buyButton = GuiButton.new(newUpgradeTemplate.BuyButtons.BuyButton)
 		buyButton:SetCallback(function()
@@ -133,15 +150,14 @@ function UpgradesUiController:_SetupUi()
 			local maxLevel = UpgradesDef.GetMaxLevelForUpgrade(upgradeId)
 			if currentLevel >= maxLevel then return end
 
-			self._UpgradeService:BuyUpgrade(upgradeId, currentLevel + 1):andThen(function(success)
-				if success then
-					UtilFunctions.PlayCopyOfSound(UpgradeSound)
-					amountsFrameObject:MakeThrob(1.25, 0.25)
-				else
-					UtilFunctions.PlayCopyOfSound(ErrorSound)
-					self._RewardsController:AnnounceMessage("❌ Can't Afford", Color3.fromRGB(255, 0, 0))
-				end
-			end)
+			self._UpgradeService:BuyUpgrade(upgradeId):andThen(handlePurchaseResult)
+		end)
+
+		local buyMaxButton = GuiButton.new(newUpgradeTemplate.BuyButtons.BuyMaxButton)
+		buyMaxButton:SetCallback(function()
+			if self._UpgradeController:GetUpgradeLevel(upgradeId) >= UpgradesDef.GetMaxLevelForUpgrade(upgradeId) then return end
+
+			self._UpgradeService:BuyMaxUpgrade(upgradeId):andThen(handlePurchaseResult)
 		end)
 
 		local robuxButton = GuiButton.new(newUpgradeTemplate.BuyButtons.RobuxButton)
@@ -171,6 +187,8 @@ function UpgradesUiController:_SetupUi()
 end
 
 function UpgradesUiController:_UpdateUi()
+	local cash = self._PlayerStatsController:GetStatValue(PlayerStatsEnum.Cash) or 0
+
 	for _, template in pairs(self._Gui.UpgradesList:GetChildren()) do
 		if not template:IsA(self._Gui.UpgradeTemplate.ClassName) then continue end
 
@@ -186,6 +204,11 @@ function UpgradesUiController:_UpdateUi()
 		local nextAmount = UpgradesDef.GetAmountForUpgrade(id, math.min(nextLevel, maxLevel))
 
 		local cost = UpgradesDef.GetCostOfUpgrade(id, nextLevel)
+		local affordableLevel, buyMaxCost = UpgradesDef.GetMaxAffordableLevelAndCost(id, level, cash)
+		local buyMaxAmount = math.max(affordableLevel - level, 1)
+		if level < maxLevel and buyMaxCost == 0 then
+			buyMaxCost = cost
+		end
 
 		template.LevelText.Text = string.format("Level %d", level)
 
@@ -202,6 +225,7 @@ function UpgradesUiController:_UpdateUi()
 		local buyButtons = template.BuyButtons
 
 		buyButtons.Visible = level < maxLevel
+		buyButtons.BuyMaxButton.Visible = level < maxLevel and buyMaxAmount > 1
 
 		local iapId = info.IapId
 		if iapId then
@@ -209,6 +233,8 @@ function UpgradesUiController:_UpdateUi()
 		end
 
 		buyButtons.BuyButton.Contents.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(cost)
+		buyButtons.BuyMaxButton.Contents.AmountFrame.AmountText.Text = BigNumbers.GetNumberDisplay(buyMaxCost)
+		buyButtons.BuyMaxButton.BuyText.Text = string.format("Buy Max (%d)", buyMaxAmount)
 	end
 end
 

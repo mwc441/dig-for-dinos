@@ -89,6 +89,26 @@ function UpgradesDef.GetCostOfUpgrade(id, level)
 	end
 end
 
+function UpgradesDef.GetMaxAffordableLevelAndCost(id, currentLevel, budget)
+	local affordableLevel = currentLevel
+	local totalCost = 0
+	if type(budget) ~= "number" or not (budget >= 0) or budget == math.huge then
+		return affordableLevel, totalCost
+	end
+
+	for level = currentLevel + 1, UpgradesDef.GetMaxLevelForUpgrade(id) do
+		local cost = UpgradesDef.GetCostOfUpgrade(id, level)
+		if type(cost) ~= "number" or cost <= 0 or cost % 1 ~= 0 or cost > budget - totalCost then
+			break
+		end
+
+		totalCost += cost
+		affordableLevel = level
+	end
+
+	return affordableLevel, totalCost
+end
+
 function UpgradesDef.GetMaxLevelForUpgrade(id)
 	local info = UpgradesDef.GetUpgradeInfo(id)
 	if not info then

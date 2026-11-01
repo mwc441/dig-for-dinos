@@ -2,9 +2,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
 local External = ReplicatedStorage:WaitForChild("External")
+local Enums = ReplicatedStorage:WaitForChild("Enums")
 local ServerConfigs = ServerScriptService:WaitForChild("ServerConfigs")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
 local UpgradesDef = require(ReplicatedConfigs:WaitForChild("UpgradesDef"))
+local PlayerStatsEnum = require(Enums:WaitForChild("PlayerStats"))
 local DataKeys = require(ServerConfigs:WaitForChild("DataKeys"))
 local Knit = require(External:WaitForChild("Knit"))
 
@@ -19,12 +21,14 @@ local UpgradeService = {
 	Client = {},
 	_DataService = nil,
 	_CommerceService = nil,
+	_PlayerStatsService = nil,
 	_BoostsService = nil
 }
 
 function UpgradeService:KnitStart()
 	self._DataService = require(ServerScriptService.Services.Data.DataService)
 	self._CommerceService = require(ServerScriptService.Services.Commerce.CommerceService)
+	self._PlayerStatsService = require(ServerScriptService.Services.PlayerStats.PlayerStatsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 end
 
@@ -77,29 +81,51 @@ function UpgradeService:AddLevelsToUpgradeForPlayer(player, upgradeId, levels)
 	self:SetUpgradeLevelForPlayer(player, upgradeId, newLevel)
 end
 
-function UpgradeService:_BuyUpgradeForPlayer(player, upgradeId, level)
+function UpgradeService:_BuyUpgradeForPlayer(player, upgradeId)
 	local info = UpgradesDef.GetUpgradeInfo(upgradeId)
 	if not info then return end
-
-	local cost = UpgradesDef.GetCostOfUpgrade(upgradeId, level)
-	if not cost then return end
 
 	local costType = info.CostType
 	if not costType then return end
 
+	local currentLevel = self:GetUpgradeLevelForPlayer(player, upgradeId)
+	local level = currentLevel + 1
 	local maxLevel = UpgradesDef.GetMaxLevelForUpgrade(upgradeId)
 	if level > maxLevel then return end
 
-	local currentLevel = self:GetUpgradeLevelForPlayer(player, upgradeId)
-	if currentLevel >= level then return end
-
-	if level ~= (currentLevel + 1) then return end
+	local cost = UpgradesDef.GetCostOfUpgrade(upgradeId, level)
+	if not cost then return end
 
 	local success = self._CommerceService:Spend(player, costType, cost, {
 		TransactionType = Enum.AnalyticsEconomyTransactionType.Shop.Name,
 		Sku = "Upgrade - " .. upgradeId
 	})
-	if not success then return end
+	if not success then return false end
+
+	self:SetUpgradeLevelForPlayer(player, upgradeId, level)
+
+	return true
+end
+
+function UpgradeService:_BuyMaxUpgradeForPlayer(player, upgradeId)
+	local info = UpgradesDef.GetUpgradeInfo(upgradeId)
+	if not info then return end
+
+	local costType = info.CostType
+	if costType ~= PlayerStatsEnum.Cash then return end
+
+	local currentLevel = self:GetUpgradeLevelForPlayer(player, upgradeId)
+	if currentLevel >= UpgradesDef.GetMaxLevelForUpgrade(upgradeId) then return end
+
+	local cash = self._PlayerStatsService:GetStatValueForPlayer(player, costType)
+	local level, totalCost = UpgradesDef.GetMaxAffordableLevelAndCost(upgradeId, currentLevel, cash)
+	if level == currentLevel then return false end
+
+	local success = self._CommerceService:Spend(player, costType, totalCost, {
+		TransactionType = Enum.AnalyticsEconomyTransactionType.Shop.Name,
+		Sku = "Upgrade - " .. upgradeId
+	})
+	if not success then return false end
 
 	self:SetUpgradeLevelForPlayer(player, upgradeId, level)
 
@@ -142,13 +168,16 @@ function UpgradeService:_RemoveBoostsForPlayer(player)
 	end
 end
 
-function UpgradeService.Client:BuyUpgrade(player, upgradeId, level)
+function UpgradeService.Client:BuyUpgrade(player, upgradeId)
 	if type(upgradeId) ~= "string" then return end
-	if type(level) ~= "number" then return end
-	if math.floor(level) ~= level then return end
-	if level <= 0 then return end
 
-	return self.Server:_BuyUpgradeForPlayer(player, upgradeId, level)
+	return self.Server:_BuyUpgradeForPlayer(player, upgradeId)
+end
+
+function UpgradeService.Client:BuyMaxUpgrade(player, upgradeId)
+	if type(upgradeId) ~= "string" then return end
+
+	return self.Server:_BuyMaxUpgradeForPlayer(player, upgradeId)
 end
 
 return UpgradeService
