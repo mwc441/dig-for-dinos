@@ -22,6 +22,9 @@ local Ragdoll = require(Utils:WaitForChild("Ragdoll"))
 
 local PICKUP_DISTANCE = 10
 local PICKUP_HOLD_DURATION = 1.5
+local MAX_DINOSAUR_INVENTORY = 50
+local INVENTORY_FULL_MESSAGE = "❌ Your dinosaur inventory is full! Go sell some dinosaurs."
+local INVENTORY_FULL_COLOR = Color3.fromRGB(255, 85, 85)
 local DROP_LIFETIME = 2 * 60
 local REVEAL_ROLL_DURATION = 2.8
 local REVEAL_DURATION = 3.6
@@ -34,6 +37,7 @@ local BonePileService = {
 	},
 	_InventoryService = nil,
 	_DinosaurService = nil,
+	_RewardsService = nil,
 	_BoostsService = nil,
 	_Carried = {},
 	_Dropped = {},
@@ -58,6 +62,7 @@ end
 
 function BonePileService:KnitStart()
 	self._DinosaurService = require(ServerScriptService.Services.Dinosaurs.DinosaurService)
+	self._RewardsService = require(ServerScriptService.Services.Rewards.RewardsService)
 	self._BoostsService = require(ServerScriptService.Services.Boosts.BoostsService)
 
 	self._InventoryService.PlayerInventoryUpdated:Connect(function(player)
@@ -407,6 +412,25 @@ function BonePileService:DropForPlayer(player)
 	return true
 end
 
+function BonePileService:_IsDinosaurInventoryFull(player)
+	local inventoryItems = self._InventoryService:GetNonFungiblesForPlayer(player)
+	if not inventoryItems then
+		return false
+	end
+
+	local dinosaurCount = 0
+	for _, item in ipairs(inventoryItems) do
+		if DinosaurDef.GetDinosaurInfo(item.ItemId) then
+			dinosaurCount += 1
+			if dinosaurCount >= MAX_DINOSAUR_INVENTORY then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
 function BonePileService:_PickUp(pile, player)
 	if self._Dropped[pile.Model] ~= pile or self._Carried[player] then
 		return
@@ -415,6 +439,11 @@ function BonePileService:_PickUp(pile, player)
 	local character = player.Character
 	local rootPart = character and character:FindFirstChild("HumanoidRootPart")
 	if not rootPart or (rootPart.Position - pile.Model.PrimaryPart.Position).Magnitude > PICKUP_DISTANCE + 2 then
+		return
+	end
+
+	if self:_IsDinosaurInventoryFull(player) then
+		self._RewardsService:AnnounceMessageToPlayer(player, INVENTORY_FULL_MESSAGE, INVENTORY_FULL_COLOR)
 		return
 	end
 
@@ -497,6 +526,13 @@ function BonePileService:_BankPile(player, pile)
 	if pile.Banking then
 		return
 	end
+
+	if self:_IsDinosaurInventoryFull(player) then
+		self:DropForPlayer(player)
+		self._RewardsService:AnnounceMessageToPlayer(player, INVENTORY_FULL_MESSAGE, INVENTORY_FULL_COLOR)
+		return
+	end
+
 	pile.Banking = true
 
 	local guid = self._DinosaurService:GiveDinosaur(player, pile.DinosaurId, pile.Scale, pile.Mutation, pile.ZoneId)
