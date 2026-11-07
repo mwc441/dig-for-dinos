@@ -265,8 +265,8 @@ DinosaurDef.Table = {
 	},
 	[DinosaurDef.Ids.Velocirocket] = {
 		Name = "Velocirocket",
-		Rarity = RaritiesEnum.Legendary,
-		Income = 3_200_000,
+		Rarity = RaritiesEnum.Mythical,
+		Income = 10_000_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Astrorex] = {
@@ -295,8 +295,8 @@ DinosaurDef.Table = {
 	},
 	[DinosaurDef.Ids.Orbitosaurus] = {
 		Name = "Orbitosaurus",
-		Rarity = RaritiesEnum.Mythical,
-		Income = 10_000_000,
+		Rarity = RaritiesEnum.Legendary,
+		Income = 3_200_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Ufo] = {
