@@ -8,6 +8,7 @@ local Player = Players.LocalPlayer
 local Assets = ReplicatedStorage:WaitForChild("Assets")
 local ClientAssets = Assets:WaitForChild("ClientAssets")
 local TutorialBeam = ClientAssets:WaitForChild("TutorialBeam")
+local Components = ReplicatedStorage:WaitForChild("Components")
 local External = ReplicatedStorage:WaitForChild("External")
 local GuiModules = ReplicatedStorage:WaitForChild("GuiModules")
 local ReplicatedConfigs = ReplicatedStorage:WaitForChild("ReplicatedConfigs")
@@ -53,6 +54,7 @@ local TutorialController = {
 	_ReplicationController = nil,
 	_SettingsController = nil,
 	_TeleportController = nil,
+	_TeleportSpotComponent = nil,
 	_ShovelUiController = nil,
 	_UpgradesUiController = nil,
 	_UpgradeController = nil,
@@ -93,6 +95,7 @@ function TutorialController:KnitStart()
 	self._ReplicationController = require(ReplicatedStorage.Controllers.Replication.ReplicationController)
 	self._SettingsController = require(ReplicatedStorage.Controllers.Settings.SettingsController)
 	self._TeleportController = require(ReplicatedStorage.Controllers.Teleport.TeleportController)
+	self._TeleportSpotComponent = require(Components.TeleportSpot)
 	self._ShovelUiController = require(ReplicatedStorage.Controllers.Digging.ShovelUiController)
 	self._UpgradesUiController = require(ReplicatedStorage.Controllers.Upgrades.UpgradesUiController)
 	self._UpgradeController = require(ReplicatedStorage.Controllers.Upgrades.UpgradeController)
@@ -167,6 +170,14 @@ function TutorialController:_CompleteStep(step: number)
 end
 
 function TutorialController:_StartDigFirstDirt()
+	self._StepTrove:Add(task.spawn(function()
+		local character = Player.Character or Player.CharacterAdded:Wait()
+		character:WaitForChild("HumanoidRootPart")
+		if self._CurrentStep == 1 and Player.Character == character then
+			self._TeleportSpotComponent.TeleportPlayer(Player, "TutorialSpawn")
+		end
+	end))
+
 	self:_SetTutorialText("Equip your shovel and dig a dirt pile!")
 	local box = TutorialBox.new()
 	box:GetObject().Active = false
