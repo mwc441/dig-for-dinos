@@ -57,7 +57,7 @@ DinosaurDef.Ids = {
 -- income is cash per second. what u actually make = Income * zone IncomeMultiplier (1/2/4 inside a set) * mutation * size, simple shit
 -- zone matters the most bro. every zone's dinos beat the last zone's, a volcano rare shits on a zone 1 legendary like it should
 -- rarity goes up 3x each tier (common 10 ... secret 10K) so a void or flame mythical lowk beats a plain ass secret
--- set bonus is baked in here so the index doesnt lie to people: zones 4-6 x12, zone 7 x150, zone 8 x1800. dont ask why i did it like this
+-- set bonus is baked in here so the index doesnt lie to people: zones 4-6 x12, zone 7 x150, zone 8 x4000. dont ask why i did it like this
 DinosaurDef.Table = {
 	[DinosaurDef.Ids.Triceratops] = {
 		Name = "Triceratops",
@@ -265,44 +265,44 @@ DinosaurDef.Table = {
 	},
 	[DinosaurDef.Ids.Velocirocket] = {
 		Name = "Velocirocket",
-		Rarity = RaritiesEnum.Common,
-		Income = 18_000,
+		Rarity = RaritiesEnum.Legendary,
+		Income = 3_200_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Astrorex] = {
 		Name = "Astrorex",
-		Rarity = RaritiesEnum.Uncommon,
-		Income = 54_000,
+		Rarity = RaritiesEnum.Common,
+		Income = 40_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Triceranaut] = {
 		Name = "Triceranaut",
-		Rarity = RaritiesEnum.Rare,
-		Income = 162_000,
+		Rarity = RaritiesEnum.Uncommon,
+		Income = 120_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Pteronaut] = {
 		Name = "Pteronaut",
-		Rarity = RaritiesEnum.Epic,
-		Income = 486_000,
+		Rarity = RaritiesEnum.Rare,
+		Income = 360_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Glorposaurus] = {
 		Name = "Glorposaurus",
-		Rarity = RaritiesEnum.Legendary,
-		Income = 1_440_000,
+		Rarity = RaritiesEnum.Epic,
+		Income = 1_080_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Orbitosaurus] = {
 		Name = "Orbitosaurus",
 		Rarity = RaritiesEnum.Mythical,
-		Income = 4_500_000,
+		Income = 10_000_000,
 		Weight = 100,
 	},
 	[DinosaurDef.Ids.Ufo] = {
 		Name = "UFO",
 		Rarity = RaritiesEnum.Secret,
-		Income = 18_000_000,
+		Income = 40_000_000,
 		Weight = 100,
 	}
 }

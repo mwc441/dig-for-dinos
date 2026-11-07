@@ -119,7 +119,7 @@ ItemDef.Table = {
 		GradientColor = ColorSequence.new(Color3.fromRGB(130, 229, 255), Color3.fromRGB(89, 47, 184)),
 		Category = ItemDef.Categories.Shovel,
 		DigMultiplier = 1_024,
-		Cost = 1_000_000_000_000,
+		Cost = 5_000_000_000_000,
 		CostType = PlayerStatsEnum.Cash,
 	},
 
@@ -128,7 +128,7 @@ ItemDef.Table = {
 		Icon = "rbxassetid://133712586068030",
 		GradientColor = ColorSequence.new(Color3.fromRGB(255, 248, 184), Color3.fromRGB(222, 177, 67)),
 		Category = ItemDef.Categories.Shovel,
-		DigMultiplier = 512,
+		DigMultiplier = 1_024,
 		CostType = CostTypesEnum.Robux,
 		IapId = IapsEnum.OmegaShovel,
 	},
