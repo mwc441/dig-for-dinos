@@ -59,6 +59,14 @@ ZoneDef.Table = {
 		Emoji = "🍄",
 		Color = ColorSequence.new(Color3.fromHex("#bfa2ff"), Color3.fromHex("#8e1dff")),
 	},
+
+	["Zone8"] = {
+		Order = 8,
+		Name = "Space",
+		IncomeMultiplier = 1,
+		Emoji = "🚀",
+		Color = ColorSequence.new(Color3.fromHex("#9de8ff"), Color3.fromHex("#6947d9")),
+	},
 }
 
 function ZoneDef.GetZoneInfo(zoneId)

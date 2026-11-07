@@ -44,6 +44,15 @@ DirtSpawnerDef.DinosaurPools = {
 		DinosaurDef.Ids.Therizinosaurus,
 		DinosaurDef.Ids.Dragon,
 	},
+	Zone8 = {
+		DinosaurDef.Ids.Velocirocket,
+		DinosaurDef.Ids.Astrorex,
+		DinosaurDef.Ids.Triceranaut,
+		DinosaurDef.Ids.Pteronaut,
+		DinosaurDef.Ids.Glorposaurus,
+		DinosaurDef.Ids.Orbitosaurus,
+		DinosaurDef.Ids.Ufo,
+	},
 }
 
 DirtSpawnerDef.GuaranteedSpawns = {
@@ -105,6 +114,7 @@ DirtSpawnerDef.Table = {
 	["Zone6"] = makeSpawner("Zone6", 160_000, DirtSpawnerDef.DinosaurPools.Zones4To6, { 48, 31, 15, 4.8, 1.2, 0.25, 0.02 }),
 	-- zone 7 (first solo zone): another 5x wall on top of zone 6 being tanky already. secret odds kept low on purpose so the dragon stays rare as shit
 	["Zone7"] = makeSpawner("Zone7", 800_000, DirtSpawnerDef.DinosaurPools.Zone7, { 54, 28, 12.5, 4, 1, 0.18, 0.012 }),
+	["Zone8"] = makeSpawner("Zone8", 4_000_000, DirtSpawnerDef.DinosaurPools.Zone8, { 54, 28, 12.5, 4, 1, 0.18, 0.012 }),
 }
 
 function DirtSpawnerDef.GetSpawnerInfo(id)

@@ -7,7 +7,7 @@ local BoostsEnum = require(Enums:WaitForChild("Boosts"))
 
 local IndexDef = {}
 
--- every level u claim gives +5% cash (BoostsDef index boosts). 33 dinos total, go catch em all or whatever
+-- every level u claim gives +5% cash (BoostsDef index boosts). 40 diggable dinos total, with a new tier after 33
 IndexDef.Table = {
 	[MutationsEnum.Normal] = {
 		Name = "Normal",
@@ -37,6 +37,12 @@ IndexDef.Table = {
 				Required = 33,
 				Rewards = {
 					[PlayerStatsEnum.Cash] = 50_000_000,
+				},
+			},
+			[5] = {
+				Required = 40,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 5_000_000_000,
 				},
 			},
 		},
@@ -72,6 +78,12 @@ IndexDef.Table = {
 					[PlayerStatsEnum.Cash] = 500_000_000,
 				},
 			},
+			[5] = {
+				Required = 40,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 50_000_000_000,
+				},
+			},
 		},
 	},
 
@@ -105,6 +117,12 @@ IndexDef.Table = {
 					[PlayerStatsEnum.Cash] = 1_000_000_000,
 				},
 			},
+			[5] = {
+				Required = 40,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 100_000_000_000,
+				},
+			},
 		},
 	},
 
@@ -136,6 +154,12 @@ IndexDef.Table = {
 				Required = 33,
 				Rewards = {
 					[PlayerStatsEnum.Cash] = 2_500_000_000,
+				},
+			},
+			[5] = {
+				Required = 40,
+				Rewards = {
+					[PlayerStatsEnum.Cash] = 250_000_000_000,
 				},
 			},
 		},
