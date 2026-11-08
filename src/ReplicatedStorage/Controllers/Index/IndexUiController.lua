@@ -235,6 +235,10 @@ function IndexUiController:_SetupIndex()
 			return aRarityOrder < bRarityOrder
 		end
 
+		if aInfo.Income ~= bInfo.Income then
+			return aInfo.Income < bInfo.Income
+		end
+
 		return a.Id < b.Id
 	end)
 
