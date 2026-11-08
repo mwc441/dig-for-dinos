@@ -124,7 +124,7 @@ function MutationUtils.Apply(model: Model, mutation: string, isViewport: boolean
 
 	for _, basePart : BasePart in model:QueryDescendants("> BasePart") do
 		if not basePart:IsA("BasePart") then continue end
-		if basePart.Transparency >= 1 then continue end
+		if not (basePart.Transparency <= 0) then continue end
 
 		basePart.Transparency = mutationPart.Transparency
 		basePart.Color = mutationPart.Color
