@@ -16,6 +16,15 @@ CodesDef.Table = {
 			[PlayerStatsEnum.Cash] = 5_000,
 			[PlayerStatsEnum.DigPower] = 100
 		},
+		ExpiryTime = 0
+	},
+
+	["Update1"] = {
+		Code = "Update1",
+		Rewards = {
+			[PlayerStatsEnum.Cash] = 5_000,
+			[PlayerStatsEnum.DigPower] = 500
+		}
 	}
 }
 
